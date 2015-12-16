@@ -14,3 +14,6 @@
 
 # Ignore Secrets
 config/secrets.yml
+
+# Ignore node modules
+/node_modules
