@@ -1,1 +1,7 @@
 <h1></h1>
+<%= content_tag :a, "Modal", href: "#modal", class: 'btn', data: {toggle: 'modal'} %>
+
+<%= modal_dialog id: "modal",
+         header: { show_close: true, dismiss: 'modal', title: 'Modal header' },
+         body:   { content: 'This is the body' },
+         footer: { content: content_tag(:button, 'Save', class: 'btn') } %>
