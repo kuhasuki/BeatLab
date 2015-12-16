@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   root 'static_pages#index'
 
-  resources :users, only: [:new, :create]
-  resource :sessions, only: [:create, :new, :destroy]
+  resources :users, only: [:new, :create, :show]
+  resource :sessions, only: [:create, :new]
+  delete '/sessions/', to: 'sessions#destroy', as: 'logout'
 end

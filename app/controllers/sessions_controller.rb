@@ -11,20 +11,21 @@ class SessionsController < ApplicationController
 	    params[:user][:password]
 	  )
 	  #Switch branches
-    if @user.nil?
-      #flash incorrect password/username combination
-      flash.now[:errors] = ["Invalid login"]
-      render :new
-    else
+    if @user
       #initiate a new session
       login!(@user)
-      redirect_to bands_url
+      redirect_to root_path
+    else
+      #flash incorrect password/username combination
+      flash.now[:login_errors] = ["Invalid login"]
+      render 'static_pages/landing'
     end
   end
 
   def destroy
     current_user.reset_session_token!
     session[:session_token] = nil
-    redirect_to new_sessions_url
+    redirect_to root_url
   end
+
 end

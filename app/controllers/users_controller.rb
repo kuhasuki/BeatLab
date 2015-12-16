@@ -1,8 +1,9 @@
 class UsersController < ApplicationController
-	before_action :logged_in?, only: [:new, :create]
+	#before_action :logged_in?, only: [:new, :create]
 
-	def index
-		render :index
+	def show
+    @user = User.find(params[:id])
+		render :show
 	end
 
 	def new
@@ -13,7 +14,7 @@ class UsersController < ApplicationController
 		@user = User.new(user_params)
 		if @user.save
 			login!(@user)
-			redirect_to user_url(@user)
+			redirect_to root_url
 		else
 			render :new
 		end
@@ -22,7 +23,7 @@ class UsersController < ApplicationController
 	private
 
 	def user_params
-    params.require(:user).permit(:email, :password)
+    params.require(:user).permit(:name, :password)
   end
 
 end

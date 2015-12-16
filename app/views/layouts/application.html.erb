@@ -2,12 +2,74 @@
 <html>
 <head>
   <title>RailsProject</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag    'application', media: 'all'%>
+  <%= javascript_include_tag 'application' %>
   <%= csrf_meta_tags %>
 </head>
 <body>
-<%= nav_bar fixed: :top, responsive: true  %>
+  <%= nav_bar fixed: :top, responsive: true  do %>
+    <%= menu_group do %>
+      <%= menu_item "Home", root_path %>
+      <%= menu_item "About Us", root_path %>
+      <%= menu_item "Contact", root_path %>
+    <% end %>
+    <%= menu_group pull: :right do %>
+      <% if current_user %>
+        <li><%= link_to("Logout", logout_path, method: :delete) %></li>
+      <% else %>
+        <li><%= content_tag :a, "Sign Up", href: "#register", data: {toggle: 'modal'} %></li>
+        <li><%= content_tag :a, "Sign In", href: "#login", data: {toggle: 'modal'} %></li>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <div class="bootstrap-modal modal fade" id="register">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h4 class="modal-title">Register</h4>
+        </div>
+        <div class="modal-body">
+          <form action="<%=users_url%>" method="POST">
+            <%= render 'shared/user_form' %>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bootstrap-modal modal fade" id="login">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h4 class="modal-title">Sign In</h4>
+        </div>
+        <div class="modal-body">
+          <% unless flash[:login_errors].nil? %>
+            <% flash[:login_errors].each do |error| %>
+              <span><%= error %></span>
+            <% end %>
+          <% end %>
+          <form action="<%=sessions_url%>" method="POST">
+            <%= render 'shared/user_form' %>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <script type="text/javascript">
+    $('#login').modal('show').removeClass('fade');
+  </script> -->
+
+  <% unless flash[:login_errors].nil? %>
+    <script type="text/javascript">
+      $('#login').modal('show').removeClass('fade');
+    </script>
+  <% end %>
+
 <%= yield %>
 </body>
 </html>
