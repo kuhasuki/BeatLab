@@ -14,11 +14,11 @@ class SessionsController < ApplicationController
     if @user
       #initiate a new session
       login!(@user)
-      redirect_to root_path
+      render json:  @user
     else
       #flash incorrect password/username combination
       flash.now[:login_errors] = ["Invalid login"]
-      render 'static_pages/landing'
+      render json: { error: "Login Failed" }
     end
   end
 
