@@ -19814,161 +19814,50 @@
 	var React = __webpack_require__(147);
 	var LinkedStateMixin = __webpack_require__(330);
 
-	var Api = __webpack_require__(344);
 	var Modal = __webpack_require__(246);
 	var Button = __webpack_require__(243);
 	var Input = __webpack_require__(334);
 	var Alert = __webpack_require__(214);
 
+	var Api = __webpack_require__(344);
+
 	var UserStore = __webpack_require__(351);
+
+	var Login = __webpack_require__(368);
+	var Register = __webpack_require__(369);
 
 	var UserTools = React.createClass({
 	  displayName: 'UserTools',
 
 	  mixins: [LinkedStateMixin],
-	  getInitialState: function () {
-	    return { name: '', password: '', errors: '' };
+	  getInitialState() {
+	    return {
+	      "loggedIn": false
+	    };
+	  },
+	  componentDidMount() {
+	    UserStore.addListener(this._loginStatus);
 	  },
 
-	  componentDidMount: function () {
-	    this.showModalLogin = false;
-	    this.showModalRegister = false;
+	  _loginStatus() {
+	    this.setState({ "loggedIn": UserStore.loginStatus() });
 	  },
-
-	  closeModalL: function () {
-	    this.showModalLogin = false;
-	    this.forceUpdate();
-	  },
-
-	  openModalL: function (e) {
-	    this.showModalLogin = true;
-	    this.forceUpdate();
-	  },
-
-	  closeModalR: function () {
-	    this.showModalRegister = false;
-	    this.forceUpdate();
-	  },
-
-	  openModalR: function (e) {
-	    this.showModalRegister = true;
-	    this.forceUpdate();
-	  },
-
-	  login: function () {
-	    Api.login(this.state.name, this.state.password);
-	    this.listenerToken = UserStore.addListener(this._getErrors);
-	  },
-
-	  _getErrors: function () {
-	    this.setState({ errors: UserStore.getError() });
-	  },
-
 	  render: function () {
-	    return React.createElement(
-	      'ul',
-	      { className: 'nav navbar-nav navbar-right' },
-	      React.createElement(
-	        'li',
-	        null,
-	        React.createElement(
-	          'a',
-	          { href: 'javascript:void(0)', onClick: this.openModalL },
-	          'Login'
-	        ),
-	        React.createElement(
-	          Modal,
-	          { show: this.showModalLogin, onHide: this.closeModalL },
-	          React.createElement(
-	            Modal.Header,
-	            { closeButton: true },
-	            React.createElement(
-	              Modal.Title,
-	              null,
-	              'Log In'
-	            )
-	          ),
-	          React.createElement(
-	            Modal.Body,
-	            null,
-	            this.state.errors.length >= 1 ? React.createElement(
-	              Alert,
-	              { bsStyle: 'danger' },
-	              this.state.errors
-	            ) : "",
-	            React.createElement(
-	              'label',
-	              null,
-	              'Username',
-	              React.createElement(Input, { type: 'text', valueLink: this.linkState('name') })
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(
-	              'label',
-	              null,
-	              'Password',
-	              React.createElement(Input, { type: 'password', valueLink: this.linkState('password') })
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(
-	              Button,
-	              { onClick: this.login },
-	              'Submit'
-	            )
-	          )
-	        )
-	      ),
-	      React.createElement(
-	        'li',
-	        null,
-	        React.createElement(
-	          'a',
-	          { href: 'javascript:void(0)', onClick: this.openModalR },
-	          'Register'
-	        ),
-	        React.createElement(
-	          Modal,
-	          { show: this.showModalRegister, onHide: this.closeModalR },
-	          React.createElement(
-	            Modal.Header,
-	            { closeButton: true },
-	            React.createElement(
-	              Modal.Title,
-	              null,
-	              'Register'
-	            )
-	          ),
-	          React.createElement(
-	            Modal.Body,
-	            null,
-	            this.state.errors.length >= 1 ? React.createElement(
-	              Alert,
-	              { bsStyle: 'danger' },
-	              this.state.errors
-	            ) : "",
-	            React.createElement(
-	              'label',
-	              null,
-	              'Username',
-	              React.createElement(Input, { type: 'text', valueLink: this.linkState('name') })
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(
-	              'label',
-	              null,
-	              'Password',
-	              React.createElement(Input, { type: 'password', valueLink: this.linkState('password') })
-	            ),
-	            React.createElement('br', null),
-	            React.createElement(
-	              Button,
-	              { onClick: this.register },
-	              'Submit'
-	            )
-	          )
-	        )
-	      )
-	    );
+	    if (this.state.loggedIn) {
+	      return React.createElement(
+	        'ul',
+	        { className: 'nav navbar-nav navbar-right' },
+	        React.createElement(ProfileOptions, null),
+	        React.createElement(Logout, null)
+	      );
+	    } else {
+	      return React.createElement(
+	        'ul',
+	        { className: 'nav navbar-nav navbar-right' },
+	        React.createElement(Login, null),
+	        React.createElement(Register, null)
+	      );
+	    }
 	  }
 	});
 
@@ -30832,6 +30721,11 @@
 	    $.post('/sessions', { "user": { "name": name, "password": password } }, function (data) {
 	      ApiActions.loginAttempt(data);
 	    });
+	  },
+	  register: function (name, password) {
+	    $.post('/users', { "user": { "name": name, "password": password } }, function (data) {
+	      ApiActions.registerAttempt(data);
+	    });
 	  }
 	};
 
@@ -30861,6 +30755,21 @@
 	        user: data
 	      });
 	    }
+	  },
+	  registerAttempt: function (data) {
+	    console.log(data);
+	    if (data.hasOwnProperty("error")) {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.REGISTRATION_FAILURE,
+	        error: data.error
+	      });
+	    } else {
+	      console.log("isnt error");
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.REGISTRATION_SUCCESS,
+	        user: data
+	      });
+	    }
 	  }
 	};
 
@@ -30872,7 +30781,9 @@
 
 	var DispatchConstants = {
 	  LOGIN_SUCCESS: "LOGIN_SUCCESS",
-	  LOGIN_FAILURE: "LOGIN_FAILURE"
+	  LOGIN_FAILURE: "LOGIN_FAILURE",
+	  REGISTRATION_SUCCESS: "REGISTRATION_SUCCESS",
+	  REGISTRATION_FAILURE: "REGISTRATION_FAILURE"
 	};
 
 	module.exports = DispatchConstants;
@@ -31199,8 +31110,6 @@
 
 	var Store = __webpack_require__(352).Store;
 	var Dispatcher = __webpack_require__(347);
-	var _benches = [];
-	var _error = '';
 	var UserStore = new Store(Dispatcher);
 
 	var DispatchConstants = __webpack_require__(346);
@@ -31216,6 +31125,10 @@
 	//     _benches.push(bench);
 	//   })
 	// };
+	var _benches = [];
+	var _error = '';
+	var _loggedIn = null;
+
 	UserStore.updateError = function (error) {
 	  console.log(error);
 	  _error = error;
@@ -31225,15 +31138,34 @@
 	  return _error;
 	};
 
+	UserStore.login = function () {
+	  _loggedIn = true;
+	};
+
+	UserStore.loginStatus = function () {
+	  return _loggedIn;
+	};
+
 	UserStore.__onDispatch = function (payload) {
-	  console.log("hit dispatch");
+	  _error = "";
 	  switch (payload.actionType) {
 	    case DispatchConstants.LOGIN_SUCCESS:
 	      console.log("Logged in successfully");
+	      UserStore.login();
 	      UserStore.__emitChange();
 	      break;
 	    case DispatchConstants.LOGIN_FAILURE:
 	      console.log("failed to log in");
+	      UserStore.updateError(payload.error);
+	      UserStore.__emitChange();
+	      break;
+	    case DispatchConstants.REGISTRATION_SUCCESS:
+	      console.log("Registered and Logged in successfully");
+	      UserStore.login();
+	      UserStore.__emitChange();
+	      break;
+	    case DispatchConstants.REGISTRATION_FAILURE:
+	      console.log("failed to register and log in");
 	      UserStore.updateError(payload.error);
 	      UserStore.__emitChange();
 	      break;
@@ -37632,6 +37564,235 @@
 
 	module.exports = FluxMixinLegacy;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 368 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var ReactDOM = __webpack_require__(1);
+	var React = __webpack_require__(147);
+	var LinkedStateMixin = __webpack_require__(330);
+
+	var Api = __webpack_require__(344);
+	var Modal = __webpack_require__(246);
+	var Button = __webpack_require__(243);
+	var Input = __webpack_require__(334);
+	var Alert = __webpack_require__(214);
+
+	var UserStore = __webpack_require__(351);
+
+	var Login = React.createClass({
+	  displayName: 'Login',
+
+	  mixins: [LinkedStateMixin],
+	  getInitialState: function () {
+	    return { name: '', password: '', errors: '' };
+	  },
+
+	  componentDidMount: function () {
+	    this.showModal = false;
+	  },
+
+	  closeModal: function () {
+	    this.showModal = false;
+	    this.setState({ errors: '' });
+	    this.forceUpdate();
+	  },
+
+	  openModal: function () {
+	    this.showModal = true;
+	    this.forceUpdate();
+	  },
+
+	  login: function () {
+	    Api.login(this.state.name, this.state.password);
+	    this.listenerToken = UserStore.addListener(this._getErrors);
+	  },
+
+	  _getErrors: function () {
+	    this.setState({ errors: UserStore.getError() });
+	  },
+
+	  enterSubmit: function (event) {
+	    if (event.keyCode === 13) {
+	      this.login();
+	    }
+	  },
+
+	  render: function () {
+	    return React.createElement(
+	      'li',
+	      null,
+	      React.createElement(
+	        'a',
+	        { href: 'javascript:void(0)', onClick: this.openModal },
+	        'Login'
+	      ),
+	      React.createElement(
+	        Modal,
+	        { show: this.showModal, onHide: this.closeModal },
+	        React.createElement(
+	          Modal.Header,
+	          { closeButton: true },
+	          React.createElement(
+	            Modal.Title,
+	            null,
+	            'Log In'
+	          )
+	        ),
+	        React.createElement(
+	          Modal.Body,
+	          null,
+	          this.state.errors.length >= 1 ? React.createElement(
+	            Alert,
+	            { bsStyle: 'danger' },
+	            this.state.errors
+	          ) : "",
+	          React.createElement(
+	            'label',
+	            null,
+	            'Username',
+	            React.createElement(Input, { type: 'text', valueLink: this.linkState('name') })
+	          ),
+	          React.createElement('br', null),
+	          React.createElement(
+	            'label',
+	            null,
+	            'Password',
+	            React.createElement(Input, { onKeyUp: this.enterSubmit, type: 'password', valueLink: this.linkState('password') })
+	          ),
+	          React.createElement('br', null),
+	          React.createElement(
+	            Button,
+	            { onClick: this.login },
+	            'Submit'
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Login;
+
+/***/ },
+/* 369 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var ReactDOM = __webpack_require__(1);
+	var React = __webpack_require__(147);
+	var LinkedStateMixin = __webpack_require__(330);
+
+	var Api = __webpack_require__(344);
+	var Modal = __webpack_require__(246);
+	var Button = __webpack_require__(243);
+	var Input = __webpack_require__(334);
+	var Alert = __webpack_require__(214);
+
+	var UserStore = __webpack_require__(351);
+
+	var Register = React.createClass({
+	  displayName: 'Register',
+
+	  mixins: [LinkedStateMixin],
+	  getInitialState: function () {
+	    return { name: '', password: '', errors: '' };
+	  },
+
+	  componentDidMount: function () {
+	    this.showModal = false;
+	  },
+
+	  componentWillUnmount() {
+	    this.showModal = false;
+	    this.listenerToken.remove();
+	  },
+
+	  closeModal: function () {
+	    this.showModal = false;
+	    this.setState({ errors: '' });
+	    this.forceUpdate();
+	  },
+
+	  openModal: function () {
+	    this.showModal = true;
+	    this.forceUpdate();
+	  },
+
+	  login: function () {
+	    Api.register(this.state.name, this.state.password);
+	    this.listenerToken = UserStore.addListener(this._getErrors);
+	  },
+
+	  _getErrors: function () {
+	    this.setState({ errors: UserStore.getError() });
+	  },
+
+	  enterSubmit: function (event) {
+	    if (event.keyCode === 13) {
+	      this.login();
+	    }
+	  },
+
+	  render: function () {
+	    return React.createElement(
+	      'li',
+	      null,
+	      React.createElement(
+	        'a',
+	        { href: 'javascript:void(0)', onClick: this.openModal },
+	        'Register'
+	      ),
+	      React.createElement(
+	        Modal,
+	        { show: this.showModal, onHide: this.closeModal },
+	        React.createElement(
+	          Modal.Header,
+	          { closeButton: true },
+	          React.createElement(
+	            Modal.Title,
+	            null,
+	            'Register'
+	          )
+	        ),
+	        React.createElement(
+	          Modal.Body,
+	          null,
+	          this.state.errors.length >= 1 ? React.createElement(
+	            Alert,
+	            { bsStyle: 'danger' },
+	            this.state.errors
+	          ) : "",
+	          React.createElement(
+	            'label',
+	            null,
+	            'Username',
+	            React.createElement(Input, { type: 'text', valueLink: this.linkState('name') })
+	          ),
+	          React.createElement('br', null),
+	          React.createElement(
+	            'label',
+	            null,
+	            'Password',
+	            React.createElement(Input, { onKeyUp: this.enterSubmit, type: 'password', valueLink: this.linkState('password') })
+	          ),
+	          React.createElement('br', null),
+	          React.createElement(
+	            Button,
+	            { onClick: this.login },
+	            'Submit'
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Register;
 
 /***/ }
 /******/ ]);

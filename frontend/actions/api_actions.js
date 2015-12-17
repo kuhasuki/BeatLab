@@ -18,6 +18,23 @@ var ApiActions = {
       });
 
     }
+  },
+  registerAttempt: function(data){
+    console.log(data);
+    if(data.hasOwnProperty("error")){
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.REGISTRATION_FAILURE,
+        error: data.error
+      });
+
+    } else {
+      console.log("isnt error");
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.REGISTRATION_SUCCESS,
+        user: data
+      });
+
+    }
   }
 };
 
