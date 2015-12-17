@@ -9,6 +9,8 @@ var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
 var Alert = require('react-bootstrap/lib/Alert');
 
+var UserStore = require('../stores/user_store.js');
+
 var UserTools = React.createClass({
   mixins: [LinkedStateMixin],
   getInitialState: function(){
@@ -42,6 +44,11 @@ var UserTools = React.createClass({
 
   login: function(){
     Api.login(this.state.name, this.state.password);
+    this.listenerToken = UserStore.addListener(this._getErrors);
+  },
+
+  _getErrors: function(){
+      this.setState({errors: UserStore.getError()});
   },
 
   render: function(){

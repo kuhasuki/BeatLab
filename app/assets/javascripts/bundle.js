@@ -19820,6 +19820,8 @@
 	var Input = __webpack_require__(334);
 	var Alert = __webpack_require__(214);
 
+	var UserStore = __webpack_require__(351);
+
 	var UserTools = React.createClass({
 	  displayName: 'UserTools',
 
@@ -19855,6 +19857,11 @@
 
 	  login: function () {
 	    Api.login(this.state.name, this.state.password);
+	    this.listenerToken = UserStore.addListener(this._getErrors);
+	  },
+
+	  _getErrors: function () {
+	    this.setState({ errors: UserStore.getError() });
 	  },
 
 	  render: function () {
@@ -30850,7 +30857,7 @@
 	    } else {
 	      console.log("isnt error");
 	      Dispatcher.dispatch({
-	        actionType: DispatchConstants.LOGIN_FAILURE,
+	        actionType: DispatchConstants.LOGIN_SUCCESS,
 	        user: data
 	      });
 	    }
@@ -31193,6 +31200,7 @@
 	var Store = __webpack_require__(352).Store;
 	var Dispatcher = __webpack_require__(347);
 	var _benches = [];
+	var _error = '';
 	var UserStore = new Store(Dispatcher);
 
 	var DispatchConstants = __webpack_require__(346);
@@ -31210,6 +31218,11 @@
 	// };
 	UserStore.updateError = function (error) {
 	  console.log(error);
+	  _error = error;
+	};
+
+	UserStore.getError = function () {
+	  return _error;
 	};
 
 	UserStore.__onDispatch = function (payload) {
@@ -31222,6 +31235,7 @@
 	    case DispatchConstants.LOGIN_FAILURE:
 	      console.log("failed to log in");
 	      UserStore.updateError(payload.error);
+	      UserStore.__emitChange();
 	      break;
 	  }
 	};

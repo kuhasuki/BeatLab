@@ -1,6 +1,7 @@
 var Store = require('flux/utils').Store;
 var Dispatcher = require('../dispatcher/dispatcher.js');
 var _benches = [];
+var _error = '';
 var UserStore = new Store(Dispatcher);
 
 var DispatchConstants = require('../constants/dispatch_constants.js');
@@ -18,6 +19,11 @@ var DispatchConstants = require('../constants/dispatch_constants.js');
 // };
 UserStore.updateError = function(error){
   console.log(error);
+  _error = error;
+};
+
+UserStore.getError = function(){
+  return _error;
 };
 
 UserStore.__onDispatch = function (payload) {
@@ -30,6 +36,7 @@ UserStore.__onDispatch = function (payload) {
     case DispatchConstants.LOGIN_FAILURE:
       console.log("failed to log in");
       UserStore.updateError(payload.error);
+      UserStore.__emitChange();
       break;
   }
 };

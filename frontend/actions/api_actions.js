@@ -13,7 +13,7 @@ var ApiActions = {
     } else {
       console.log("isnt error");
       Dispatcher.dispatch({
-        actionType: DispatchConstants.LOGIN_FAILURE,
+        actionType: DispatchConstants.LOGIN_SUCCESS,
         user: data
       });
 
