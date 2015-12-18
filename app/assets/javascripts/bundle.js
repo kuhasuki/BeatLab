@@ -60,7 +60,11 @@
 	var Landing = __webpack_require__(441);
 
 	var UserStore = __webpack_require__(351);
+	var AlertStore = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./stores/alert_store.js\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	var Api = __webpack_require__(344);
+
+	var AlertActions = __webpack_require__(442);
+	var Dispatcher = __webpack_require__(347);
 
 	var TrackWave = React.createClass({
 	  displayName: 'TrackWave',
@@ -19784,15 +19788,14 @@
 	var ReactDOM = __webpack_require__(1);
 	var React = __webpack_require__(147);
 
-	var Notices = __webpack_require__(433);
-
-	var CallToAction = __webpack_require__(437);
+	var Notices = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./notices.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 	var Grid = __webpack_require__(434);
 	var Row = __webpack_require__(435);
 	var Col = __webpack_require__(436);
 
 	var divStyle = {
+			padding: '5px',
 			backgroundColor: '#00CCFF',
 			border: 'solid 1px black'
 	};
@@ -30937,7 +30940,11 @@
 	  REGISTRATION_SUCCESS: "REGISTRATION_SUCCESS",
 	  REGISTRATION_FAILURE: "REGISTRATION_FAILURE",
 	  LOGGED_IN: "LOGGED_IN",
-	  LOGGED_OUT: "LOGGED_OUT"
+	  LOGGED_OUT: "LOGGED_OUT",
+	  ALERT_SUCCESS: "ALERT_SUCCESS",
+	  ALERT_INFO: "ALERT_INFO",
+	  ALERT_WARNING: "ALERT_WARNING",
+	  ALERT_DANGER: "ALERT_DANGER"
 	};
 
 	module.exports = DispatchConstants;
@@ -41724,26 +41731,7 @@
 /* 430 */,
 /* 431 */,
 /* 432 */,
-/* 433 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(147);
-
-	var Notices = React.createClass({
-	  displayName: 'Notices',
-
-	  render: function () {
-	    return React.createElement(
-	      'div',
-	      null,
-	      'NOTICES'
-	    );
-	  }
-	});
-
-	module.exports = Notices;
-
-/***/ },
+/* 433 */,
 /* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -42232,6 +42220,53 @@
 	});
 
 	module.exports = Landing;
+
+/***/ },
+/* 442 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Dispatcher = __webpack_require__(347);
+	var DispatchConstants = __webpack_require__(346);
+
+	var AlertActions = {
+
+	  success: function (body, timeout) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.ALERT_SUCCESS,
+	      body: body,
+	      timeout: timeout
+	    });
+	    console.log('dispatching sussess');
+	  },
+
+	  info: function (body, timeout) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.ALERT_INFO,
+	      body: body,
+	      timeout: timeout
+	    });
+	  },
+
+	  warning: function (body, timeout) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.ALERT_WARNING,
+	      body: body,
+	      timeout: timeout
+	    });
+	  },
+
+	  danger: function (body, timeout) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.ALERT_DANGER,
+	      body: body,
+	      timeout: timeout
+	    });
+	  }
+	};
+
+	window.AlertActions = AlertActions;
+
+	module.exports = AlertActions;
 
 /***/ }
 /******/ ]);

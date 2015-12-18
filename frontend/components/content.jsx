@@ -3,13 +3,14 @@ var React = require('react');
 
 var Notices = require('./notices.jsx');
 
-var CallToAction = require('./call_to_action.jsx');
+
 
 var Grid = require('react-bootstrap/lib/Grid');
 var Row = require('react-bootstrap/lib/Row');
 var Col = require('react-bootstrap/lib/Col');
 
 var divStyle = {
+	padding : '5px',
 	backgroundColor: '#00CCFF',
 	border: 'solid 1px black'
 };

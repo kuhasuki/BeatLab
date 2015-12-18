@@ -14,7 +14,12 @@ var Test = require('./components/test.jsx');
 var Landing = require('./components/landing.jsx');
 
 var UserStore = require('./stores/user_store.js');
+var AlertStore = require('./stores/alert_store.js');
 var Api = require('./util/api.js');
+
+var AlertActions = require('./actions/alert_actions.js');
+var Dispatcher = require('./dispatcher/dispatcher.js');
+
 
 var TrackWave = React.createClass({
   componentDidMount() {
