@@ -60,7 +60,7 @@
 	var Landing = __webpack_require__(441);
 
 	var UserStore = __webpack_require__(351);
-	var AlertStore = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./stores/alert_store.js\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var AlertStore = __webpack_require__(443);
 	var Api = __webpack_require__(344);
 
 	var AlertActions = __webpack_require__(442);
@@ -19788,15 +19788,13 @@
 	var ReactDOM = __webpack_require__(1);
 	var React = __webpack_require__(147);
 
-	var Notices = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./notices.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var Notices = __webpack_require__(433);
 
 	var Grid = __webpack_require__(434);
 	var Row = __webpack_require__(435);
 	var Col = __webpack_require__(436);
 
 	var divStyle = {
-			padding: '5px',
-			backgroundColor: '#00CCFF',
 			border: 'solid 1px black'
 	};
 
@@ -31275,6 +31273,7 @@
 
 	var DispatchConstants = __webpack_require__(346);
 
+	var AlertActions = __webpack_require__(442);
 	//
 	// BenchStore.all = function () {
 	// return _benches.slice(0);
@@ -31322,8 +31321,8 @@
 	  _error = "";
 	  switch (payload.actionType) {
 	    case DispatchConstants.LOGIN_SUCCESS:
-	      console.log(payload);
 	      UserStore.login(payload.user);
+	      AlertActions.success("Logged in successfully", 2000);
 	      UserStore.__emitChange();
 	      break;
 	    case DispatchConstants.LOGIN_FAILURE:
@@ -31332,7 +31331,7 @@
 	      UserStore.__emitChange();
 	      break;
 	    case DispatchConstants.REGISTRATION_SUCCESS:
-	      console.log("Registered and Logged in successfully");
+	      AlertActions.success("Registered Successfully", 2000);
 	      UserStore.login(payload.user);
 	      UserStore.__emitChange();
 	      break;
@@ -31348,6 +31347,7 @@
 	      break;
 	    case DispatchConstants.LOGGED_OUT:
 	      console.log("Logged out");
+	      AlertActions.info("See you next time", 2000);
 	      UserStore.logout();
 	      UserStore.__emitChange();
 	      break;
@@ -37765,6 +37765,9 @@
 
 	var UserStore = __webpack_require__(351);
 
+	var AlertActions = __webpack_require__(442);
+	var Dispatcher = __webpack_require__(347);
+
 	var Login = React.createClass({
 	  displayName: 'Login',
 
@@ -37792,15 +37795,15 @@
 	    if (UserStore.getError() != '') {
 	      this.setState({ errors: UserStore.getError() });
 	    } else {
-	      this.listenerToken.remove();
+	      // this.listenerToken.remove();
 	    }
 	  },
 
-	  componentDidMount() {
+	  componentDidMount: function () {
 	    this.listenerToken = UserStore.addListener(this._getErrors);
 	  },
 
-	  componentWillUnmount() {
+	  componentWillUnmount: function () {
 	    // this.setState({showModal : false});
 	    this.listenerToken.remove();
 	  },
@@ -41731,7 +41734,63 @@
 /* 430 */,
 /* 431 */,
 /* 432 */,
-/* 433 */,
+/* 433 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(147);
+	var Button = __webpack_require__(243);
+	var Alert = __webpack_require__(214);
+
+	var AlertStore = __webpack_require__(443);
+
+	var Notices = React.createClass({
+	  displayName: 'Notices',
+
+	  getInitialState() {
+	    return {
+	      alert: { type: '', body: '', timeout: '' }, alertVisible: false
+	    };
+	  },
+
+	  componentDidMount() {
+	    this.listenerToken = AlertStore.addListener(this._incomingAlert);
+	  },
+
+	  _incomingAlert() {
+	    this.setState({
+	      alert: AlertStore.getAlert(), alertVisible: AlertStore.newAlert()
+	    });
+	  },
+
+	  render() {
+	    if (this.state.alertVisible) {
+	      return React.createElement(
+	        Alert,
+	        { bsStyle: this.state.alert.type, onDismiss: this.handleAlertDismiss, dismissAfter: this.state.alert.timeout },
+	        React.createElement(
+	          'p',
+	          null,
+	          this.state.alert.body
+	        )
+	      );
+	    }
+
+	    return React.createElement('div', null);
+	  },
+
+	  handleAlertDismiss: function () {
+	    this.setState({ alertVisible: false });
+	    AlertStore.clearAlert();
+	  },
+
+	  handleAlertShow: function () {
+	    this.setState({ alertVisible: true });
+	  }
+	});
+
+	module.exports = Notices;
+
+/***/ },
 /* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -42231,42 +42290,116 @@
 	var AlertActions = {
 
 	  success: function (body, timeout) {
-	    Dispatcher.dispatch({
-	      actionType: DispatchConstants.ALERT_SUCCESS,
-	      body: body,
-	      timeout: timeout
-	    });
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_SUCCESS,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
 	    console.log('dispatching sussess');
 	  },
 
 	  info: function (body, timeout) {
-	    Dispatcher.dispatch({
-	      actionType: DispatchConstants.ALERT_INFO,
-	      body: body,
-	      timeout: timeout
-	    });
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_INFO,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
 	  },
 
 	  warning: function (body, timeout) {
-	    Dispatcher.dispatch({
-	      actionType: DispatchConstants.ALERT_WARNING,
-	      body: body,
-	      timeout: timeout
-	    });
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_WARNING,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
 	  },
 
 	  danger: function (body, timeout) {
-	    Dispatcher.dispatch({
-	      actionType: DispatchConstants.ALERT_DANGER,
-	      body: body,
-	      timeout: timeout
-	    });
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_DANGER,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
 	  }
 	};
 
 	window.AlertActions = AlertActions;
 
 	module.exports = AlertActions;
+
+/***/ },
+/* 443 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Store = __webpack_require__(352).Store;
+	var Dispatcher = __webpack_require__(347);
+	var AlertStore = new Store(Dispatcher);
+
+	var DispatchConstants = __webpack_require__(346);
+
+	var _alert = '';
+	var _body = '';
+	var _timeout = null;
+	var _type = '';
+
+	AlertStore.update = function (payload, type) {
+	  _body = payload.body;
+	  _timeout = payload.timeout;
+	  _type = type;
+	};
+
+	AlertStore.newAlert = function () {
+	  if (typeof _timeout == null) {
+	    return false;
+	  } else {
+	    return true;
+	  }
+	};
+
+	AlertStore.getAlert = function () {
+	  return { type: _type, body: _body, timeout: _timeout };
+	};
+
+	AlertStore.clearAlert = function () {
+	  var _body = '';
+	  var _timeout = null;
+	  var _type = '';
+	};
+
+	AlertStore.__onDispatch = function (payload) {
+	  _alert = "";
+	  switch (payload.actionType) {
+	    case DispatchConstants.ALERT_SUCCESS:
+	      console.log("hit disp");
+	      AlertStore.update(payload, "success");
+	      AlertStore.__emitChange();
+	      break;
+	    case DispatchConstants.ALERT_INFO:
+	      AlertStore.update(payload, "info");
+	      AlertStore.__emitChange();
+	      break;
+	    case DispatchConstants.ALERT_WARNING:
+	      AlertStore.update(payload, "warning");
+	      AlertStore.__emitChange();
+	      break;
+	    case DispatchConstants.ALERT_DANGER:
+	      AlertStore.update(payload, "danger");
+	      AlertStore.__emitChange();
+	      break;
+	  }
+	};
+
+	window.AlertStore = AlertStore;
+
+	module.exports = AlertStore;
 
 /***/ }
 /******/ ]);

@@ -4,6 +4,7 @@ var UserStore = new Store(Dispatcher);
 
 var DispatchConstants = require('../constants/dispatch_constants.js');
 
+var AlertActions = require('../actions/alert_actions.js');
 //
 // BenchStore.all = function () {
 // return _benches.slice(0);
@@ -52,8 +53,8 @@ UserStore.__onDispatch = function (payload) {
   _error = "";
   switch (payload.actionType) {
     case DispatchConstants.LOGIN_SUCCESS:
-      console.log(payload);
       UserStore.login(payload.user);
+      AlertActions.success("Logged in successfully", 2000);
       UserStore.__emitChange();
       break;
     case DispatchConstants.LOGIN_FAILURE:
@@ -62,7 +63,7 @@ UserStore.__onDispatch = function (payload) {
       UserStore.__emitChange();
       break;
     case DispatchConstants.REGISTRATION_SUCCESS:
-      console.log("Registered and Logged in successfully");
+      AlertActions.success("Registered Successfully", 2000);
       UserStore.login(payload.user);
       UserStore.__emitChange();
       break;
@@ -78,6 +79,7 @@ UserStore.__onDispatch = function (payload) {
       break;
     case DispatchConstants.LOGGED_OUT:
       console.log("Logged out");
+      AlertActions.info("See you next time", 2000);
       UserStore.logout();
       UserStore.__emitChange();
       break;

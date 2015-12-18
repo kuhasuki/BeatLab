@@ -10,8 +10,6 @@ var Row = require('react-bootstrap/lib/Row');
 var Col = require('react-bootstrap/lib/Col');
 
 var divStyle = {
-	padding : '5px',
-	backgroundColor: '#00CCFF',
 	border: 'solid 1px black'
 };
 

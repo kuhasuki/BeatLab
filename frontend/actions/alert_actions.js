@@ -4,36 +4,44 @@ var DispatchConstants = require('../constants/dispatch_constants.js');
 var AlertActions = {
 
   success: function(body, timeout){
-    Dispatcher.dispatch({
-      actionType: DispatchConstants.ALERT_SUCCESS,
-      body: body,
-      timeout: timeout
-    });
+    setTimeout(function() {
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.ALERT_SUCCESS,
+        body: body,
+        timeout: timeout
+      })
+    }, 1);
     console.log('dispatching sussess');
   },
 
   info: function(body, timeout){
-    Dispatcher.dispatch({
-      actionType: DispatchConstants.ALERT_INFO,
-      body: body,
-      timeout: timeout
-    });
+    setTimeout(function() {
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.ALERT_INFO,
+        body: body,
+        timeout: timeout
+      })
+    }, 1);
   },
 
   warning: function(body, timeout){
-    Dispatcher.dispatch({
-      actionType: DispatchConstants.ALERT_WARNING,
-      body: body,
-      timeout: timeout
-    });
+    setTimeout(function() {
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.ALERT_WARNING,
+        body: body,
+        timeout: timeout
+      })
+    }, 1);
   },
 
   danger: function(body, timeout){
-    Dispatcher.dispatch({
-      actionType: DispatchConstants.ALERT_DANGER,
-      body: body,
-      timeout: timeout
-    });
+    setTimeout(function() {
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.ALERT_DANGER,
+        body: body,
+        timeout: timeout
+      })
+    }, 1);
   }
 };
 

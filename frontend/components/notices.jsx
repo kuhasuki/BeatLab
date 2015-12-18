@@ -2,13 +2,13 @@ var React = require('react');
 var Button = require('react-bootstrap/lib/Button');
 var Alert = require('react-bootstrap/lib/Alert');
 
-var AlertStore = require('./stores/alert_store.js');
+var AlertStore = require('../stores/alert_store.js');
 
 
 var Notices = React.createClass({
   getInitialState() {
     return {
-      alert: { visible: false, alertType : '', body : '' , timeout = null;
+      alert: { type : '', body : '' , timeout: ''}, alertVisible: false,
     };
   },
 
@@ -18,30 +18,29 @@ var Notices = React.createClass({
 
   _incomingAlert() {
       this.setState({
-        alert: 
+        alert: AlertStore.getAlert(), alertVisible: AlertStore.newAlert()
       })
-  }
+  },
 
   render() {
     if (this.state.alertVisible) {
       return (
-        <Alert bsStyle="info" onDismiss={this.handleAlertDismiss} dismissAfter={2000}>
-          <h4>Oh snap! You got an error!</h4>
-          <p>But this will hide after 2 seconds.</p>
+        <Alert bsStyle={this.state.alert.type} onDismiss={this.handleAlertDismiss} dismissAfter={this.state.alert.timeout}>
+          <p>{this.state.alert.body}</p>
         </Alert>
       );
     }
 
-    return (
-      <Button onClick={this.handleAlertShow}>Show Alert</Button>
+    return (<div></div>
     );
   },
 
-  handleAlertDismiss() {
+  handleAlertDismiss: function () {
     this.setState({alertVisible: false});
+    AlertStore.clearAlert();
   },
 
-  handleAlertShow() {
+  handleAlertShow: function () {
     this.setState({alertVisible: true});
   }
 });

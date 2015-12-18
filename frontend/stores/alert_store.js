@@ -8,9 +8,29 @@ var _alert = '';
 var _body = '';
 var _timeout = null;
 var _type = '';
+ 
+AlertStore.update = function(payload, type) {
+  _body = payload.body;
+  _timeout = payload.timeout;
+  _type = type;
+};
 
-AlertStore.update = function(payload){
-  _alert = 
+AlertStore.newAlert = function() {
+  if(typeof _timeout == null){
+    return false;
+  } else {
+    return true;
+  }
+};
+
+AlertStore.getAlert = function() {
+  return { type: _type, body: _body, timeout: _timeout };
+};
+
+AlertStore.clearAlert = function(){
+  var _body = '';
+  var _timeout = null;
+  var _type = '';
 };
 
 AlertStore.__onDispatch = function (payload) {
@@ -18,23 +38,20 @@ AlertStore.__onDispatch = function (payload) {
   switch (payload.actionType) {
     case DispatchConstants.ALERT_SUCCESS:
       console.log("hit disp");
-      AlertStore.update(payload);
+      AlertStore.update(payload, "success");
       AlertStore.__emitChange();
       break;
     case DispatchConstants.ALERT_INFO:
-      AlertStore.update(payload);
+      AlertStore.update(payload, "info");
       AlertStore.__emitChange();
       break;
     case DispatchConstants.ALERT_WARNING:
-      AlertStore.update(payload);
+      AlertStore.update(payload, "warning");
       AlertStore.__emitChange();
       break;
     case DispatchConstants.ALERT_DANGER:
-      AlertStore.update(payload);
+      AlertStore.update(payload, "danger");
       AlertStore.__emitChange();
-      break;
-    default:
-      console.log("alertstore defaulted");
       break;
   }
 };

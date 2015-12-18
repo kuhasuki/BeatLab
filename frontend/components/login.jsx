@@ -11,6 +11,10 @@ var Alert = require('react-bootstrap/lib/Alert');
 
 var UserStore = require('../stores/user_store.js');
 
+var AlertActions = require('../actions/alert_actions.js');
+var Dispatcher = require('../dispatcher/dispatcher');
+
+
 var Login = React.createClass({
   mixins: [LinkedStateMixin],
   getInitialState: function(){
@@ -36,15 +40,15 @@ var Login = React.createClass({
     if (UserStore.getError() != '') {
       this.setState({errors: UserStore.getError()});
     } else {
-      this.listenerToken.remove();
+      // this.listenerToken.remove();
     }
   },
 
-  componentDidMount() {
+  componentDidMount: function () {
     this.listenerToken = UserStore.addListener(this._getErrors);    
   },
 
-  componentWillUnmount() {
+  componentWillUnmount: function () {
     // this.setState({showModal : false});
     this.listenerToken.remove();  
   },
