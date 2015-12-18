@@ -2,6 +2,7 @@ var Dispatcher = require('../dispatcher/dispatcher.js');
 var DispatchConstants = require('../constants/dispatch_constants.js');
 
 var ApiActions = {
+
   loginAttempt: function(data){
     console.log(data);
     if(data.hasOwnProperty("error")){
@@ -19,6 +20,7 @@ var ApiActions = {
 
     }
   },
+
   registerAttempt: function(data){
     console.log(data);
     if(data.hasOwnProperty("error")){
@@ -34,6 +36,23 @@ var ApiActions = {
         user: data
       });
 
+    }
+  },
+
+  checkSession: function(data){
+    console.log(data);
+    if(data.hasOwnProperty("status")){
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.LOGGED_OUT,
+        error: data.error
+      });
+
+    } else {
+      console.log("is logged in");
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.LOGGED_IN,
+        user: data
+      });
     }
   }
 };

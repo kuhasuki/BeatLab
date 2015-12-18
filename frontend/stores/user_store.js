@@ -18,6 +18,7 @@ var DispatchConstants = require('../constants/dispatch_constants.js');
 var _benches = [];
 var _error = '';
 var _loggedIn = null;
+var _user = {};
 
 UserStore.updateError = function(error){
   console.log(error);
@@ -28,8 +29,18 @@ UserStore.getError = function(){
   return _error;
 };
 
-UserStore.login = function(){
+UserStore.login = function(user){
   _loggedIn = true;
+  _user = user;
+};
+
+UserStore.logout = function(user){
+  _loggedIn = false;
+  _user = {};
+};
+
+UserStore.getUser = function(){
+  return _user;
 };
 
 
@@ -41,8 +52,8 @@ UserStore.__onDispatch = function (payload) {
   _error = "";
   switch (payload.actionType) {
     case DispatchConstants.LOGIN_SUCCESS:
-      console.log("Logged in successfully");
-      UserStore.login();
+      console.log(payload);
+      UserStore.login(payload.user);
       UserStore.__emitChange();
       break;
     case DispatchConstants.LOGIN_FAILURE:
@@ -52,12 +63,22 @@ UserStore.__onDispatch = function (payload) {
       break;
     case DispatchConstants.REGISTRATION_SUCCESS:
       console.log("Registered and Logged in successfully");
-      UserStore.login();
+      UserStore.login(payload.user);
       UserStore.__emitChange();
       break;
     case DispatchConstants.REGISTRATION_FAILURE:
       console.log("failed to register and log in");
       UserStore.updateError(payload.error);
+      UserStore.__emitChange();
+      break;
+    case DispatchConstants.LOGGED_IN:
+      console.log("Logged in");
+      UserStore.login(payload.user);
+      UserStore.__emitChange();
+      break;
+    case DispatchConstants.LOGGED_OUT:
+      console.log("Logged out");
+      UserStore.logout();
       UserStore.__emitChange();
       break;
   }

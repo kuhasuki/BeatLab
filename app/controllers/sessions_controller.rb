@@ -5,6 +5,14 @@ class SessionsController < ApplicationController
     render :new
   end
 
+  def show
+    if logged_in?
+      render :show
+    else
+      render json: { status: "logged out" }
+    end
+  end
+
   def create
 	  @user = User.find_by_credentials(
 	    params[:user][:name],
@@ -14,7 +22,7 @@ class SessionsController < ApplicationController
     if @user
       #initiate a new session
       login!(@user)
-      render json:  @user
+      render :show
     else
       #flash incorrect password/username combination
       render json: { error: "Incorrect username/ password combination" }

@@ -10,6 +10,11 @@ Api = {
     $.post('/users', {"user": {"name": name, "password": password}}, function(data){
       ApiActions.registerAttempt(data);
     });
+  },
+  verifySession: function(){
+  	$.get('/sessions', {}, function(data){
+  		ApiActions.checkSession(data);
+  	});
   }
 }
 

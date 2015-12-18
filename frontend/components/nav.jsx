@@ -3,6 +3,9 @@ var React = require('react');
 
 var UserTools = require('./user_tools.jsx');
 
+var UserStore = require('../stores/user_store.js');
+
+
 var Navigation = React.createClass({
   render: function(){
     return(
@@ -23,9 +26,7 @@ var Navigation = React.createClass({
             <li><a href="/">About Us</a></li>
             <li><a href="/">Contact</a></li>
           </ul>
-
-              <UserTools />
-        
+            <UserTools />
         </div>
       </div>
     </nav>

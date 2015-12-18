@@ -17,24 +17,12 @@ var Register = React.createClass({
     return({name: '', password: '', errors: ''});
   },
 
-  componentDidMount: function(){
-    this.showModal = false;
-  },
-
-  componentWillUnmount() {
-    this.showModal = false;
-    this.listenerToken.remove();  
-  },
-
   closeModal: function() {
-    this.showModal = false;
-    this.setState({errors: ''});
-    this.forceUpdate();
-   },
+    this.setState({showModal : false, errors : ''});
+  },
 
   openModal: function(){
-    this.showModal = true;
-    this.forceUpdate();
+    this.setState({ showModal: true});
   },
 
   login: function(){
@@ -43,7 +31,19 @@ var Register = React.createClass({
   },
 
   _getErrors: function(){
-    this.setState({errors: UserStore.getError()});
+    if (UserStore.getError() != '') {
+      this.setState({errors: UserStore.getError()});
+    } else {
+      this.listenerToken.remove();
+    }
+  },
+  
+  componentDidMount() {
+    this.listenerToken = UserStore.addListener(this._getErrors);    
+  },
+
+  componentWillUnmount() {
+    this.listenerToken.remove();  
   },
 
   enterSubmit: function(event){
@@ -56,7 +56,7 @@ var Register = React.createClass({
     return(
       <li>
         <a href="javascript:void(0)" onClick={this.openModal} >Register</a>
-        <Modal show={this.showModal} onHide={this.closeModal} >
+        <Modal show={this.state.showModal} onHide={this.closeModal} animation={false}>
           <Modal.Header closeButton>
             <Modal.Title>Register</Modal.Title>
           </Modal.Header>

@@ -14,22 +14,17 @@ var UserStore = require('../stores/user_store.js');
 var Login = React.createClass({
   mixins: [LinkedStateMixin],
   getInitialState: function(){
-      return({name: '', password: '', errors: ''});
-  },
-
-  componentDidMount: function(){
-    this.showModal = false;
+      return({name: '', password: '', errors: '', showModal: false});
   },
 
  closeModal: function() {
-     this.showModal = false;
-     this.setState({errors: ''});
-     this.forceUpdate();
+     this.setState({showModal : false, errors : ''});
+     // this.forceUpdate();
  },
 
  openModal: function(){
-      this.showModal = true;
-      this.forceUpdate();
+      this.setState({showModal : true});
+      // this.forceUpdate();
   },
 
   login: function(){
@@ -38,7 +33,20 @@ var Login = React.createClass({
   },
 
   _getErrors: function(){
+    if (UserStore.getError() != '') {
       this.setState({errors: UserStore.getError()});
+    } else {
+      this.listenerToken.remove();
+    }
+  },
+
+  componentDidMount() {
+    this.listenerToken = UserStore.addListener(this._getErrors);    
+  },
+
+  componentWillUnmount() {
+    // this.setState({showModal : false});
+    this.listenerToken.remove();  
   },
 
   enterSubmit: function(event){
@@ -51,7 +59,7 @@ var Login = React.createClass({
     return(
       <li>
         <a href="javascript:void(0)" onClick={this.openModal} >Login</a>
-        <Modal show={this.showModal} onHide={this.closeModal} >
+        <Modal show={this.state.showModal} onHide={this.closeModal} animation={false}>
           <Modal.Header closeButton>
             <Modal.Title>Log In</Modal.Title>
           </Modal.Header>

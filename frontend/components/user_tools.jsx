@@ -14,12 +14,19 @@ var UserStore = require('../stores/user_store.js');
 
 var Login = require('./login.jsx');
 var Register = require('./register.jsx');
+var Logout = require('./logout.jsx');
+var ProfileOptions = require('./profile_options.jsx');
+
+var profilePicStyle = {
+    maxHeight: '42px',
+    paddingTop: '10px',
+}
 
 var UserTools = React.createClass({
   mixins: [LinkedStateMixin],
   getInitialState() {
       return {
-          "loggedIn" : false
+          "loggedIn" : UserStore.loginStatus(), "user" : UserStore.getUser()
       };
   },
   componentDidMount() {
@@ -27,12 +34,15 @@ var UserTools = React.createClass({
   },
 
   _loginStatus() {
-    this.setState({"loggedIn": UserStore.loginStatus()});
+    this.setState({"loggedIn": UserStore.loginStatus(), "user" : UserStore.getUser()});
   },
   render: function(){
     if(this.state.loggedIn) {
       return(
         <ul className="nav navbar-nav navbar-right">
+          <li className="hidden-xs">
+            <img src={this.state.user.profile_pic_url} style={profilePicStyle} className="img-circle"></img>
+          </li>
         <ProfileOptions />
         <Logout />
       </ul>
