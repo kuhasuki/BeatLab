@@ -58,6 +58,7 @@
 	var Profile = __webpack_require__(439);
 	var Test = __webpack_require__(440);
 	var Landing = __webpack_require__(441);
+	var TrackUpload = __webpack_require__(444);
 
 	var UserStore = __webpack_require__(351);
 	var AlertStore = __webpack_require__(443);
@@ -89,6 +90,15 @@
 	//   ReactDOM.render( <TrackWave />, application);
 	// });
 
+	function requireAuth(nextState, replaceState) {
+	  Api.verifySession();
+	  if (!UserStore.loginStatus()) {
+	    window.history.back();
+	    AlertActions.danger("You must be logged in to upload a track", 2000);
+	    // replaceState({ nextPathname: nextState.location.pathname }, '/')
+	  }
+	}
+
 	document.addEventListener("DOMContentLoaded", function () {
 	  var root = document.querySelector('#trackwave');
 	  ReactDOM.render(React.createElement(
@@ -103,6 +113,7 @@
 	        React.createElement(Route, { path: '/', component: Landing }),
 	        React.createElement(Route, { path: 'you', component: Test }),
 	        React.createElement(Route, { path: 'profile', component: Test }),
+	        React.createElement(Route, { path: 'upload', component: TrackUpload, onEnter: requireAuth }),
 	        React.createElement(Route, { path: 'tracks', components: { c1: Test, c2: Test } })
 	      )
 	    )
@@ -19974,6 +19985,16 @@
 	        { className: 'nav navbar-nav navbar-right' },
 	        React.createElement(
 	          'li',
+	          null,
+	          React.createElement(
+	            'a',
+	            { href: '#/upload' },
+	            'Upload'
+	          )
+	        ),
+	        React.createElement('li', { className: 'divider-vertical' }),
+	        React.createElement(
+	          'li',
 	          { className: 'hidden-xs' },
 	          React.createElement('img', { src: this.state.user.profile_pic_url, style: profilePicStyle, className: 'img-circle' })
 	        ),
@@ -31347,7 +31368,6 @@
 	      break;
 	    case DispatchConstants.LOGGED_OUT:
 	      console.log("Logged out");
-	      AlertActions.info("See you next time", 2000);
 	      UserStore.logout();
 	      UserStore.__emitChange();
 	      break;
@@ -42400,6 +42420,141 @@
 	window.AlertStore = AlertStore;
 
 	module.exports = AlertStore;
+
+/***/ },
+/* 444 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(147);
+
+	var Input = __webpack_require__(334);
+	var ButtonInput = __webpack_require__(445);
+
+	var TrackUpload = React.createClass({
+					displayName: 'TrackUpload',
+					render() {
+									return React.createElement(
+													'form',
+													null,
+													React.createElement(Input, { type: 'text', label: 'Title' }),
+													React.createElement(Input, { type: 'file', className: 'btn', label: 'File' }),
+													React.createElement(
+																	Input,
+																	{ type: 'select', label: 'Genre', placeholder: 'select' },
+																	React.createElement(
+																					'option',
+																					{ value: 'Polka' },
+																					'Polka'
+																	),
+																	React.createElement(
+																					'option',
+																					{ value: 'Turbo Folk' },
+																					'Turbo Folk'
+																	)
+													),
+													React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '' }),
+													React.createElement(ButtonInput, { value: 'Button Input' }),
+													React.createElement(ButtonInput, { type: 'reset', value: 'Reset Button' }),
+													React.createElement(ButtonInput, { type: 'submit', value: 'Submit Button' })
+									);
+					}
+	});
+
+	module.exports = TrackUpload;
+
+/***/ },
+/* 445 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _inherits = __webpack_require__(258)['default'];
+
+	var _classCallCheck = __webpack_require__(265)['default'];
+
+	var _objectWithoutProperties = __webpack_require__(247)['default'];
+
+	var _extends = __webpack_require__(215)['default'];
+
+	var _interopRequireDefault = __webpack_require__(231)['default'];
+
+	exports.__esModule = true;
+
+	var _react = __webpack_require__(147);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _Button = __webpack_require__(243);
+
+	var _Button2 = _interopRequireDefault(_Button);
+
+	var _FormGroup = __webpack_require__(337);
+
+	var _FormGroup2 = _interopRequireDefault(_FormGroup);
+
+	var _InputBase2 = __webpack_require__(336);
+
+	var _InputBase3 = _interopRequireDefault(_InputBase2);
+
+	var _utilsChildrenValueInputValidation = __webpack_require__(341);
+
+	var _utilsChildrenValueInputValidation2 = _interopRequireDefault(_utilsChildrenValueInputValidation);
+
+	var ButtonInput = (function (_InputBase) {
+	  _inherits(ButtonInput, _InputBase);
+
+	  function ButtonInput() {
+	    _classCallCheck(this, ButtonInput);
+
+	    _InputBase.apply(this, arguments);
+	  }
+
+	  ButtonInput.prototype.renderFormGroup = function renderFormGroup(children) {
+	    var _props = this.props;
+	    var bsStyle = _props.bsStyle;
+	    var value = _props.value;
+
+	    var other = _objectWithoutProperties(_props, ['bsStyle', 'value']);
+
+	    return _react2['default'].createElement(
+	      _FormGroup2['default'],
+	      other,
+	      children
+	    );
+	  };
+
+	  ButtonInput.prototype.renderInput = function renderInput() {
+	    var _props2 = this.props;
+	    var children = _props2.children;
+	    var value = _props2.value;
+
+	    var other = _objectWithoutProperties(_props2, ['children', 'value']);
+
+	    var val = children ? children : value;
+	    return _react2['default'].createElement(_Button2['default'], _extends({}, other, { componentClass: 'input', ref: 'input', key: 'input', value: val }));
+	  };
+
+	  return ButtonInput;
+	})(_InputBase3['default']);
+
+	ButtonInput.types = _Button2['default'].types;
+
+	ButtonInput.defaultProps = {
+	  type: 'button'
+	};
+
+	ButtonInput.propTypes = {
+	  type: _react2['default'].PropTypes.oneOf(ButtonInput.types),
+	  bsStyle: function bsStyle() {
+	    // defer to Button propTypes of bsStyle
+	    return null;
+	  },
+	  children: _utilsChildrenValueInputValidation2['default'],
+	  value: _utilsChildrenValueInputValidation2['default']
+	};
+
+	exports['default'] = ButtonInput;
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);

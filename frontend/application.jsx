@@ -12,6 +12,7 @@ var Player = require('./components/player.jsx');
 var Profile = require('./components/profile.jsx');
 var Test = require('./components/test.jsx');
 var Landing = require('./components/landing.jsx');
+var TrackUpload = require('./components/track_upload.jsx');
 
 var UserStore = require('./stores/user_store.js');
 var AlertStore = require('./stores/alert_store.js');
@@ -42,6 +43,15 @@ var TrackWave = React.createClass({
 //   ReactDOM.render( <TrackWave />, application);
 // });
 
+function requireAuth(nextState, replaceState){
+  Api.verifySession();
+  if(!UserStore.loginStatus()){
+    window.history.back();
+    AlertActions.danger("You must be logged in to upload a track", 2000);  
+    // replaceState({ nextPathname: nextState.location.pathname }, '/')
+  } 
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   var root = document.querySelector('#trackwave');
   ReactDOM.render(
@@ -51,6 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <Route path="/" component={Landing} />
         <Route path="you" component={Test} />
         <Route path="profile" component={Test} />
+        <Route path="upload" component={TrackUpload} onEnter={requireAuth} />
         <Route path="tracks" components={{c1: Test, c2: Test}} />
       </Route>
     </Route>

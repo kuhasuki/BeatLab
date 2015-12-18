@@ -40,6 +40,10 @@ var UserTools = React.createClass({
     if(this.state.loggedIn) {
       return(
         <ul className="nav navbar-nav navbar-right">
+          <li>
+            <a href="#/upload" >Upload</a>
+          </li>
+          <li className="divider-vertical"></li>
           <li className="hidden-xs">
             <img src={this.state.user.profile_pic_url} style={profilePicStyle} className="img-circle"></img>
           </li>

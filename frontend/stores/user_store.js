@@ -79,7 +79,6 @@ UserStore.__onDispatch = function (payload) {
       break;
     case DispatchConstants.LOGGED_OUT:
       console.log("Logged out");
-      AlertActions.info("See you next time", 2000);
       UserStore.logout();
       UserStore.__emitChange();
       break;
