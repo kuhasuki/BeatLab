@@ -58,3 +58,5 @@ gem 'therubyracer'
 gem 'less-rails' #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
 gem 'twitter-bootstrap-rails'
 gem 'bcrypt'
+gem "paperclip", '~> 4.3'
+gem 'aws-sdk', '~> 2'
