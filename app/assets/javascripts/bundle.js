@@ -49,6 +49,7 @@
 	var Router = __webpack_require__(159).Router;
 	var Route = __webpack_require__(159).Route;
 	var IndexRoute = __webpack_require__(159).IndexRoute;
+	// var History = require('react-router').History;
 
 	var Button = __webpack_require__(210);
 
@@ -97,9 +98,9 @@
 	  console.log('token status');
 	  console.log(UserStore.isLoggedIn());
 	  if (!UserStore.isLoggedIn()) {
-	    window.history.back();
+	    // history.pushState();
 	    AlertActions.danger("You must be logged in to upload a track", 2000);
-	    // replaceState({ nextPathname: nextState.location.pathname }, '/')
+	    replaceState({ nextPathname: nextState.location.pathname }, '/');
 	  }
 	}
 
@@ -31222,7 +31223,9 @@
 	UserStore.logout = function (user) {
 	  _loggedIn = false;
 	  _user = {};
-	  localStorage.token = null;
+	  if (localStorage.token) {
+	    localStorage.removeItem('token');
+	  }
 	};
 
 	UserStore.getUser = function () {
@@ -31230,7 +31233,11 @@
 	};
 
 	UserStore.isLoggedIn = function () {
-	  return !!localStorage.token;
+	  if (localStorage.token) {
+	    return !!localStorage.token;
+	  } else {
+	    return false;
+	  }
 	};
 
 	UserStore.loginStatus = function () {

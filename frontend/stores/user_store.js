@@ -39,7 +39,9 @@ UserStore.login = function(user){
 UserStore.logout = function(user){
   _loggedIn = false;
   _user = {};
-  localStorage.token = null;
+  if(localStorage.token){
+    localStorage.removeItem('token');
+  }
 };
 
 UserStore.getUser = function(){
@@ -47,7 +49,11 @@ UserStore.getUser = function(){
 };
 
 UserStore.isLoggedIn = function(){
-  return !!localStorage.token;
+  if(localStorage.token){
+    return !!localStorage.token;
+  } else {
+    return false;
+  }
 };
 
 UserStore.loginStatus = function(){

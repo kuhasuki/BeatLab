@@ -3,6 +3,7 @@ var React = require('react');
 var Router = require('react-router').Router;
 var Route = require('react-router').Route;
 var IndexRoute = require('react-router').IndexRoute;
+// var History = require('react-router').History;
 
 var Button = require('react-bootstrap/lib/Button');
 
@@ -50,9 +51,9 @@ function requireAuth(nextState, replaceState ){
   console.log('token status');
   console.log(UserStore.isLoggedIn());
   if(!UserStore.isLoggedIn()){
-    window.history.back();
+    // history.pushState();
     AlertActions.danger("You must be logged in to upload a track", 2000);  
-    // replaceState({ nextPathname: nextState.location.pathname }, '/')
+    replaceState({ nextPathname: nextState.location.pathname }, '/')
   } 
 }
 
