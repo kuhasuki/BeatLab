@@ -4,7 +4,6 @@ var DispatchConstants = require('../constants/dispatch_constants.js');
 var ApiActions = {
 
   loginAttempt: function(data){
-    console.log(data);
     if(data.hasOwnProperty("error")){
       Dispatcher.dispatch({
         actionType: DispatchConstants.LOGIN_FAILURE,
@@ -12,6 +11,8 @@ var ApiActions = {
       });
 
     } else {
+      console.log("data is");
+      console.log(data);
       console.log("isnt error");
       Dispatcher.dispatch({
         actionType: DispatchConstants.LOGIN_SUCCESS,

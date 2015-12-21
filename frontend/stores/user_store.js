@@ -33,17 +33,22 @@ UserStore.getError = function(){
 UserStore.login = function(user){
   _loggedIn = true;
   _user = user;
+  localStorage.token = user.session_token;
 };
 
 UserStore.logout = function(user){
   _loggedIn = false;
   _user = {};
+  localStorage.token = null;
 };
 
 UserStore.getUser = function(){
   return _user;
 };
 
+UserStore.isLoggedIn = function(){
+  return !!localStorage.token;
+};
 
 UserStore.loginStatus = function(){
   return _loggedIn;

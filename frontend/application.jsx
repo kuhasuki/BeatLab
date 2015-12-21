@@ -23,7 +23,7 @@ var Dispatcher = require('./dispatcher/dispatcher.js');
 
 
 var TrackWave = React.createClass({
-  componentDidMount() {
+  componentWillMount() {
       Api.verifySession();  
   },
   render: function(){
@@ -43,9 +43,13 @@ var TrackWave = React.createClass({
 //   ReactDOM.render( <TrackWave />, application);
 // });
 
-function requireAuth(nextState, replaceState){
+function requireAuth(nextState, replaceState ){
   Api.verifySession();
-  if(!UserStore.loginStatus()){
+  console.log('login status');
+  console.log(UserStore.loginStatus());
+  console.log('token status');
+  console.log(UserStore.isLoggedIn());
+  if(!UserStore.isLoggedIn()){
     window.history.back();
     AlertActions.danger("You must be logged in to upload a track", 2000);  
     // replaceState({ nextPathname: nextState.location.pathname }, '/')
