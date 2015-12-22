@@ -11,14 +11,18 @@ class Api::TracksController < ApplicationController
 		@track = Track.new(temp_params)
 
     if @track.save
-      render json: {"yes": "it worked"}
+      render 'show'
     else
-      render json: {"no": "it not worked"}, status: 412
+      render json: @track.errors.full_messages, status: 412
     end
 	end
 
-	def index
+	def upload_success
+		render json: {"WTF": "OMFG"}
+	end
 
+	def index
+		render json: Track.all
 	end
 
 	def show

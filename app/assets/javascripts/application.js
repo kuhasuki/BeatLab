@@ -14,3 +14,5 @@
 //= require jquery_ujs
 //= require twitter/bootstrap
 //= require bundle.js
+//= require s3_direct_upload
+

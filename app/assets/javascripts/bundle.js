@@ -30730,6 +30730,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var ApiActions = __webpack_require__(343);
+	var AlertActions = __webpack_require__(366);
 
 	Api = {
 	  login: function (name, password) {
@@ -30737,16 +30738,25 @@
 	      ApiActions.loginAttempt(data);
 	    });
 	  },
+
 	  register: function (name, password) {
 	    $.post('/users', { "user": { "name": name, "password": password } }, function (data) {
 	      ApiActions.registerAttempt(data);
 	    });
 	  },
+
 	  verifySession: function () {
 	    $.get('/sessions', {}, function (data) {
 	      ApiActions.checkSession(data);
 	    });
 	  },
+
+	  fetchTracks: function () {
+	    $.get('/api/tracks', {}, function (data) {
+	      ApiActions.fetchTracks(data);
+	    });
+	  },
+
 	  upload: function (formData) {
 
 	    var token = $("meta[name='csrf-token']").attr("content");
@@ -30754,8 +30764,29 @@
 	    var xhr = new XMLHttpRequest();
 
 	    xhr.onreadystatechange = function () {
-	      if (xhr.readyState == XMLHttpRequest.DONE) {
-	        alert(xhr.responseText);
+	      switch (xhr.readyState) {
+	        case 0:
+	          // request not initialized
+	          console.log('initializing');
+	          AlertActions.info("Initializing", 2000);
+	          break;
+	        case 1:
+	          // server connection established
+	          console.log('connection established');
+	          break;
+	        case 2:
+	          // request received
+	          console.log('request recieved');
+	          break;
+	        case 3:
+	          // processing request
+	          console.log('processing');
+	          AlertActions.info("Uploading your track", 2000);
+	          break;
+	        case 4:
+	          // request finished and response is ready
+	          console.log('finished');
+	          break;
 	      }
 	    };
 
@@ -30766,42 +30797,16 @@
 	    xhr.onload = function () {
 	      if (xhr.status === 200) {
 	        // File(s) uploaded.
-	        console.log('it worked?');
+	        ApiActions.uploadSuccess(xhr.responseText);
+	        AlertActions.success("Track successfully uploaded", 2000);
 	      } else {
-	        alert('An error occurred!');
+	        ApiActions.uploadFailure(xhr.responseText);
+	        AlertActions.danger("There was a problem with your submission", 2000);
 	      }
 	    };
 
 	    xhr.send(formData);
 	  }
-
-	  // var data = {
-	  //       "key" : "/tracks/${filename}",
-	  //       "AWSAccessKeyId" : "AKIAJDDEBE5WYOO3WYAQ",
-	  //       "acl" : "private",
-	  //       "success_action_redirect" : "http://google.com",
-	  //       "policy" : "eyJleHBpcmF0aW9uIjoiMjAxOS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJzMy1idWNrZXQifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsInVwbG9hZHMvIl0seyJhY2wiOiJwcml2YXRlIn0seyJzdWNjZXNzX2FjdGlvbl9yZWRpcmVjdCI6Imh0dHA6Ly9sb2NhbGhvc3QvIn0sWyJzdGFydHMtd2l0aCIsIiRDb250ZW50LVR5cGUiLCIiXSxbImNvbnRlbnQtbGVuZ3RoLXJhbmdlIiwwLDEwNDg1NzZdXX0=",
-	  //       "signature": "vLK0nJSlYM/LF2/HGoeUI1mE9UU=",
-	  //       "Content-Type": "audio/basic"
-	  //   };
-	  //   $.ajax({
-	  //     url: 'https://s3.amazonaws.com/trackwaveaudio',
-	  //     method: 'POST',
-	  //     crossDomain: true,
-	  //     xhrFields: {
-	  //       withCredentials: true
-	  //    },
-	  //     data: data,
-	  //     success: function(info){
-	  //       console.log(info);
-	  //     }
-	  //   });
-	  // },
-	  //   test: function(){
-	  //   $.get(
-	  //     '/api/signature', {}, function(data){
-	  //     console.log(data);
-	  //   });
 	};
 
 	window.Api = Api;
@@ -30864,6 +30869,30 @@
 	        user: data
 	      });
 	    }
+	  },
+
+	  uploadSuccess: function (data) {
+	    console.log(data);
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.UPLOAD_SUCCESS,
+	      track: data
+	    });
+	  },
+
+	  uploadFailure: function (data) {
+	    console.log(data);
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.UPLOAD_FAILURE,
+	      errors: data.errors
+	    });
+	  },
+
+	  fetchTracks: function (data) {
+	    console.log(data);
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.FETCH_TRACKS,
+	      tracks: data
+	    });
 	  }
 	};
 
@@ -31199,7 +31228,9 @@
 	  ALERT_SUCCESS: "ALERT_SUCCESS",
 	  ALERT_INFO: "ALERT_INFO",
 	  ALERT_WARNING: "ALERT_WARNING",
-	  ALERT_DANGER: "ALERT_DANGER"
+	  ALERT_DANGER: "ALERT_DANGER",
+	  UPLOAD_SUCCESS: "UPLOAD_SUCCESS",
+	  UPLOAD_FAILURE: "UPLOAD_FAILURE"
 	};
 
 	module.exports = DispatchConstants;
@@ -41876,7 +41907,7 @@
 
 	  getInitialState() {
 	    return {
-	      alert: { type: '', body: '', timeout: '' }, alertVisible: false
+	      alert: { type: '', body: null, timeout: '' }, alertVisible: false
 	    };
 	  },
 
@@ -42569,7 +42600,7 @@
 	            React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description') }),
 	            React.createElement(ButtonInput, { value: 'Button Input' }),
 	            React.createElement(ButtonInput, { type: 'reset', value: 'Reset Button' }),
-	            React.createElement(ButtonInput, { ref: 'myDick', type: 'submit', value: 'Submit Button', onClick: this.handleSubmit })
+	            React.createElement(ButtonInput, { type: 'submit', value: 'Submit Button', onClick: this.handleSubmit })
 	        );
 	    }
 	});

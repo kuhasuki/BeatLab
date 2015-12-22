@@ -1,0 +1,14 @@
+<div id="trackwave"></div>
+
+
+<%= s3_uploader_form callback_url: 'http://google.com/', callback_param: "model[image_url]", id: "s3-uploader" do %>
+ <%= hidden_field_tag  "Content-Type", "" %>
+  <%= file_field_tag :file, multiple: true, data: { url: 's3_uploader_url' } %>
+<% end %>
+
+
+<div id="prawg" class="upload">
+  Text
+  <div class="progress"><div class="bar" style="width: 0%"></div></div>
+</div>
+

@@ -5,10 +5,10 @@ var Alert = require('react-bootstrap/lib/Alert');
 var AlertStore = require('../stores/alert_store.js');
 
 
-var Notices = React.createClass({
+var Notice = React.createClass({
   getInitialState() {
     return {
-      alert: { type : '', body : null , timeout: ''}, alertVisible: false,
+      alert: { type : '', body : '' , timeout: ''}, alertVisible: false,
     };
   },
 
@@ -48,4 +48,4 @@ var Notices = React.createClass({
 
 
 
-module.exports = Notices;
+module.exports = Notice;

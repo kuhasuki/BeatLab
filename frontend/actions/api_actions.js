@@ -55,6 +55,30 @@ var ApiActions = {
         user: data
       });
     }
+  },
+
+  uploadSuccess: function(data){
+    console.log(data);
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.UPLOAD_SUCCESS,
+      track: data
+    }); 
+  },
+
+  uploadFailure: function(data){
+    console.log(data);
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.UPLOAD_FAILURE,
+      errors: data.errors
+    }); 
+  },
+
+  fetchTracks: function(data){
+    console.log(data);
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.FETCH_TRACKS,
+      tracks: data
+    }); 
   }
 };
 

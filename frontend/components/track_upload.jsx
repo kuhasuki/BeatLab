@@ -63,7 +63,7 @@ var TrackUpload = React.createClass({
 	        	<Input type="textarea" label="Description" placeholder="" valueLink={this.linkState('description')}/>
 	        	<ButtonInput value="Button Input" />
 	        	<ButtonInput type="reset" value="Reset Button" />
-	        	<ButtonInput ref="myDick" type="submit" value="Submit Button" onClick={this.handleSubmit}/>
+	        	<ButtonInput type="submit" value="Submit Button" onClick={this.handleSubmit}/>
         	</form>
         );
     }

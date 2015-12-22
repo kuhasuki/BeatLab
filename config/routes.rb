@@ -3,9 +3,12 @@ Rails.application.routes.draw do
 
   root 'static_pages#index'
 
+  get '/test/', to: 'static_pages#test', as: 'test'
+
   namespace :api do
-  	get '/signature/', to: 'tracks#signature', as: 'signature'
+  	get '/tracks/', to: 'tracks#index', as: 'index'
   	post '/upload/', to: 'tracks#upload', as: 'upload'
+  	post '/upload_complete/', to: 'tracks#upload_complete', as: 'upload_complete'
   end
 
   resources :users, only: [:new, :create, :show]
