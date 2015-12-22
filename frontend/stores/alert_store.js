@@ -4,19 +4,31 @@ var AlertStore = new Store(Dispatcher);
 
 var DispatchConstants = require('../constants/dispatch_constants.js');
 
-var _alert = '';
-var _body = '';
+var _alert = null;
+var _body = null;
 var _timeout = null;
-var _type = '';
+var _type = null;
+// var _nature = null;
  
 AlertStore.update = function(payload, type) {
-  _body = payload.body;
+  console.log(payload);
+  if($.isArray(payload.body)){
+    _body = payload.body;
+  } else {
+    _body = [payload.body];
+  }
+  console.log(_body);
   _timeout = payload.timeout;
   _type = type;
+  // if(payload.nature){
+  //   _nature = payload.nature;
+  // } else {
+  //   _nature = "self-destruct"
+  // }
 };
 
 AlertStore.newAlert = function() {
-  if(typeof _timeout == null){
+  if(typeof _body == null){
     return false;
   } else {
     return true;
@@ -27,10 +39,15 @@ AlertStore.getAlert = function() {
   return { type: _type, body: _body, timeout: _timeout };
 };
 
+AlertStore.getNature = function() {
+  return { nature: _nature };
+};
+
 AlertStore.clearAlert = function(){
-  var _body = '';
+  var _body = null;
   var _timeout = null;
-  var _type = '';
+  var _type = null;
+  // var _nature = null;
 };
 
 AlertStore.__onDispatch = function (payload) {

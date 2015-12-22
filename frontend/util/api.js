@@ -37,7 +37,6 @@ Api = {
           case 0:
             // request not initialized 
             console.log('initializing');
-            AlertActions.info("Initializing", 2000);
             break;
           case 1:
             // server connection established
@@ -50,7 +49,6 @@ Api = {
           case 3:
             // processing request 
             console.log('processing');
-            AlertActions.info("Uploading your track", 2000);
             break;
           case 4:
             // request finished and response is ready
@@ -70,7 +68,9 @@ Api = {
         AlertActions.success("Track successfully uploaded", 2000);
       } else {
         ApiActions.uploadFailure(xhr.responseText);
-        AlertActions.danger("There was a problem with your submission", 2000);
+        console.log(xhr.responseText);
+        console.log(JSON.parse(xhr.responseText));
+        AlertActions.danger(JSON.parse(xhr.responseText), null);
       }
     };
 

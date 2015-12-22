@@ -30768,7 +30768,6 @@
 	        case 0:
 	          // request not initialized
 	          console.log('initializing');
-	          AlertActions.info("Initializing", 2000);
 	          break;
 	        case 1:
 	          // server connection established
@@ -30781,7 +30780,6 @@
 	        case 3:
 	          // processing request
 	          console.log('processing');
-	          AlertActions.info("Uploading your track", 2000);
 	          break;
 	        case 4:
 	          // request finished and response is ready
@@ -30801,7 +30799,9 @@
 	        AlertActions.success("Track successfully uploaded", 2000);
 	      } else {
 	        ApiActions.uploadFailure(xhr.responseText);
-	        AlertActions.danger("There was a problem with your submission", 2000);
+	        console.log(xhr.responseText);
+	        console.log(JSON.parse(xhr.responseText));
+	        AlertActions.danger(JSON.parse(xhr.responseText), null);
 	      }
 	    };
 
@@ -41907,7 +41907,7 @@
 
 	  getInitialState() {
 	    return {
-	      alert: { type: '', body: null, timeout: '' }, alertVisible: false
+	      alert: { type: null, body: null, timeout: null }, alertVisible: false
 	    };
 	  },
 
@@ -41922,14 +41922,35 @@
 	  },
 
 	  render() {
-	    if (this.state.alertVisible) {
+	    console.log(this.state.alert.body);
+	    if (this.state.alertVisible && this.state.alert.timeout !== null) {
 	      return React.createElement(
 	        Alert,
 	        { bsStyle: this.state.alert.type, onDismiss: this.handleAlertDismiss, dismissAfter: this.state.alert.timeout },
+	        this.state.alert.body.map(function (alert, idx) {
+	          return React.createElement(
+	            'p',
+	            { key: idx },
+	            alert
+	          );
+	        })
+	      );
+	    } else if (this.state.alertVisible && this.state.alert.timeout === null) {
+	      return React.createElement(
+	        Alert,
+	        { bsStyle: this.state.alert.type, onDismiss: this.handleAlertDismiss },
+	        this.state.alert.body.map(function (alert, idx) {
+	          return React.createElement(
+	            'p',
+	            { key: idx },
+	            alert
+	          );
+	        }),
+	        React.createElement('br', null),
 	        React.createElement(
-	          'p',
-	          null,
-	          this.state.alert.body
+	          Button,
+	          { onClick: this.handleAlertDismiss },
+	          'Hide Alert'
 	        )
 	      );
 	    }
@@ -41959,19 +41980,31 @@
 
 	var DispatchConstants = __webpack_require__(348);
 
-	var _alert = '';
-	var _body = '';
+	var _alert = null;
+	var _body = null;
 	var _timeout = null;
-	var _type = '';
+	var _type = null;
+	// var _nature = null;
 
 	AlertStore.update = function (payload, type) {
-	  _body = payload.body;
+	  console.log(payload);
+	  if ($.isArray(payload.body)) {
+	    _body = payload.body;
+	  } else {
+	    _body = [payload.body];
+	  }
+	  console.log(_body);
 	  _timeout = payload.timeout;
 	  _type = type;
+	  // if(payload.nature){
+	  //   _nature = payload.nature;
+	  // } else {
+	  //   _nature = "self-destruct"
+	  // }
 	};
 
 	AlertStore.newAlert = function () {
-	  if (typeof _timeout == null) {
+	  if (typeof _body == null) {
 	    return false;
 	  } else {
 	    return true;
@@ -41982,10 +42015,15 @@
 	  return { type: _type, body: _body, timeout: _timeout };
 	};
 
+	AlertStore.getNature = function () {
+	  return { nature: _nature };
+	};
+
 	AlertStore.clearAlert = function () {
-	  var _body = '';
+	  var _body = null;
 	  var _timeout = null;
-	  var _type = '';
+	  var _type = null;
+	  // var _nature = null;
 	};
 
 	AlertStore.__onDispatch = function (payload) {

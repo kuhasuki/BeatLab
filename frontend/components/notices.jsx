@@ -8,7 +8,7 @@ var AlertStore = require('../stores/alert_store.js');
 var Notices = React.createClass({
   getInitialState() {
     return {
-      alert: { type : '', body : null , timeout: ''}, alertVisible: false,
+      alert: { type : null, body : null , timeout: null}, alertVisible: false
     };
   },
 
@@ -23,10 +23,27 @@ var Notices = React.createClass({
   },
 
   render() {
-    if (this.state.alertVisible) {
+    console.log(this.state.alert.body);
+    if (this.state.alertVisible && this.state.alert.timeout !== null) {
       return (
         <Alert bsStyle={this.state.alert.type} onDismiss={this.handleAlertDismiss} dismissAfter={this.state.alert.timeout}>
-          <p>{this.state.alert.body}</p>
+          {
+            this.state.alert.body.map(function(alert, idx){
+           return(<p key={idx}>{alert}</p>)
+          })
+          }
+        </Alert>
+      );
+    } else if(this.state.alertVisible && this.state.alert.timeout === null){
+      return (
+        <Alert bsStyle={this.state.alert.type} onDismiss={this.handleAlertDismiss}>
+          {
+            this.state.alert.body.map(function(alert, idx){
+           return(<p key={idx}>{alert}</p>)
+          })
+          }
+          <br></br>
+          <Button onClick={this.handleAlertDismiss}>Hide Alert</Button>
         </Alert>
       );
     }
