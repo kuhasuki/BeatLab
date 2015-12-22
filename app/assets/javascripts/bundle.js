@@ -30747,35 +30747,61 @@
 	      ApiActions.checkSession(data);
 	    });
 	  },
+	  upload: function (formData) {
 
-	  uploadTrack: function () {
-	    var data = {
-	      "key": "/tracks/${filename}",
-	      "AWSAccessKeyId": "AKIAJDDEBE5WYOO3WYAQ",
-	      "acl": "private",
-	      "success_action_redirect": "http://google.com",
-	      "policy": "eyJleHBpcmF0aW9uIjoiMjAxOS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJzMy1idWNrZXQifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsInVwbG9hZHMvIl0seyJhY2wiOiJwcml2YXRlIn0seyJzdWNjZXNzX2FjdGlvbl9yZWRpcmVjdCI6Imh0dHA6Ly9sb2NhbGhvc3QvIn0sWyJzdGFydHMtd2l0aCIsIiRDb250ZW50LVR5cGUiLCIiXSxbImNvbnRlbnQtbGVuZ3RoLXJhbmdlIiwwLDEwNDg1NzZdXX0=",
-	      "signature": "vLK0nJSlYM/LF2/HGoeUI1mE9UU=",
-	      "Content-Type": "audio/basic"
-	    };
-	    $.ajax({
-	      url: 'https://s3.amazonaws.com/trackwaveaudio',
-	      method: 'POST',
-	      crossDomain: true,
-	      xhrFields: {
-	        withCredentials: true
-	      },
-	      data: data,
-	      success: function (info) {
-	        console.log(info);
+	    var token = $("meta[name='csrf-token']").attr("content");
+
+	    var xhr = new XMLHttpRequest();
+
+	    xhr.onreadystatechange = function () {
+	      if (xhr.readyState == XMLHttpRequest.DONE) {
+	        alert(xhr.responseText);
 	      }
-	    });
-	  },
-	  test: function () {
-	    $.get('/api/signature', {}, function (data) {
-	      console.log(data);
-	    });
+	    };
+
+	    xhr.open('POST', '/api/upload', true);
+
+	    xhr.setRequestHeader("X-CSRF-Token", token);
+
+	    xhr.onload = function () {
+	      if (xhr.status === 200) {
+	        // File(s) uploaded.
+	        console.log('it worked?');
+	      } else {
+	        alert('An error occurred!');
+	      }
+	    };
+
+	    xhr.send(formData);
 	  }
+
+	  // var data = {
+	  //       "key" : "/tracks/${filename}",
+	  //       "AWSAccessKeyId" : "AKIAJDDEBE5WYOO3WYAQ",
+	  //       "acl" : "private",
+	  //       "success_action_redirect" : "http://google.com",
+	  //       "policy" : "eyJleHBpcmF0aW9uIjoiMjAxOS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJzMy1idWNrZXQifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsInVwbG9hZHMvIl0seyJhY2wiOiJwcml2YXRlIn0seyJzdWNjZXNzX2FjdGlvbl9yZWRpcmVjdCI6Imh0dHA6Ly9sb2NhbGhvc3QvIn0sWyJzdGFydHMtd2l0aCIsIiRDb250ZW50LVR5cGUiLCIiXSxbImNvbnRlbnQtbGVuZ3RoLXJhbmdlIiwwLDEwNDg1NzZdXX0=",
+	  //       "signature": "vLK0nJSlYM/LF2/HGoeUI1mE9UU=",
+	  //       "Content-Type": "audio/basic"
+	  //   };
+	  //   $.ajax({
+	  //     url: 'https://s3.amazonaws.com/trackwaveaudio',
+	  //     method: 'POST',
+	  //     crossDomain: true,
+	  //     xhrFields: {
+	  //       withCredentials: true
+	  //    },
+	  //     data: data,
+	  //     success: function(info){
+	  //       console.log(info);
+	  //     }
+	  //   });
+	  // },
+	  //   test: function(){
+	  //   $.get(
+	  //     '/api/signature', {}, function(data){
+	  //     console.log(data);
+	  //   });
 	};
 
 	window.Api = Api;
@@ -42471,37 +42497,81 @@
 
 	var React = __webpack_require__(147);
 
+	var LinkedStateMixin = __webpack_require__(243);
+	var FileInput = __webpack_require__(443);
+
+	var Api = __webpack_require__(342);
+
 	var Input = __webpack_require__(331);
+
 	var ButtonInput = __webpack_require__(442);
 
 	var TrackUpload = React.createClass({
-					displayName: 'TrackUpload',
-					render() {
-									return React.createElement(
-													'form',
-													null,
-													React.createElement(Input, { type: 'text', label: 'Title' }),
-													React.createElement(Input, { type: 'file', className: 'btn', label: 'File' }),
-													React.createElement(
-																	Input,
-																	{ type: 'select', label: 'Genre', placeholder: 'select' },
-																	React.createElement(
-																					'option',
-																					{ value: 'Polka' },
-																					'Polka'
-																	),
-																	React.createElement(
-																					'option',
-																					{ value: 'Turbo Folk' },
-																					'Turbo Folk'
-																	)
-													),
-													React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '' }),
-													React.createElement(ButtonInput, { value: 'Button Input' }),
-													React.createElement(ButtonInput, { type: 'reset', value: 'Reset Button' }),
-													React.createElement(ButtonInput, { type: 'submit', value: 'Submit Button' })
-									);
-					}
+	    mixins: [LinkedStateMixin],
+	    displayName: 'TrackUpload',
+	    getInitialState() {
+	        return {
+	            title: '', file: null, genre: '', description: ''
+	        };
+	    },
+	    componentDidMount() {
+	        this.formData = new FormData();
+	    },
+	    handleSubmit(e) {
+	        e.preventDefault;
+
+	        this.formData.append('track', JSON.stringify(this.state));
+	        // this.formData.append('genre', this.state.genre);
+	        // this.formData.append('description', this.state.description);
+	        console.log(this.formData);
+	        Api.upload(this.formData);
+	    },
+
+	    sayFile(e) {
+	        var file = e.target.files[0];
+	        this.formData.append('file', file, file.name);
+	        this.setState({ file: file });
+
+	        // var business;
+	        // console.log(e);
+	        // if (e.target.files && e.target.files[0]) {
+	        //   fileReader = new FileReader();
+	        //   fileReader.onload = function (event) {
+	        //    	business = event.target.result;
+	        //    	console.log(business);
+	        //   }
+	        //   fileReader.readAsDataURL(e.target.files[0]);
+	        // }
+	        // console.log(business);
+	        // console.log(this.refs);
+	    },
+
+	    render() {
+	        return React.createElement(
+	            'form',
+	            null,
+	            React.createElement(Input, { type: 'text', label: 'Title', valueLink: this.linkState('title') }),
+	            React.createElement(Input, { type: 'file', accept: '.mp3', className: 'btn', label: 'File', onChange: this.sayFile }),
+	            React.createElement(
+	                Input,
+	                { type: 'select', label: 'Genre', placeholder: 'select', valueLink: this.linkState('genre') },
+	                React.createElement(
+	                    'option',
+	                    { value: 'Polka' },
+	                    'Polka'
+	                ),
+	                React.createElement(
+	                    'option',
+	                    { value: 'Turbo Folk' },
+	                    'Turbo Folk'
+	                )
+	            ),
+	            React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description') }),
+	            React.createElement(ButtonInput, { value: 'Button Input' }),
+	            React.createElement(ButtonInput, { type: 'reset', value: 'Reset Button' }),
+	            React.createElement(ButtonInput, { ref: 'myDick', type: 'submit', value: 'Submit Button', onClick: this.handleSubmit })
+	        );
+	    }
 	});
 
 	module.exports = TrackUpload;
@@ -42599,6 +42669,77 @@
 
 	exports['default'] = ButtonInput;
 	module.exports = exports['default'];
+
+/***/ },
+/* 443 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(147);
+
+	var FileInput = React.createClass({
+	  getInitialState: function() {
+	    return {
+	      value: '',
+	      styles: {
+	        parent: {
+	          position: 'relative'
+	        },
+	        file: {
+	          position: 'absolute',
+	          top: 0,
+	          left: 0,
+	          opacity: 0,
+	          width: '100%',
+	          zIndex: 1
+	        },
+	        text: {
+	          position: 'relative',
+	          zIndex: -1
+	        }
+	      }
+	    };
+	  },
+
+	  handleChange: function(e) {
+	    this.setState({
+	      value: e.target.value.split(/(\\|\/)/g).pop()
+	    });
+	    if (this.props.onChange) this.props.onChange(e);
+	  },
+
+	  render: function() {
+	    return React.DOM.div({
+	        style: this.state.styles.parent
+	      },
+
+	      // Actual file input
+	      React.DOM.input({
+	        type: 'file',
+	        name: this.props.name,
+	        className: this.props.className,
+	        onChange: this.handleChange,
+	        disabled: this.props.disabled,
+	        accept: this.props.accept,
+	        style: this.state.styles.file
+	      }),
+
+	      // Emulated file input
+	      React.DOM.input({
+	        type: 'text',
+	        tabIndex: -1,
+	        name: this.props.name + '_filename',
+	        value: this.state.value,
+	        className: this.props.className,
+	        onChange: function() {},
+	        placeholder: this.props.placeholder,
+	        disabled: this.props.disabled,
+	        style: this.state.styles.text
+	      }));
+	  }
+	});
+
+	module.exports = FileInput;
+
 
 /***/ }
 /******/ ]);

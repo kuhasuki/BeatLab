@@ -59,4 +59,4 @@ gem 'less-rails' #Sprockets (what Rails 3.1 uses for its asset pipeline) support
 gem 'twitter-bootstrap-rails'
 gem 'bcrypt'
 gem "paperclip", '~> 4.3'
-gem 'aws-sdk', '~> 2'
+gem 'aws-sdk', '~> 1.61.0'
