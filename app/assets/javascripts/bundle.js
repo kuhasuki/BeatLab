@@ -41938,7 +41938,6 @@
 	  },
 
 	  render() {
-	    console.log(this.state.alert.body);
 	    if (this.state.alertVisible && this.state.alert.timeout !== null) {
 	      return React.createElement(
 	        Alert,
@@ -42620,7 +42619,7 @@
 	            var track = TrackStore.getUploadedTrack();
 	            console.log("track is:");
 	            console.log(track);
-	            debugger;
+	            this.listenerToken.remove();
 	            window.location.href = "#/track/" + track.id;
 	        } else {
 	            this.uploadInProgress = false;
@@ -42882,7 +42881,13 @@
 	TrackStore.getAllTracks = function () {};
 
 	TrackStore.getTrackById = function (id) {
+	  if (_track && _track.id == id) {
+	    return _track;
+	  }
+
+	  // console.log(_tracks.length);
 	  for (i = 0; i < _tracks.length; i++) {
+	    // console.log(i);
 	    if (_tracks[i].id == id) {
 
 	      return _tracks[i];
@@ -42908,7 +42913,6 @@
 	  console.log(track);
 	  console.log(track.track);
 	  _track = JSON.parse(track).track;
-	  _tracks.push(JSON.parse(track).track);
 	  _uploaded = true;
 	};
 
@@ -42952,35 +42956,43 @@
 	var Api = __webpack_require__(342);
 
 	var Track = React.createClass({
-		displayName: 'Track',
+			displayName: 'Track',
 
-		getInitialState() {
-			return {
-				track: "WHAHAHA"
-			};
-		},
+			getInitialState() {
+					return {
+							track: "WHAHAHA"
+					};
+			},
 
-		componentDidMount() {
-			if (TrackStore.empty()) {
-				Api.fetchTracks();
+			componentDidMount() {
+					// if(TrackStore.empty()){
+					Api.fetchTracks();
+					// }
+					this.listenerToken = TrackStore.addListener(this._getTrack);
+			},
+
+			componentWillUnmount() {
+					this.listenerToken.remove();
+			},
+
+			_getTrack() {
+					console.log("callback triggered");
+					console.log(TrackStore.getTrackById(this.props.params.id));
+					this.setState({
+							track: TrackStore.getTrackById(this.props.params.id)
+					});
+			},
+
+			render: function () {
+					console.log(this.props.params);
+
+					console.log(this.state.track);
+					return React.createElement(
+							'div',
+							null,
+							React.createElement('audio', { src: this.state.track.src, preload: 'auto', controls: 'true' })
+					);
 			}
-			this.listenerToken = TrackStore.addListener(this._getTrack);
-		},
-
-		_getTrack() {
-			console.log("callback triggered");
-			console.log(TrackStore.getTrackById(this.props.params.id));
-			this.setState({
-				track: TrackStore.getTrackById(this.props.params.id)
-			});
-		},
-
-		render: function () {
-			console.log(this.props.params);
-
-			console.log(this.state.track);
-			return React.createElement('div', null);
-		}
 	});
 
 	module.exports = Track;

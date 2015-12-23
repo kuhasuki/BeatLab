@@ -13,11 +13,15 @@ var Track = React.createClass({
 	},
 
 	componentDidMount() {
-			if(TrackStore.empty()){
+			// if(TrackStore.empty()){
 				Api.fetchTracks();
-			}
+			// }
 	    this.listenerToken = TrackStore.addListener(this._getTrack); 
 	    
+	},
+
+	componentWillUnmount() {
+	    this.listenerToken.remove();  
 	},
 
 	_getTrack(){
@@ -33,7 +37,10 @@ var Track = React.createClass({
 
   	console.log(this.state.track);
     return(
-      <div></div>
+      <div>
+      	<audio src={this.state.track.src} preload="auto" controls="true">
+				</audio>
+      </div>
     );
   }
 });

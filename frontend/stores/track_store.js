@@ -19,7 +19,13 @@ TrackStore.getAllTracks = function(){
 };
 
 TrackStore.getTrackById = function(id){
-  for(i=0;i<_tracks.length;i++){
+  if(_track && _track.id == id){
+    return _track;
+  }
+
+  // console.log(_tracks.length);
+  for(i=0;i < _tracks.length; i++){
+    // console.log(i);
     if(_tracks[i].id == id){
 
       return _tracks[i];
@@ -46,7 +52,6 @@ TrackStore.setTrack = function(track){
   console.log(track);
    console.log(track.track);
   _track = JSON.parse(track).track;
-  _tracks.push(JSON.parse(track).track);
   _uploaded = true;
 };
 

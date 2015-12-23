@@ -24,7 +24,6 @@ var Notices = React.createClass({
   },
 
   render() {
-    console.log(this.state.alert.body);
     if (this.state.alertVisible && this.state.alert.timeout !== null) {
       return (
         <Alert bsStyle={this.state.alert.type} onDismiss={this.handleAlertDismiss} dismissAfter={this.state.alert.timeout}>

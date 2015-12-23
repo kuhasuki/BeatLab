@@ -39,7 +39,7 @@ var TrackUpload = React.createClass({
             var track = TrackStore.getUploadedTrack();
             console.log("track is:");
             console.log(track);
-            debugger;
+            this.listenerToken.remove();
             window.location.href = "#/track/" + track.id;
         } else {
             this.uploadInProgress = false;
