@@ -99,8 +99,8 @@
 	  console.log(UserStore.isLoggedIn());
 	  if (!UserStore.isLoggedIn()) {
 	    // history.pushState();
-	    AlertActions.danger("You must be logged in to upload a track", 2000);
 	    replaceState({ nextPathname: nextState.location.pathname }, '/');
+	    AlertActions.danger("You must be logged in to upload a track", 2000);
 	  }
 	}
 
@@ -25461,13 +25461,21 @@
 
 	var UserStore = __webpack_require__(349);
 
+	var AlertActions = __webpack_require__(366);
+
 	var Navigation = React.createClass({
 	  displayName: 'Navigation',
+
+	  test() {
+	    //preferrably handle onClick for each nav anchor but this'll do for now, won't warn users to sign in
+	    console.log("nav changed");
+	    AlertActions.clear();
+	  },
 
 	  render: function () {
 	    return React.createElement(
 	      'nav',
-	      { className: 'navbar navbar-default navbar-fixed-top', role: 'navigation' },
+	      { className: 'navbar navbar-default navbar-fixed-top', role: 'navigation', onChange: this.test() },
 	      React.createElement(
 	        'div',
 	        { className: 'container' },
@@ -31230,7 +31238,8 @@
 	  ALERT_WARNING: "ALERT_WARNING",
 	  ALERT_DANGER: "ALERT_DANGER",
 	  UPLOAD_SUCCESS: "UPLOAD_SUCCESS",
-	  UPLOAD_FAILURE: "UPLOAD_FAILURE"
+	  UPLOAD_FAILURE: "UPLOAD_FAILURE",
+	  ALERT_CLEAR: "ALERT_CLEAR"
 	};
 
 	module.exports = DispatchConstants;
@@ -37778,6 +37787,14 @@
 	        timeout: timeout
 	      });
 	    }, 1);
+	  },
+
+	  clear: function () {
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_CLEAR
+	      });
+	    }, 1);
 	  }
 	};
 
@@ -41916,6 +41933,7 @@
 	  },
 
 	  _incomingAlert() {
+	    this.handleAlertDismiss();
 	    this.setState({
 	      alert: AlertStore.getAlert(), alertVisible: AlertStore.newAlert()
 	    });
@@ -41960,7 +41978,6 @@
 
 	  handleAlertDismiss: function () {
 	    this.setState({ alertVisible: false });
-	    AlertStore.clearAlert();
 	  },
 
 	  handleAlertShow: function () {
@@ -42004,7 +42021,7 @@
 	};
 
 	AlertStore.newAlert = function () {
-	  if (typeof _body == null) {
+	  if (_body === null) {
 	    return false;
 	  } else {
 	    return true;
@@ -42015,19 +42032,14 @@
 	  return { type: _type, body: _body, timeout: _timeout };
 	};
 
-	AlertStore.getNature = function () {
-	  return { nature: _nature };
-	};
-
 	AlertStore.clearAlert = function () {
-	  var _body = null;
-	  var _timeout = null;
-	  var _type = null;
+	  _body = null;
+	  _timeout = null;
+	  _type = null;
 	  // var _nature = null;
 	};
 
 	AlertStore.__onDispatch = function (payload) {
-	  _alert = "";
 	  switch (payload.actionType) {
 	    case DispatchConstants.ALERT_SUCCESS:
 	      console.log("hit disp");
@@ -42044,6 +42056,11 @@
 	      break;
 	    case DispatchConstants.ALERT_DANGER:
 	      AlertStore.update(payload, "danger");
+	      AlertStore.__emitChange();
+	      break;
+	    case DispatchConstants.ALERT_CLEAR:
+	      console.log("alert specifically cleared");
+	      AlertStore.clearAlert();
 	      AlertStore.__emitChange();
 	      break;
 	  }
@@ -42575,6 +42592,8 @@
 
 	var ButtonInput = __webpack_require__(442);
 
+	var TrackStore = __webpack_require__(444);
+
 	var TrackUpload = React.createClass({
 	    mixins: [LinkedStateMixin],
 	    displayName: 'TrackUpload',
@@ -42583,12 +42602,27 @@
 	            title: '', file: null, genre: '', description: ''
 	        };
 	    },
+
 	    componentDidMount() {
 	        this.formData = new FormData();
+	        this.uploadInProgress = false;
+	        this.submitText = "Upload";
+	        this.listenerToken = TrackStore.addListener(this._trackChanged);
+	        this.forceUpdate();
 	    },
+
+	    _trackChanged() {
+	        console.log("trackstore changed");
+	        this.uploadInProgress = false;
+	        this.submitText = "Upload";
+	        this.forceUpdate();
+	    },
+
 	    handleSubmit(e) {
 	        e.preventDefault;
-
+	        this.uploadInProgress = true;
+	        this.submitText = "Uploading...";
+	        this.forceUpdate();
 	        this.formData.append('track', JSON.stringify(this.state));
 	        // this.formData.append('genre', this.state.genre);
 	        // this.formData.append('description', this.state.description);
@@ -42597,6 +42631,7 @@
 	    },
 
 	    sayFile(e) {
+	        e.preventDefault;
 	        var file = e.target.files[0];
 	        this.formData.append('file', file, file.name);
 	        this.setState({ file: file });
@@ -42636,9 +42671,13 @@
 	                )
 	            ),
 	            React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description') }),
-	            React.createElement(ButtonInput, { value: 'Button Input' }),
 	            React.createElement(ButtonInput, { type: 'reset', value: 'Reset Button' }),
-	            React.createElement(ButtonInput, { type: 'submit', value: 'Submit Button', onClick: this.handleSubmit })
+	            React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit }),
+	            this.uploadInProgress ? React.createElement(
+	                'svg',
+	                { className: 'spinner', width: '65px', height: '65px', viewBox: '0 0 66 66', xmlns: 'http://www.w3.org/2000/svg' },
+	                React.createElement('circle', { className: 'path', fill: 'none', strokeWidth: '6', strokeLinecap: 'round', cx: '33', cy: '33', r: '30' })
+	            ) : React.createElement('div', null)
 	        );
 	    }
 	});
@@ -42809,6 +42848,58 @@
 
 	module.exports = FileInput;
 
+
+/***/ },
+/* 444 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Store = __webpack_require__(350).Store;
+	var Dispatcher = __webpack_require__(344);
+	var TrackStore = new Store(Dispatcher);
+
+	var DispatchConstants = __webpack_require__(348);
+
+	var AlertActions = __webpack_require__(366);
+
+	var _track;
+
+	var _tracks = [];
+	var _errors = [];
+
+	TrackStore.getAllTracks = function () {};
+
+	TrackStore.getTrackById = function (id) {};
+
+	TrackStore.getUploadedTrack = function () {
+	  return _track;
+	};
+
+	TrackStore.setTrack = function (track) {
+	  _track = track;
+	};
+
+	TrackStore.__onDispatch = function (payload) {
+	  switch (payload.actionType) {
+	    case DispatchConstants.UPLOAD_SUCCESS:
+	      console.log("success dispatch upload");
+	      console.log(payload.track);
+	      TrackStore.setTrack(payload.track);
+	      TrackStore.__emitChange();
+	      break;
+	    case DispatchConstants.UPLOAD_FAILURE:
+	      console.log("failed to upload");
+	      TrackStore.__emitChange();
+	      break;
+	    case DispatchConstants.FETCH_TRACKS:
+	      console.log("tracks acquired");
+	      TrackStore.__emitChange();
+	      break;
+	  }
+	};
+
+	window.TrackStore = TrackStore;
+
+	module.exports = TrackStore;
 
 /***/ }
 /******/ ]);

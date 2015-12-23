@@ -52,8 +52,8 @@ function requireAuth(nextState, replaceState ){
   console.log(UserStore.isLoggedIn());
   if(!UserStore.isLoggedIn()){
     // history.pushState();
-    AlertActions.danger("You must be logged in to upload a track", 2000);  
     replaceState({ nextPathname: nextState.location.pathname }, '/')
+    AlertActions.danger("You must be logged in to upload a track", 2000);  
   } 
 }
 

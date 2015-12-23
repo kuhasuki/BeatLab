@@ -11,6 +11,7 @@ var DispatchConstants = {
   ALERT_DANGER : "ALERT_DANGER",
   UPLOAD_SUCCESS : "UPLOAD_SUCCESS",
   UPLOAD_FAILURE : "UPLOAD_FAILURE",
+  ALERT_CLEAR : "ALERT_CLEAR"
 };
 
 module.exports = DispatchConstants;

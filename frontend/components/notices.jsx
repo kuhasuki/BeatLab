@@ -17,9 +17,10 @@ var Notices = React.createClass({
   },
 
   _incomingAlert() {
+      this.handleAlertDismiss();
       this.setState({
         alert: AlertStore.getAlert(), alertVisible: AlertStore.newAlert()
-      })
+      });
   },
 
   render() {
@@ -54,7 +55,6 @@ var Notices = React.createClass({
 
   handleAlertDismiss: function () {
     this.setState({alertVisible: false});
-    AlertStore.clearAlert();
   },
 
   handleAlertShow: function () {

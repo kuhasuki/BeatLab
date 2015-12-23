@@ -7,6 +7,8 @@ var DispatchConstants = require('../constants/dispatch_constants.js');
 var AlertActions = require('../actions/alert_actions.js');
 
 
+var _track;
+
 var _tracks = [];
 var _errors = [];
 
@@ -18,14 +20,20 @@ TrackStore.getTrackById = function(id){
 
 };
 
-TrackStore.setTracks = function(id){
+TrackStore.getUploadedTrack = function(){
+  return _track;
+};
 
+TrackStore.setTrack = function(track){
+  _track = track;
 };
 
 TrackStore.__onDispatch = function (payload) {
   switch (payload.actionType) {
     case DispatchConstants.UPLOAD_SUCCESS:
       console.log("success dispatch upload");
+      console.log(payload.track);
+      TrackStore.setTrack(payload.track);
       TrackStore.__emitChange();
       break;
     case DispatchConstants.UPLOAD_FAILURE:

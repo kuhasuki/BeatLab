@@ -5,11 +5,19 @@ var UserTools = require('./user_tools.jsx');
 
 var UserStore = require('../stores/user_store.js');
 
+var AlertActions = require('../actions/alert_actions.js');
+
 
 var Navigation = React.createClass({
+  test(){
+    //preferrably handle onClick for each nav anchor but this'll do for now, won't warn users to sign in
+    console.log("nav changed");
+    AlertActions.clear()
+  },
+
   render: function(){
     return(
-      <nav className="navbar navbar-default navbar-fixed-top" role="navigation">
+      <nav className="navbar navbar-default navbar-fixed-top" role="navigation" onChange={this.test()}>
       <div className="container">
         <div className="navbar-header">
           <button type="button" className="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">

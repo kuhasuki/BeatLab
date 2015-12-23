@@ -42,6 +42,14 @@ var AlertActions = {
         timeout: timeout
       })
     }, 1);
+  },
+
+  clear: function(){
+    setTimeout(function() {
+      Dispatcher.dispatch({
+        actionType: DispatchConstants.ALERT_CLEAR,
+      })
+    }, 1);
   }
 };
 
