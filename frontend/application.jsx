@@ -14,6 +14,7 @@ var Profile = require('./components/profile.jsx');
 var Test = require('./components/test.jsx');
 var Landing = require('./components/landing.jsx');
 var TrackUpload = require('./components/track_upload.jsx');
+var Track = require('./components/track.jsx');
 
 var UserStore = require('./stores/user_store.js');
 var AlertStore = require('./stores/alert_store.js');
@@ -46,10 +47,6 @@ var TrackWave = React.createClass({
 
 function requireAuth(nextState, replaceState ){
   Api.verifySession();
-  console.log('login status');
-  console.log(UserStore.loginStatus());
-  console.log('token status');
-  console.log(UserStore.isLoggedIn());
   if(!UserStore.isLoggedIn()){
     // history.pushState();
     replaceState({ nextPathname: nextState.location.pathname }, '/')
@@ -66,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <Route path="/" component={Landing} />
         <Route path="you" component={Test} />
         <Route path="profile" component={Test} />
+        <Route path="track/:id" component={Track} />
         <Route path="upload" component={TrackUpload} onEnter={requireAuth} />
         <Route path="tracks" components={{c1: Test, c2: Test}} />
       </Route>

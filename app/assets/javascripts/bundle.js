@@ -60,6 +60,7 @@
 	var Test = __webpack_require__(437);
 	var Landing = __webpack_require__(438);
 	var TrackUpload = __webpack_require__(441);
+	var Track = __webpack_require__(445);
 
 	var UserStore = __webpack_require__(349);
 	var AlertStore = __webpack_require__(431);
@@ -93,10 +94,6 @@
 
 	function requireAuth(nextState, replaceState) {
 	  Api.verifySession();
-	  console.log('login status');
-	  console.log(UserStore.loginStatus());
-	  console.log('token status');
-	  console.log(UserStore.isLoggedIn());
 	  if (!UserStore.isLoggedIn()) {
 	    // history.pushState();
 	    replaceState({ nextPathname: nextState.location.pathname }, '/');
@@ -118,6 +115,7 @@
 	        React.createElement(Route, { path: '/', component: Landing }),
 	        React.createElement(Route, { path: 'you', component: Test }),
 	        React.createElement(Route, { path: 'profile', component: Test }),
+	        React.createElement(Route, { path: 'track/:id', component: Track }),
 	        React.createElement(Route, { path: 'upload', component: TrackUpload, onEnter: requireAuth }),
 	        React.createElement(Route, { path: 'tracks', components: { c1: Test, c2: Test } })
 	      )
@@ -25466,7 +25464,7 @@
 	var Navigation = React.createClass({
 	  displayName: 'Navigation',
 
-	  test() {
+	  clearAlerts() {
 	    //preferrably handle onClick for each nav anchor but this'll do for now, won't warn users to sign in
 	    console.log("nav changed");
 	    AlertActions.clear();
@@ -25475,7 +25473,7 @@
 	  render: function () {
 	    return React.createElement(
 	      'nav',
-	      { className: 'navbar navbar-default navbar-fixed-top', role: 'navigation', onChange: this.test() },
+	      { className: 'navbar navbar-default navbar-fixed-top', role: 'navigation' },
 	      React.createElement(
 	        'div',
 	        { className: 'container' },
@@ -25496,7 +25494,7 @@
 	          ),
 	          React.createElement(
 	            'a',
-	            { className: 'navbar-brand', href: '#' },
+	            { className: 'navbar-brand', href: '#', onClick: this.clearAlerts },
 	            'Brand'
 	          )
 	        ),
@@ -25511,7 +25509,7 @@
 	              null,
 	              React.createElement(
 	                'a',
-	                { href: '/' },
+	                { href: '#/', onClick: this.clearAlerts },
 	                'Home'
 	              )
 	            ),
@@ -25520,7 +25518,7 @@
 	              null,
 	              React.createElement(
 	                'a',
-	                { href: '/' },
+	                { href: '#/', onClick: this.clearAlerts },
 	                'About Us'
 	              )
 	            ),
@@ -25529,7 +25527,7 @@
 	              null,
 	              React.createElement(
 	                'a',
-	                { href: '/' },
+	                { href: '#/', onClick: this.clearAlerts },
 	                'Contact'
 	              )
 	            )
@@ -42582,6 +42580,11 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(147);
+	var History = __webpack_require__(159).History;
+	var ReactDOM = __webpack_require__(1);
+	var React = __webpack_require__(147);
+	var Router = __webpack_require__(159).Router;
+	var Route = __webpack_require__(159).Route;
 
 	var LinkedStateMixin = __webpack_require__(243);
 	var FileInput = __webpack_require__(443);
@@ -42613,9 +42616,17 @@
 
 	    _trackChanged() {
 	        console.log("trackstore changed");
-	        this.uploadInProgress = false;
-	        this.submitText = "Upload";
-	        this.forceUpdate();
+	        if (TrackStore.uploadReady()) {
+	            var track = TrackStore.getUploadedTrack();
+	            console.log("track is:");
+	            console.log(track);
+	            debugger;
+	            window.location.href = "#/track/" + track.id;
+	        } else {
+	            this.uploadInProgress = false;
+	            this.submitText = "Upload";
+	            this.forceUpdate();
+	        }
 	    },
 
 	    handleSubmit(e) {
@@ -42863,19 +42874,46 @@
 
 	var _track;
 
+	var _uploaded = false;
 	var _tracks = [];
 	var _errors = [];
+	var _empty = true;
 
 	TrackStore.getAllTracks = function () {};
 
-	TrackStore.getTrackById = function (id) {};
+	TrackStore.getTrackById = function (id) {
+	  for (i = 0; i < _tracks.length; i++) {
+	    if (_tracks[i].id == id) {
+
+	      return _tracks[i];
+	    }
+	  }
+	  return null;
+	};
+
+	TrackStore.populate = function (tracks) {
+	  _empty = false;
+	  _tracks = tracks;
+	};
 
 	TrackStore.getUploadedTrack = function () {
 	  return _track;
 	};
 
+	TrackStore.uploadReady = function () {
+	  return _uploaded;
+	};
+
 	TrackStore.setTrack = function (track) {
-	  _track = track;
+	  console.log(track);
+	  console.log(track.track);
+	  _track = JSON.parse(track).track;
+	  _tracks.push(JSON.parse(track).track);
+	  _uploaded = true;
+	};
+
+	TrackStore.empty = function () {
+	  return _empty;
 	};
 
 	TrackStore.__onDispatch = function (payload) {
@@ -42892,6 +42930,7 @@
 	      break;
 	    case DispatchConstants.FETCH_TRACKS:
 	      console.log("tracks acquired");
+	      TrackStore.populate(payload.tracks);
 	      TrackStore.__emitChange();
 	      break;
 	  }
@@ -42900,6 +42939,51 @@
 	window.TrackStore = TrackStore;
 
 	module.exports = TrackStore;
+
+/***/ },
+/* 445 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ReactDOM = __webpack_require__(1);
+	var React = __webpack_require__(147);
+
+	var TrackStore = __webpack_require__(444);
+
+	var Api = __webpack_require__(342);
+
+	var Track = React.createClass({
+		displayName: 'Track',
+
+		getInitialState() {
+			return {
+				track: "WHAHAHA"
+			};
+		},
+
+		componentDidMount() {
+			if (TrackStore.empty()) {
+				Api.fetchTracks();
+			}
+			this.listenerToken = TrackStore.addListener(this._getTrack);
+		},
+
+		_getTrack() {
+			console.log("callback triggered");
+			console.log(TrackStore.getTrackById(this.props.params.id));
+			this.setState({
+				track: TrackStore.getTrackById(this.props.params.id)
+			});
+		},
+
+		render: function () {
+			console.log(this.props.params);
+
+			console.log(this.state.track);
+			return React.createElement('div', null);
+		}
+	});
+
+	module.exports = Track;
 
 /***/ }
 /******/ ]);

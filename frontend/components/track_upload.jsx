@@ -1,4 +1,9 @@
 var React = require('react');
+var History = require('react-router').History;
+var ReactDOM = require('react-dom');
+var React = require('react');
+var Router = require('react-router').Router;
+var Route = require('react-router').Route;
 
 var LinkedStateMixin = require('react-addons-linked-state-mixin');
 var FileInput = require('react-file-input');
@@ -30,9 +35,17 @@ var TrackUpload = React.createClass({
 
     _trackChanged() {
         console.log("trackstore changed");
-        this.uploadInProgress = false;
-        this.submitText = "Upload";
-        this.forceUpdate();
+        if(TrackStore.uploadReady()){
+            var track = TrackStore.getUploadedTrack();
+            console.log("track is:");
+            console.log(track);
+            debugger;
+            window.location.href = "#/track/" + track.id;
+        } else {
+            this.uploadInProgress = false;
+            this.submitText = "Upload";
+            this.forceUpdate();
+        }
     },
 
     handleSubmit(e){

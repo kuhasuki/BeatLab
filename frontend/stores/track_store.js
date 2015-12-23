@@ -9,23 +9,49 @@ var AlertActions = require('../actions/alert_actions.js');
 
 var _track;
 
+var _uploaded = false;
 var _tracks = [];
 var _errors = [];
+var _empty = true;
 
 TrackStore.getAllTracks = function(){
 
 };
 
 TrackStore.getTrackById = function(id){
+  for(i=0;i<_tracks.length;i++){
+    if(_tracks[i].id == id){
 
+      return _tracks[i];
+    } 
+    
+  }
+  return null;
+};
+
+TrackStore.populate = function(tracks){
+  _empty = false;
+  _tracks = tracks;
 };
 
 TrackStore.getUploadedTrack = function(){
   return _track;
 };
 
+TrackStore.uploadReady = function(){
+  return _uploaded;
+};
+
 TrackStore.setTrack = function(track){
-  _track = track;
+  console.log(track);
+   console.log(track.track);
+  _track = JSON.parse(track).track;
+  _tracks.push(JSON.parse(track).track);
+  _uploaded = true;
+};
+
+TrackStore.empty = function(){
+  return _empty;
 };
 
 TrackStore.__onDispatch = function (payload) {
@@ -42,6 +68,7 @@ TrackStore.__onDispatch = function (payload) {
       break;
     case DispatchConstants.FETCH_TRACKS:
       console.log("tracks acquired");
+      TrackStore.populate(payload.tracks);
       TrackStore.__emitChange();
       break;
   }

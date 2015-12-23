@@ -17,12 +17,9 @@ class Api::TracksController < ApplicationController
     end
 	end
 
-	def upload_success
-		render json: {"WTF": "OMFG"}
-	end
-
 	def index
-		render json: Track.all
+		@tracks = Track.all
+		render 'index.json'
 	end
 
 	def show
