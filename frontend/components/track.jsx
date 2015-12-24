@@ -8,16 +8,13 @@ var Api = require('../util/api.js');
 var Track = React.createClass({
 	getInitialState() {
 	    return {
-	        track: "WHAHAHA"  
+	        track: {}  
 	    };
 	},
 
 	componentDidMount() {
-			// if(TrackStore.empty()){
-				Api.fetchTracks();
-			// }
-	    this.listenerToken = TrackStore.addListener(this._getTrack); 
-	    
+		Api.fetchTracks();
+	  this.listenerToken = TrackStore.addListener(this._getTrack);    
 	},
 
 	componentWillUnmount() {
@@ -25,17 +22,12 @@ var Track = React.createClass({
 	},
 
 	_getTrack(){
-		console.log("callback triggered");
-		console.log(TrackStore.getTrackById(this.props.params.id));
 		this.setState({
 			track: TrackStore.getTrackById(this.props.params.id)
 		})
 	},
 
   render: function(){
-  	console.log(this.props.params);
-
-  	console.log(this.state.track);
     return(
       <div>
       	<audio src={this.state.track.src} preload="auto" controls="true">

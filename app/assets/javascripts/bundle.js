@@ -25473,7 +25473,7 @@
 	  render: function () {
 	    return React.createElement(
 	      'nav',
-	      { className: 'navbar navbar-default navbar-fixed-top', role: 'navigation' },
+	      { className: 'navbar navbar-inverse navbar-fixed-top', role: 'navigation' },
 	      React.createElement(
 	        'div',
 	        { className: 'container' },
@@ -31313,11 +31313,10 @@
 	  switch (payload.actionType) {
 	    case DispatchConstants.LOGIN_SUCCESS:
 	      UserStore.login(payload.user);
-	      AlertActions.success("Logged in successfully", 2000);
+	      AlertActions.success("Welcome back " + payload.user.name, 2000);
 	      UserStore.__emitChange();
 	      break;
 	    case DispatchConstants.LOGIN_FAILURE:
-	      console.log("failed to log in");
 	      UserStore.updateError(payload.error);
 	      UserStore.__emitChange();
 	      break;
@@ -31327,17 +31326,14 @@
 	      UserStore.__emitChange();
 	      break;
 	    case DispatchConstants.REGISTRATION_FAILURE:
-	      console.log("failed to register and log in");
 	      UserStore.updateError(payload.error);
 	      UserStore.__emitChange();
 	      break;
 	    case DispatchConstants.LOGGED_IN:
-	      console.log("Logged in");
 	      UserStore.login(payload.user);
 	      UserStore.__emitChange();
 	      break;
 	    case DispatchConstants.LOGGED_OUT:
-	      console.log("Logged out");
 	      UserStore.logout();
 	      UserStore.__emitChange();
 	      break;
@@ -41820,11 +41816,7 @@
 							React.createElement(
 									Row,
 									{ className: 'show-grid' },
-									React.createElement(
-											Col,
-											{ style: divStyle },
-											this.props.children
-									),
+									this.props.children,
 									React.createElement(Col, null),
 									React.createElement(
 											Col,
@@ -42471,11 +42463,17 @@
 	var React = __webpack_require__(147);
 	var CallToAction = __webpack_require__(439);
 
+	var Col = __webpack_require__(434);
+
 	var Landing = React.createClass({
 	  displayName: 'Landing',
 
 	  render: function () {
-	    return React.createElement(CallToAction, null);
+	    return React.createElement(
+	      Col,
+	      null,
+	      React.createElement(CallToAction, null)
+	    );
 	  }
 	});
 
@@ -42579,26 +42577,19 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(147);
-	var History = __webpack_require__(159).History;
-	var ReactDOM = __webpack_require__(1);
-	var React = __webpack_require__(147);
-	var Router = __webpack_require__(159).Router;
-	var Route = __webpack_require__(159).Route;
-
 	var LinkedStateMixin = __webpack_require__(243);
-	var FileInput = __webpack_require__(443);
 
 	var Api = __webpack_require__(342);
-
-	var Input = __webpack_require__(331);
-
-	var ButtonInput = __webpack_require__(442);
-
 	var TrackStore = __webpack_require__(444);
 
+	var Input = __webpack_require__(331);
+	var ButtonInput = __webpack_require__(442);
+	var Col = __webpack_require__(434);
+
 	var TrackUpload = React.createClass({
-	    mixins: [LinkedStateMixin],
 	    displayName: 'TrackUpload',
+
+	    mixins: [LinkedStateMixin],
 	    getInitialState() {
 	        return {
 	            title: '', file: null, genre: '', description: ''
@@ -42614,11 +42605,8 @@
 	    },
 
 	    _trackChanged() {
-	        console.log("trackstore changed");
 	        if (TrackStore.uploadReady()) {
 	            var track = TrackStore.getUploadedTrack();
-	            console.log("track is:");
-	            console.log(track);
 	            this.listenerToken.remove();
 	            window.location.href = "#/track/" + track.id;
 	        } else {
@@ -42630,13 +42618,13 @@
 
 	    handleSubmit(e) {
 	        e.preventDefault;
+
 	        this.uploadInProgress = true;
 	        this.submitText = "Uploading...";
+
 	        this.forceUpdate();
+
 	        this.formData.append('track', JSON.stringify(this.state));
-	        // this.formData.append('genre', this.state.genre);
-	        // this.formData.append('description', this.state.description);
-	        console.log(this.formData);
 	        Api.upload(this.formData);
 	    },
 
@@ -42645,49 +42633,44 @@
 	        var file = e.target.files[0];
 	        this.formData.append('file', file, file.name);
 	        this.setState({ file: file });
-
-	        // var business;
-	        // console.log(e);
-	        // if (e.target.files && e.target.files[0]) {
-	        //   fileReader = new FileReader();
-	        //   fileReader.onload = function (event) {
-	        //    	business = event.target.result;
-	        //    	console.log(business);
-	        //   }
-	        //   fileReader.readAsDataURL(e.target.files[0]);
-	        // }
-	        // console.log(business);
-	        // console.log(this.refs);
 	    },
 
 	    render() {
 	        return React.createElement(
-	            'form',
-	            null,
-	            React.createElement(Input, { type: 'text', label: 'Title', valueLink: this.linkState('title') }),
-	            React.createElement(Input, { type: 'file', accept: '.mp3', className: 'btn', label: 'File', onChange: this.sayFile }),
+	            Col,
+	            { xs: 12, md: 10, mdOffset: 1, lg: 8, lgOffset: 2 },
 	            React.createElement(
-	                Input,
-	                { type: 'select', label: 'Genre', placeholder: 'select', valueLink: this.linkState('genre') },
+	                'form',
+	                null,
+	                React.createElement(Input, { type: 'text', label: 'Title', valueLink: this.linkState('title'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                React.createElement(Input, { type: 'file', accept: '.mp3', className: 'btn', style: { "marginBottom": "10px" }, label: 'File', onChange: this.sayFile, labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
 	                React.createElement(
-	                    'option',
-	                    { value: 'Polka' },
-	                    'Polka'
+	                    Input,
+	                    { type: 'select', label: 'Genre', placeholder: 'select', valueLink: this.linkState('genre'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' },
+	                    React.createElement(
+	                        'option',
+	                        { value: 'Polka' },
+	                        'Polka'
+	                    ),
+	                    React.createElement(
+	                        'option',
+	                        { value: 'Turbo Folk' },
+	                        'Turbo Folk'
+	                    )
 	                ),
-	                React.createElement(
-	                    'option',
-	                    { value: 'Turbo Folk' },
-	                    'Turbo Folk'
-	                )
-	            ),
-	            React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description') }),
-	            React.createElement(ButtonInput, { type: 'reset', value: 'Reset Button' }),
-	            React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit }),
-	            this.uploadInProgress ? React.createElement(
-	                'svg',
-	                { className: 'spinner', width: '65px', height: '65px', viewBox: '0 0 66 66', xmlns: 'http://www.w3.org/2000/svg' },
-	                React.createElement('circle', { className: 'path', fill: 'none', strokeWidth: '6', strokeLinecap: 'round', cx: '33', cy: '33', r: '30' })
-	            ) : React.createElement('div', null)
+	                React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                React.createElement(ButtonInput, { type: 'reset', value: 'Reset', style: { "marginBottom": "10px" }, wrapperClassName: 'col-xs-offset-2 col-xs-10' }),
+	                React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' }),
+	                this.uploadInProgress ? React.createElement(
+	                    'div',
+	                    { style: { "marginTop": "-40px" }, className: 'col-xs-4' },
+	                    React.createElement(
+	                        'svg',
+	                        { className: 'spinner', width: '65px', height: '65px', viewBox: '0 0 66 66', xmlns: 'http://www.w3.org/2000/svg' },
+	                        React.createElement('circle', { className: 'path', fill: 'none', strokeWidth: '6', strokeLinecap: 'round', cx: '33', cy: '33', r: '30' })
+	                    )
+	                ) : React.createElement('div', null)
+	            )
 	        );
 	    }
 	});
@@ -42789,77 +42772,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 443 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(147);
-
-	var FileInput = React.createClass({
-	  getInitialState: function() {
-	    return {
-	      value: '',
-	      styles: {
-	        parent: {
-	          position: 'relative'
-	        },
-	        file: {
-	          position: 'absolute',
-	          top: 0,
-	          left: 0,
-	          opacity: 0,
-	          width: '100%',
-	          zIndex: 1
-	        },
-	        text: {
-	          position: 'relative',
-	          zIndex: -1
-	        }
-	      }
-	    };
-	  },
-
-	  handleChange: function(e) {
-	    this.setState({
-	      value: e.target.value.split(/(\\|\/)/g).pop()
-	    });
-	    if (this.props.onChange) this.props.onChange(e);
-	  },
-
-	  render: function() {
-	    return React.DOM.div({
-	        style: this.state.styles.parent
-	      },
-
-	      // Actual file input
-	      React.DOM.input({
-	        type: 'file',
-	        name: this.props.name,
-	        className: this.props.className,
-	        onChange: this.handleChange,
-	        disabled: this.props.disabled,
-	        accept: this.props.accept,
-	        style: this.state.styles.file
-	      }),
-
-	      // Emulated file input
-	      React.DOM.input({
-	        type: 'text',
-	        tabIndex: -1,
-	        name: this.props.name + '_filename',
-	        value: this.state.value,
-	        className: this.props.className,
-	        onChange: function() {},
-	        placeholder: this.props.placeholder,
-	        disabled: this.props.disabled,
-	        style: this.state.styles.text
-	      }));
-	  }
-	});
-
-	module.exports = FileInput;
-
-
-/***/ },
+/* 443 */,
 /* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -42872,24 +42785,22 @@
 	var AlertActions = __webpack_require__(366);
 
 	var _track;
-
 	var _uploaded = false;
 	var _tracks = [];
-	var _errors = [];
 	var _empty = true;
 
-	TrackStore.getAllTracks = function () {};
+	TrackStore.getAllTracks = function () {
+	  return _tracks;
+	};
 
 	TrackStore.getTrackById = function (id) {
+
 	  if (_track && _track.id == id) {
 	    return _track;
 	  }
 
-	  // console.log(_tracks.length);
 	  for (i = 0; i < _tracks.length; i++) {
-	    // console.log(i);
 	    if (_tracks[i].id == id) {
-
 	      return _tracks[i];
 	    }
 	  }
@@ -42910,8 +42821,6 @@
 	};
 
 	TrackStore.setTrack = function (track) {
-	  console.log(track);
-	  console.log(track.track);
 	  _track = JSON.parse(track).track;
 	  _uploaded = true;
 	};
@@ -42923,17 +42832,13 @@
 	TrackStore.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
 	    case DispatchConstants.UPLOAD_SUCCESS:
-	      console.log("success dispatch upload");
-	      console.log(payload.track);
 	      TrackStore.setTrack(payload.track);
 	      TrackStore.__emitChange();
 	      break;
 	    case DispatchConstants.UPLOAD_FAILURE:
-	      console.log("failed to upload");
 	      TrackStore.__emitChange();
 	      break;
 	    case DispatchConstants.FETCH_TRACKS:
-	      console.log("tracks acquired");
 	      TrackStore.populate(payload.tracks);
 	      TrackStore.__emitChange();
 	      break;
@@ -42956,43 +42861,36 @@
 	var Api = __webpack_require__(342);
 
 	var Track = React.createClass({
-			displayName: 'Track',
+		displayName: 'Track',
 
-			getInitialState() {
-					return {
-							track: "WHAHAHA"
-					};
-			},
+		getInitialState() {
+			return {
+				track: {}
+			};
+		},
 
-			componentDidMount() {
-					// if(TrackStore.empty()){
-					Api.fetchTracks();
-					// }
-					this.listenerToken = TrackStore.addListener(this._getTrack);
-			},
+		componentDidMount() {
+			Api.fetchTracks();
+			this.listenerToken = TrackStore.addListener(this._getTrack);
+		},
 
-			componentWillUnmount() {
-					this.listenerToken.remove();
-			},
+		componentWillUnmount() {
+			this.listenerToken.remove();
+		},
 
-			_getTrack() {
-					console.log("callback triggered");
-					console.log(TrackStore.getTrackById(this.props.params.id));
-					this.setState({
-							track: TrackStore.getTrackById(this.props.params.id)
-					});
-			},
+		_getTrack() {
+			this.setState({
+				track: TrackStore.getTrackById(this.props.params.id)
+			});
+		},
 
-			render: function () {
-					console.log(this.props.params);
-
-					console.log(this.state.track);
-					return React.createElement(
-							'div',
-							null,
-							React.createElement('audio', { src: this.state.track.src, preload: 'auto', controls: 'true' })
-					);
-			}
+		render: function () {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement('audio', { src: this.state.track.src, preload: 'auto', controls: 'true' })
+			);
+		}
 	});
 
 	module.exports = Track;

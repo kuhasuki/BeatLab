@@ -65,11 +65,10 @@ UserStore.__onDispatch = function (payload) {
   switch (payload.actionType) {
     case DispatchConstants.LOGIN_SUCCESS:
       UserStore.login(payload.user);
-      AlertActions.success("Logged in successfully", 2000);
+      AlertActions.success("Welcome back " + payload.user.name, 2000);
       UserStore.__emitChange();
       break;
     case DispatchConstants.LOGIN_FAILURE:
-      console.log("failed to log in");
       UserStore.updateError(payload.error);
       UserStore.__emitChange();
       break;
@@ -79,17 +78,14 @@ UserStore.__onDispatch = function (payload) {
       UserStore.__emitChange();
       break;
     case DispatchConstants.REGISTRATION_FAILURE:
-      console.log("failed to register and log in");
       UserStore.updateError(payload.error);
       UserStore.__emitChange();
       break;
     case DispatchConstants.LOGGED_IN:
-      console.log("Logged in");
       UserStore.login(payload.user);
       UserStore.__emitChange();
       break;
     case DispatchConstants.LOGGED_OUT:
-      console.log("Logged out");
       UserStore.logout();
       UserStore.__emitChange();
       break;

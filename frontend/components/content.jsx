@@ -23,7 +23,7 @@ var Content = React.createClass({
 		    </Row>
 
 		    <Row className="show-grid">
-		    	<Col style={divStyle}>{this.props.children}</Col>
+		    	{this.props.children}
 		    	<Col ></Col>
 		      <Col xs={6} md={4}><code>&lt;{'Col xs={6} md={4}'} /&gt;</code></Col>
 		      <Col xs={6} md={4}><code>&lt;{'Col xs={6} md={4}'} /&gt;</code></Col>

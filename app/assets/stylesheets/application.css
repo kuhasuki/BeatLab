@@ -35,3 +35,7 @@
         display: none;
      }
 }
+
+input, select, textarea {
+    margin-bottom: 10px;
+}

@@ -1,24 +1,15 @@
 var React = require('react');
-var History = require('react-router').History;
-var ReactDOM = require('react-dom');
-var React = require('react');
-var Router = require('react-router').Router;
-var Route = require('react-router').Route;
-
 var LinkedStateMixin = require('react-addons-linked-state-mixin');
-var FileInput = require('react-file-input');
 
 var Api = require('../util/api.js');
+var TrackStore = require('../stores/track_store.js');
 
 var Input = require('react-bootstrap/lib/Input');
-
 var ButtonInput = require('react-bootstrap/lib/ButtonInput');
-
-var TrackStore = require('../stores/track_store.js');
+var Col = require('react-bootstrap/lib/Col');
 
 var TrackUpload = React.createClass({
 	mixins: [LinkedStateMixin],
-    displayName: 'TrackUpload',
     getInitialState() {
         return {
             title: '', file : null, genre: '', description: ''
@@ -34,11 +25,8 @@ var TrackUpload = React.createClass({
     },
 
     _trackChanged() {
-        console.log("trackstore changed");
         if(TrackStore.uploadReady()){
             var track = TrackStore.getUploadedTrack();
-            console.log("track is:");
-            console.log(track);
             this.listenerToken.remove();
             window.location.href = "#/track/" + track.id;
         } else {
@@ -50,13 +38,13 @@ var TrackUpload = React.createClass({
 
     handleSubmit(e){
     	e.preventDefault;
+
         this.uploadInProgress = true;
         this.submitText = "Uploading...";
+
         this.forceUpdate();
+
     	this.formData.append('track', JSON.stringify(this.state));
-    	// this.formData.append('genre', this.state.genre);
-    	// this.formData.append('description', this.state.description);
-    	console.log(this.formData);
     	Api.upload(this.formData);
     },
 
@@ -65,39 +53,29 @@ var TrackUpload = React.createClass({
     	var file = e.target.files[0];
     	this.formData.append('file', file, file.name);
     	this.setState({file : file});
-
-
-    	// var business;
-    	// console.log(e);
-    	// if (e.target.files && e.target.files[0]) {
-	    //   fileReader = new FileReader();
-	    //   fileReader.onload = function (event) {
-	    //    	business = event.target.result;
-	    //    	console.log(business);
-	    //   }
-	    //   fileReader.readAsDataURL(e.target.files[0]);
-	    // }
-	    // console.log(business);
-	    // console.log(this.refs);
     },
 
     render() {
         return (
+        <Col xs={12} md={10} mdOffset={1} lg={8} lgOffset={2}>
         	<form>
-	        	<Input type="text" label="Title" valueLink={this.linkState('title')} />
-	        	<Input type="file" accept=".mp3" className="btn" label="File" onChange={this.sayFile} />
+                <Input type="text" label="Title" valueLink={this.linkState('title')} labelClassName="col-xs-2" wrapperClassName="col-xs-10" />
+                <Input type="file" accept=".mp3" className="btn" style={{"marginBottom" : "10px"}} label="File" onChange={this.sayFile} labelClassName="col-xs-2" wrapperClassName="col-xs-10"/>
+	        	
 
-	        	<Input type="select" label="Genre" placeholder="select" valueLink={this.linkState('genre')}>
-	          <option value="Polka">Polka</option>
-	        	<option value="Turbo Folk">Turbo Folk</option>
+	        	<Input type="select" label="Genre" placeholder="select" valueLink={this.linkState('genre')}  labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+                    <option value="Polka">Polka</option>
+                    <option value="Turbo Folk">Turbo Folk</option>
 	        	</Input>
-	        	<Input type="textarea" label="Description" placeholder="" valueLink={this.linkState('description')}/>
-	        	<ButtonInput type="reset" value="Reset Button" />
-	        	<ButtonInput value={this.submitText} disabled={this.uploadInProgress} onClick={this.handleSubmit}/>
-                {this.uploadInProgress ? <svg className="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+
+	        	<Input type="textarea" label="Description" placeholder="" valueLink={this.linkState('description')} labelClassName="col-xs-2" wrapperClassName="col-xs-10"/>
+        	<ButtonInput type="reset" value="Reset" style={{"marginBottom" : "10px"}} wrapperClassName="col-xs-offset-2 col-xs-10" />
+	        	<ButtonInput value={this.submitText} disabled={this.uploadInProgress} onClick={this.handleSubmit} wrapperClassName="col-xs-offset-2 col-xs-2"/>
+                {this.uploadInProgress ? <div style={{"marginTop" : "-40px"}} className="col-xs-4"><svg className="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
                     <circle className="path" fill="none" strokeWidth="6" strokeLinecap="round" cx="33" cy="33" r="30"></circle>
-                </svg> : <div></div> }
+                </svg></div> : <div></div> }
         	</form>
+        </Col>
         );
     }
 });
