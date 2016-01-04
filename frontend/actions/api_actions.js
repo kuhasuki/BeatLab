@@ -79,7 +79,38 @@ var ApiActions = {
       actionType: DispatchConstants.FETCH_TRACKS,
       tracks: data
     }); 
-  }
+  },
+
+  fetchMyTracks: function(data){
+    console.log(data);
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.FETCH_MY_TRACKS,
+      tracks: data
+    }); 
+  },
+
+  getUserInfo: function(data){
+    console.log(data);
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.GET_USER_INFO,
+      user: data
+    }); 
+  },
+
+  startPlayback: function(data){
+    console.log(data);
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.START_PLAYBACK,
+      track: data
+    }); 
+  },
+
+  stopPlayback: function(){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.STOP_PLAYBACK,
+    }); 
+  },
+
 };
 
 module.exports = ApiActions;

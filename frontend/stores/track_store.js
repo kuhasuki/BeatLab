@@ -10,6 +10,8 @@ var _track;
 var _uploaded = false;
 var _tracks = [];
 var _empty = true;
+var _sticky_track = {};
+var _play = false;
 
 TrackStore.getAllTracks = function(){
   return _tracks;
@@ -48,8 +50,21 @@ TrackStore.setTrack = function(track){
   _uploaded = true;
 };
 
+TrackStore.setStickyTrack = function(track){
+  _sticky_track = track;
+  _play = true;
+};
+
+TrackStore.getStickyTrack = function(){
+  return _sticky_track;
+};
+
 TrackStore.empty = function(){
   return _empty;
+};
+
+TrackStore.play = function(){
+  return _play;
 };
 
 TrackStore.__onDispatch = function (payload) {
@@ -63,6 +78,19 @@ TrackStore.__onDispatch = function (payload) {
       break;
     case DispatchConstants.FETCH_TRACKS:
       TrackStore.populate(payload.tracks);
+      TrackStore.__emitChange();
+      break;
+    case DispatchConstants.FETCH_MY_TRACKS:
+      TrackStore.populate(payload.tracks);
+      TrackStore.__emitChange();
+      break;
+    case DispatchConstants.START_PLAYBACK:
+      TrackStore.setStickyTrack(payload.track);
+      TrackStore.__emitChange();
+      break;
+    case DispatchConstants.STOP_PLAYBACK:
+      _sticky_track = null;
+      _play = false;
       TrackStore.__emitChange();
       break;
   }

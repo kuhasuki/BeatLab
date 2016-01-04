@@ -59,14 +59,15 @@
 	var Profile = __webpack_require__(436);
 	var Test = __webpack_require__(437);
 	var Landing = __webpack_require__(438);
-	var TrackUpload = __webpack_require__(441);
-	var Track = __webpack_require__(445);
+	var TrackUpload = __webpack_require__(440);
+	var Track = __webpack_require__(443);
+	var MyTracks = __webpack_require__(446);
 
-	var UserStore = __webpack_require__(349);
+	var UserStore = __webpack_require__(350);
 	var AlertStore = __webpack_require__(431);
 	var Api = __webpack_require__(342);
 
-	var AlertActions = __webpack_require__(366);
+	var AlertActions = __webpack_require__(349);
 	var Dispatcher = __webpack_require__(344);
 
 	var TrackWave = React.createClass({
@@ -113,11 +114,11 @@
 	        Route,
 	        { component: Content },
 	        React.createElement(Route, { path: '/', component: Landing }),
+	        React.createElement(Route, { path: '/:user_id/tracks', component: MyTracks }),
 	        React.createElement(Route, { path: 'you', component: Test }),
 	        React.createElement(Route, { path: 'profile', component: Test }),
 	        React.createElement(Route, { path: 'track/:id', component: Track }),
-	        React.createElement(Route, { path: 'upload', component: TrackUpload, onEnter: requireAuth }),
-	        React.createElement(Route, { path: 'tracks', components: { c1: Test, c2: Test } })
+	        React.createElement(Route, { path: 'upload', component: TrackUpload, onEnter: requireAuth })
 	      )
 	    )
 	  ), root);
@@ -25457,9 +25458,9 @@
 
 	var UserTools = __webpack_require__(242);
 
-	var UserStore = __webpack_require__(349);
+	var UserStore = __webpack_require__(350);
 
-	var AlertActions = __webpack_require__(366);
+	var AlertActions = __webpack_require__(349);
 
 	var Navigation = React.createClass({
 	  displayName: 'Navigation',
@@ -25473,13 +25474,13 @@
 	  render: function () {
 	    return React.createElement(
 	      'nav',
-	      { className: 'navbar navbar-inverse navbar-fixed-top', role: 'navigation' },
+	      { className: 'navbar navbar-inverse navbar-fixed-top mdl-shadow--4dp', role: 'navigation' },
 	      React.createElement(
 	        'div',
-	        { className: 'container' },
+	        { className: 'container ' },
 	        React.createElement(
 	          'div',
-	          { className: 'navbar-header' },
+	          { className: 'navbar-header ' },
 	          React.createElement(
 	            'button',
 	            { type: 'button', className: 'navbar-toggle', 'data-toggle': 'collapse', 'data-target': '.navbar-collapse' },
@@ -25495,7 +25496,7 @@
 	          React.createElement(
 	            'a',
 	            { className: 'navbar-brand', href: '#', onClick: this.clearAlerts },
-	            'Brand'
+	            'Beatlab'
 	          )
 	        ),
 	        React.createElement(
@@ -25558,7 +25559,7 @@
 
 	var Api = __webpack_require__(342);
 
-	var UserStore = __webpack_require__(349);
+	var UserStore = __webpack_require__(350);
 
 	var Login = __webpack_require__(367);
 	var Register = __webpack_require__(368);
@@ -30736,7 +30737,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var ApiActions = __webpack_require__(343);
-	var AlertActions = __webpack_require__(366);
+	var AlertActions = __webpack_require__(349);
 
 	Api = {
 	  login: function (name, password) {
@@ -30760,6 +30761,18 @@
 	  fetchTracks: function () {
 	    $.get('/api/tracks', {}, function (data) {
 	      ApiActions.fetchTracks(data);
+	    });
+	  },
+
+	  fetchMyTracks: function (id) {
+	    $.get('/api/tracks/' + id, {}, function (data) {
+	      ApiActions.fetchMyTracks(data);
+	    });
+	  },
+
+	  getUserInfo: function (id) {
+	    $.get('/users/' + id, {}, function (data) {
+	      ApiActions.getUserInfo(data);
 	    });
 	  },
 
@@ -30899,7 +30912,38 @@
 	      actionType: DispatchConstants.FETCH_TRACKS,
 	      tracks: data
 	    });
+	  },
+
+	  fetchMyTracks: function (data) {
+	    console.log(data);
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.FETCH_MY_TRACKS,
+	      tracks: data
+	    });
+	  },
+
+	  getUserInfo: function (data) {
+	    console.log(data);
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.GET_USER_INFO,
+	      user: data
+	    });
+	  },
+
+	  startPlayback: function (data) {
+	    console.log(data);
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.START_PLAYBACK,
+	      track: data
+	    });
+	  },
+
+	  stopPlayback: function () {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.STOP_PLAYBACK
+	    });
 	  }
+
 	};
 
 	module.exports = ApiActions;
@@ -31237,7 +31281,12 @@
 	  ALERT_DANGER: "ALERT_DANGER",
 	  UPLOAD_SUCCESS: "UPLOAD_SUCCESS",
 	  UPLOAD_FAILURE: "UPLOAD_FAILURE",
-	  ALERT_CLEAR: "ALERT_CLEAR"
+	  ALERT_CLEAR: "ALERT_CLEAR",
+	  FETCH_TRACKS: "FETCH_TRACKS",
+	  FETCH_MY_TRACKS: "FETCH_MY_TRACKS",
+	  GET_USER_INFO: "GET_USER_INFO",
+	  START_PLAYBACK: "START_PLAYBACK",
+	  STOP_PLAYBACK: "STOP_PLAYBACK"
 	};
 
 	module.exports = DispatchConstants;
@@ -31246,32 +31295,94 @@
 /* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Store = __webpack_require__(350).Store;
+	var Dispatcher = __webpack_require__(344);
+	var DispatchConstants = __webpack_require__(348);
+
+	var AlertActions = {
+
+	  success: function (body, timeout) {
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_SUCCESS,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
+	    console.log('dispatching sussess');
+	  },
+
+	  info: function (body, timeout) {
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_INFO,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
+	  },
+
+	  warning: function (body, timeout) {
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_WARNING,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
+	  },
+
+	  danger: function (body, timeout) {
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_DANGER,
+	        body: body,
+	        timeout: timeout
+	      });
+	    }, 1);
+	  },
+
+	  clear: function () {
+	    setTimeout(function () {
+	      Dispatcher.dispatch({
+	        actionType: DispatchConstants.ALERT_CLEAR
+	      });
+	    }, 1);
+	  }
+	};
+
+	window.AlertActions = AlertActions;
+
+	module.exports = AlertActions;
+
+/***/ },
+/* 350 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Store = __webpack_require__(351).Store;
 	var Dispatcher = __webpack_require__(344);
 	var UserStore = new Store(Dispatcher);
 
 	var DispatchConstants = __webpack_require__(348);
 
-	var AlertActions = __webpack_require__(366);
-	//
-	// BenchStore.all = function () {
-	// return _benches.slice(0);
-	// };
-	//
-	// BenchStore.repopulateAll = function (benches) {
-	//   _benches = [];
-	//   benches.benches.forEach(function(bench){
-	//     _benches.push(bench);
-	//   })
-	// };
+	var AlertActions = __webpack_require__(349);
+
 	var _benches = [];
 	var _error = '';
 	var _loggedIn = null;
 	var _user = {};
+	var _public_user = {};
 
 	UserStore.updateError = function (error) {
 	  console.log(error);
 	  _error = error;
+	};
+
+	UserStore.setPublicUser = function (user) {
+	  _public_user = user;
+	};
+
+	UserStore.getPublicUser = function () {
+	  return _public_user;
 	};
 
 	UserStore.getError = function () {
@@ -31337,6 +31448,10 @@
 	      UserStore.logout();
 	      UserStore.__emitChange();
 	      break;
+	    case DispatchConstants.GET_USER_INFO:
+	      UserStore.setPublicUser(payload.user);
+	      UserStore.__emitChange();
+	      break;
 	  }
 	};
 
@@ -31345,7 +31460,7 @@
 	module.exports = UserStore;
 
 /***/ },
-/* 350 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -31357,15 +31472,15 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 
-	module.exports.Container = __webpack_require__(351);
-	module.exports.MapStore = __webpack_require__(354);
-	module.exports.Mixin = __webpack_require__(365);
-	module.exports.ReduceStore = __webpack_require__(355);
-	module.exports.Store = __webpack_require__(356);
+	module.exports.Container = __webpack_require__(352);
+	module.exports.MapStore = __webpack_require__(355);
+	module.exports.Mixin = __webpack_require__(366);
+	module.exports.ReduceStore = __webpack_require__(356);
+	module.exports.Store = __webpack_require__(357);
 
 
 /***/ },
-/* 351 */
+/* 352 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -31387,10 +31502,10 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var FluxStoreGroup = __webpack_require__(352);
+	var FluxStoreGroup = __webpack_require__(353);
 
 	var invariant = __webpack_require__(347);
-	var shallowEqual = __webpack_require__(353);
+	var shallowEqual = __webpack_require__(354);
 
 	var DEFAULT_OPTIONS = {
 	  pure: true,
@@ -31548,7 +31663,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 352 */
+/* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -31629,7 +31744,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 353 */
+/* 354 */
 /***/ function(module, exports) {
 
 	/**
@@ -31684,7 +31799,7 @@
 	module.exports = shallowEqual;
 
 /***/ },
-/* 354 */
+/* 355 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -31705,8 +31820,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var FluxReduceStore = __webpack_require__(355);
-	var Immutable = __webpack_require__(364);
+	var FluxReduceStore = __webpack_require__(356);
+	var Immutable = __webpack_require__(365);
 
 	var invariant = __webpack_require__(347);
 
@@ -31834,7 +31949,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 355 */
+/* 356 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -31855,9 +31970,9 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var FluxStore = __webpack_require__(356);
+	var FluxStore = __webpack_require__(357);
 
-	var abstractMethod = __webpack_require__(363);
+	var abstractMethod = __webpack_require__(364);
 	var invariant = __webpack_require__(347);
 
 	var FluxReduceStore = (function (_FluxStore) {
@@ -31941,7 +32056,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 356 */
+/* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -31960,7 +32075,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var _require = __webpack_require__(357);
+	var _require = __webpack_require__(358);
 
 	var EventEmitter = _require.EventEmitter;
 
@@ -32124,7 +32239,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 357 */
+/* 358 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32137,14 +32252,14 @@
 	 */
 
 	var fbemitter = {
-	  EventEmitter: __webpack_require__(358)
+	  EventEmitter: __webpack_require__(359)
 	};
 
 	module.exports = fbemitter;
 
 
 /***/ },
-/* 358 */
+/* 359 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -32163,10 +32278,10 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var EmitterSubscription = __webpack_require__(359);
-	var EventSubscriptionVendor = __webpack_require__(361);
+	var EmitterSubscription = __webpack_require__(360);
+	var EventSubscriptionVendor = __webpack_require__(362);
 
-	var emptyFunction = __webpack_require__(362);
+	var emptyFunction = __webpack_require__(363);
 	var invariant = __webpack_require__(347);
 
 	/**
@@ -32341,7 +32456,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 359 */
+/* 360 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32362,7 +32477,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var EventSubscription = __webpack_require__(360);
+	var EventSubscription = __webpack_require__(361);
 
 	/**
 	 * EmitterSubscription represents a subscription with listener and context data.
@@ -32394,7 +32509,7 @@
 	module.exports = EmitterSubscription;
 
 /***/ },
-/* 360 */
+/* 361 */
 /***/ function(module, exports) {
 
 	/**
@@ -32445,7 +32560,7 @@
 	module.exports = EventSubscription;
 
 /***/ },
-/* 361 */
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -32554,7 +32669,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 362 */
+/* 363 */
 /***/ function(module, exports) {
 
 	/**
@@ -32597,7 +32712,7 @@
 	module.exports = emptyFunction;
 
 /***/ },
-/* 363 */
+/* 364 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -32624,7 +32739,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 364 */
+/* 365 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37611,7 +37726,7 @@
 	}));
 
 /***/ },
-/* 365 */
+/* 366 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -37628,7 +37743,7 @@
 
 	'use strict';
 
-	var FluxStoreGroup = __webpack_require__(352);
+	var FluxStoreGroup = __webpack_require__(353);
 
 	var invariant = __webpack_require__(347);
 
@@ -37734,69 +37849,6 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 366 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Dispatcher = __webpack_require__(344);
-	var DispatchConstants = __webpack_require__(348);
-
-	var AlertActions = {
-
-	  success: function (body, timeout) {
-	    setTimeout(function () {
-	      Dispatcher.dispatch({
-	        actionType: DispatchConstants.ALERT_SUCCESS,
-	        body: body,
-	        timeout: timeout
-	      });
-	    }, 1);
-	    console.log('dispatching sussess');
-	  },
-
-	  info: function (body, timeout) {
-	    setTimeout(function () {
-	      Dispatcher.dispatch({
-	        actionType: DispatchConstants.ALERT_INFO,
-	        body: body,
-	        timeout: timeout
-	      });
-	    }, 1);
-	  },
-
-	  warning: function (body, timeout) {
-	    setTimeout(function () {
-	      Dispatcher.dispatch({
-	        actionType: DispatchConstants.ALERT_WARNING,
-	        body: body,
-	        timeout: timeout
-	      });
-	    }, 1);
-	  },
-
-	  danger: function (body, timeout) {
-	    setTimeout(function () {
-	      Dispatcher.dispatch({
-	        actionType: DispatchConstants.ALERT_DANGER,
-	        body: body,
-	        timeout: timeout
-	      });
-	    }, 1);
-	  },
-
-	  clear: function () {
-	    setTimeout(function () {
-	      Dispatcher.dispatch({
-	        actionType: DispatchConstants.ALERT_CLEAR
-	      });
-	    }, 1);
-	  }
-	};
-
-	window.AlertActions = AlertActions;
-
-	module.exports = AlertActions;
-
-/***/ },
 /* 367 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -37812,9 +37864,9 @@
 	var Input = __webpack_require__(331);
 	var Alert = __webpack_require__(341);
 
-	var UserStore = __webpack_require__(349);
+	var UserStore = __webpack_require__(350);
 
-	var AlertActions = __webpack_require__(366);
+	var AlertActions = __webpack_require__(349);
 	var Dispatcher = __webpack_require__(344);
 
 	var Login = React.createClass({
@@ -37935,7 +37987,7 @@
 	var Input = __webpack_require__(331);
 	var Alert = __webpack_require__(341);
 
-	var UserStore = __webpack_require__(349);
+	var UserStore = __webpack_require__(350);
 
 	var Register = React.createClass({
 	  displayName: 'Register',
@@ -38075,7 +38127,7 @@
 	var MenuItem = __webpack_require__(428);
 	var Glyphicon = __webpack_require__(335);
 
-	var UserStore = __webpack_require__(349);
+	var UserStore = __webpack_require__(350);
 
 	var ProfileOptions = React.createClass({
 	  displayName: 'ProfileOptions',
@@ -38106,20 +38158,7 @@
 	      ),
 	      React.createElement(
 	        MenuItem,
-	        { eventKey: 3.2 },
-	        React.createElement(Glyphicon, { glyph: 'music' }),
-	        ' Visualizer'
-	      ),
-	      React.createElement(
-	        MenuItem,
-	        { eventKey: 3.3 },
-	        React.createElement(Glyphicon, { glyph: 'tasks' }),
-	        ' Playlists'
-	      ),
-	      React.createElement(MenuItem, { divider: true }),
-	      React.createElement(
-	        MenuItem,
-	        { eventKey: 3.3 },
+	        { eventKey: 3.3, href: "#/" + this.state.user.id + "/tracks" },
 	        React.createElement(Glyphicon, { glyph: 'th-list' }),
 	        ' Tracks'
 	      )
@@ -41806,92 +41845,17 @@
 							null,
 							React.createElement(
 									Row,
-									{ className: 'show-grid' },
+									{ id: 'notices', className: 'show-grid mdl-card mdl-shadow--4dp' },
 									React.createElement(
 											Col,
-											{ style: divStyle },
+											null,
 											React.createElement(Notices, null)
 									)
 							),
 							React.createElement(
 									Row,
-									{ className: 'show-grid' },
-									this.props.children,
-									React.createElement(Col, null),
-									React.createElement(
-											Col,
-											{ xs: 6, md: 4 },
-											React.createElement(
-													'code',
-													null,
-													'<',
-													'Col xs={6} md={4}',
-													' />'
-											)
-									),
-									React.createElement(
-											Col,
-											{ xs: 6, md: 4 },
-											React.createElement(
-													'code',
-													null,
-													'<',
-													'Col xs={6} md={4}',
-													' />'
-											)
-									),
-									React.createElement(
-											Col,
-											{ xs: 6, md: 4 },
-											React.createElement(
-													'code',
-													null,
-													'<',
-													'Col xs={6} md={4}',
-													' />'
-											)
-									)
-							),
-							React.createElement(
-									Row,
-									{ className: 'show-grid' },
-									React.createElement(
-											Col,
-											{ xs: 6, xsOffset: 6 },
-											React.createElement(
-													'code',
-													null,
-													'<',
-													'Col xs={6} xsOffset={6}',
-													' />'
-											)
-									)
-							),
-							React.createElement(
-									Row,
-									{ className: 'show-grid' },
-									React.createElement(
-											Col,
-											{ md: 6, mdPush: 6 },
-											React.createElement(
-													'code',
-													null,
-													'<',
-													'Col md={6} mdPush={6}',
-													' />'
-											)
-									),
-									React.createElement(
-											Col,
-											{ md: 6, mdPull: 6 },
-											React.createElement(
-													'code',
-													null,
-													'<',
-													'Col md={6} mdPull={6}',
-													' />'
-											)
-									)
+									null,
+									this.props.children
 							)
 					);
 			}
@@ -41931,6 +41895,7 @@
 
 	  render() {
 	    if (this.state.alertVisible && this.state.alert.timeout !== null) {
+	      $('#notices').addClass('card-space');
 	      return React.createElement(
 	        Alert,
 	        { bsStyle: this.state.alert.type, onDismiss: this.handleAlertDismiss, dismissAfter: this.state.alert.timeout },
@@ -41943,6 +41908,7 @@
 	        })
 	      );
 	    } else if (this.state.alertVisible && this.state.alert.timeout === null) {
+	      $('#notices').addClass('card-space');
 	      return React.createElement(
 	        Alert,
 	        { bsStyle: this.state.alert.type, onDismiss: this.handleAlertDismiss },
@@ -41961,11 +41927,11 @@
 	        )
 	      );
 	    }
-
-	    return React.createElement('div', null);
+	    return null;
 	  },
 
 	  handleAlertDismiss: function () {
+	    $('#notices').removeClass('card-space');
 	    this.setState({ alertVisible: false });
 	  },
 
@@ -41980,7 +41946,7 @@
 /* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Store = __webpack_require__(350).Store;
+	var Store = __webpack_require__(351).Store;
 	var Dispatcher = __webpack_require__(344);
 	var AlertStore = new Store(Dispatcher);
 
@@ -42402,11 +42368,88 @@
 	var ReactDOM = __webpack_require__(1);
 	var React = __webpack_require__(147);
 
+	var TrackStore = __webpack_require__(441);
+
+	var ApiActions = __webpack_require__(343);
+
+	var Glyphicon = __webpack_require__(335);
+	var Button = __webpack_require__(210);
+
+	var Col = __webpack_require__(434);
+
 	var Player = React.createClass({
 	  displayName: 'Player',
 
+	  getInitialState() {
+	    return {
+	      track: { src: '' }
+	    };
+	  },
+	  componentDidMount() {
+	    this.listenerToken = TrackStore.addListener(this._trackChange);
+	  },
+
+	  componentWillUnmount() {
+	    this.listenerToken.remove();
+	  },
+
+	  _trackChange() {
+	    this.setState({
+	      track: TrackStore.getStickyTrack()
+	    });
+	  },
+
+	  play() {
+	    document.getElementById('player').play();
+	  },
+
+	  pause() {
+	    document.getElementById('player').pause();
+	  },
+
+	  stahp() {
+	    ApiActions.stopPlayback();
+	  },
+
 	  render: function () {
-	    return React.createElement('div', null);
+	    if (TrackStore.play()) {
+	      return React.createElement(
+	        Col,
+	        { xs: 12, className: 'player-toolbar mdl-card mdl-shadow--4dp' },
+	        React.createElement(
+	          'div',
+	          null,
+	          React.createElement(
+	            'span',
+	            null,
+	            'Currently playing:  ',
+	            this.state.track.title,
+	            '  by  ',
+	            this.state.track.author,
+	            '    '
+	          ),
+	          React.createElement(
+	            Button,
+	            { onClick: this.play },
+	            React.createElement(Glyphicon, { glyph: 'play' })
+	          ),
+	          ' ',
+	          React.createElement(
+	            Button,
+	            { onClick: this.pause },
+	            React.createElement(Glyphicon, { glyph: 'pause' })
+	          ),
+	          React.createElement(
+	            Button,
+	            { onClick: this.stahp },
+	            React.createElement(Glyphicon, { glyph: 'stop' })
+	          ),
+	          React.createElement('audio', { src: this.state.track.src, id: 'player', autoPlay: true })
+	        )
+	      );
+	    } else {
+	      return null;
+	    }
 	  }
 	});
 
@@ -42464,6 +42507,7 @@
 	var CallToAction = __webpack_require__(439);
 
 	var Col = __webpack_require__(434);
+	var Row = __webpack_require__(433);
 
 	var Landing = React.createClass({
 	  displayName: 'Landing',
@@ -42471,8 +42515,21 @@
 	  render: function () {
 	    return React.createElement(
 	      Col,
-	      null,
-	      React.createElement(CallToAction, null)
+	      { className: 'mdl-card mdl-shadow--4dp' },
+	      React.createElement(CallToAction, { className: 'landing-graphic' }),
+	      React.createElement(
+	        Row,
+	        null,
+	        React.createElement(
+	          Col,
+	          { xs: 12, className: 'text-center' },
+	          React.createElement(
+	            'h4',
+	            null,
+	            'Trending now:'
+	          )
+	        )
+	      )
 	    );
 	  }
 	});
@@ -42485,37 +42542,60 @@
 
 	var React = __webpack_require__(147);
 
-	var Jumbotron = __webpack_require__(440);
+	var Jumbotron = __webpack_require__(444);
 	var Button = __webpack_require__(210);
+	var Row = __webpack_require__(433);
+	var Col = __webpack_require__(434);
+
+	var SearchBar = __webpack_require__(445);
 
 	var CallToAction = React.createClass({
-	  displayName: 'CallToAction',
+			displayName: 'CallToAction',
 
-	  render: function () {
-	    return React.createElement(
-	      Jumbotron,
-	      null,
-	      React.createElement(
-	        'h1',
-	        null,
-	        'Hello, world!'
-	      ),
-	      React.createElement(
-	        'p',
-	        null,
-	        'This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.'
-	      ),
-	      React.createElement(
-	        'p',
-	        null,
-	        React.createElement(
-	          Button,
-	          { bsStyle: 'primary' },
-	          'Learn more'
-	        )
-	      )
-	    );
-	  }
+			render: function () {
+					return React.createElement(
+							Row,
+							null,
+							React.createElement(
+									Jumbotron,
+									{ className: 'landing-graphic' },
+									React.createElement(
+											Col,
+											{ xs: 12 },
+											React.createElement(
+													'h2',
+													{ className: 'welcome-header' },
+													'Turn it up'
+											),
+											React.createElement(
+													'p',
+													null,
+													'Discover incredible music. Control the mix. '
+											),
+											React.createElement(
+													'p',
+													null,
+													'Find your perfect soundscape'
+											)
+									),
+									React.createElement(
+											Col,
+											{ xs: 4, xsOffset: 2, smOffset: 2, mdOffset: 3, lgOffset: 3 },
+											React.createElement(SearchBar, null)
+									),
+									React.createElement(
+											Col,
+											{ xs: 4, className: 'text-left' },
+											'or       ',
+											React.createElement(
+													'button',
+													{ className: 'outline-button mdl-button mdl-js-button mdl-js-ripple-effect' },
+													'Upload'
+											)
+									)
+							)
+					);
+			}
 	});
 
 	module.exports = CallToAction;
@@ -42524,67 +42604,16 @@
 /* 440 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	var _extends = __webpack_require__(211)['default'];
-
-	var _interopRequireDefault = __webpack_require__(227)['default'];
-
-	exports.__esModule = true;
-
-	var _react = __webpack_require__(147);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _classnames = __webpack_require__(228);
-
-	var _classnames2 = _interopRequireDefault(_classnames);
-
-	var _reactPropTypesLibElementType = __webpack_require__(229);
-
-	var _reactPropTypesLibElementType2 = _interopRequireDefault(_reactPropTypesLibElementType);
-
-	var Jumbotron = _react2['default'].createClass({
-	  displayName: 'Jumbotron',
-
-	  propTypes: {
-	    /**
-	     * You can use a custom element for this component
-	     */
-	    componentClass: _reactPropTypesLibElementType2['default']
-	  },
-
-	  getDefaultProps: function getDefaultProps() {
-	    return { componentClass: 'div' };
-	  },
-
-	  render: function render() {
-	    var ComponentClass = this.props.componentClass;
-
-	    return _react2['default'].createElement(
-	      ComponentClass,
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'jumbotron') }),
-	      this.props.children
-	    );
-	  }
-	});
-
-	exports['default'] = Jumbotron;
-	module.exports = exports['default'];
-
-/***/ },
-/* 441 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var React = __webpack_require__(147);
 	var LinkedStateMixin = __webpack_require__(243);
 
 	var Api = __webpack_require__(342);
-	var TrackStore = __webpack_require__(444);
+	var TrackStore = __webpack_require__(441);
 
 	var Input = __webpack_require__(331);
 	var ButtonInput = __webpack_require__(442);
 	var Col = __webpack_require__(434);
+	var Row = __webpack_require__(433);
 
 	var TrackUpload = React.createClass({
 	    displayName: 'TrackUpload',
@@ -42638,44 +42667,141 @@
 	    render() {
 	        return React.createElement(
 	            Col,
-	            { xs: 12, md: 10, mdOffset: 1, lg: 8, lgOffset: 2 },
+	            { xs: 12, className: 'show-grid mdl-card mdl-shadow--4dp upload-form' },
 	            React.createElement(
-	                'form',
+	                Row,
 	                null,
-	                React.createElement(Input, { type: 'text', label: 'Title', valueLink: this.linkState('title'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
-	                React.createElement(Input, { type: 'file', accept: '.mp3', className: 'btn', style: { "marginBottom": "10px" }, label: 'File', onChange: this.sayFile, labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
 	                React.createElement(
-	                    Input,
-	                    { type: 'select', label: 'Genre', placeholder: 'select', valueLink: this.linkState('genre'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' },
+	                    Col,
+	                    { xs: 12, md: 10, mdOffset: 1, lg: 8, lgOffset: 2 },
 	                    React.createElement(
-	                        'option',
-	                        { value: 'Polka' },
-	                        'Polka'
+	                        'h4',
+	                        null,
+	                        ' Upload a Track'
 	                    ),
 	                    React.createElement(
-	                        'option',
-	                        { value: 'Turbo Folk' },
-	                        'Turbo Folk'
+	                        'form',
+	                        null,
+	                        React.createElement(Input, { type: 'text', label: 'Title', valueLink: this.linkState('title'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                        React.createElement(Input, { type: 'file', accept: '.mp3', className: 'btn', style: { "marginBottom": "10px" }, label: 'File', onChange: this.sayFile, labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                        React.createElement(Input, { type: 'text', label: 'Genre', valueLink: this.linkState('genre'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                        React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                        React.createElement(ButtonInput, { type: 'reset', value: 'Reset', style: { "marginBottom": "10px" }, wrapperClassName: 'col-xs-offset-2 col-xs-10' }),
+	                        React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' }),
+	                        this.uploadInProgress ? React.createElement('div', { className: 'mdl-spinner mdl-js-spinner is-active' }) : React.createElement('div', null)
 	                    )
-	                ),
-	                React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
-	                React.createElement(ButtonInput, { type: 'reset', value: 'Reset', style: { "marginBottom": "10px" }, wrapperClassName: 'col-xs-offset-2 col-xs-10' }),
-	                React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' }),
-	                this.uploadInProgress ? React.createElement(
-	                    'div',
-	                    { style: { "marginTop": "-40px" }, className: 'col-xs-4' },
-	                    React.createElement(
-	                        'svg',
-	                        { className: 'spinner', width: '65px', height: '65px', viewBox: '0 0 66 66', xmlns: 'http://www.w3.org/2000/svg' },
-	                        React.createElement('circle', { className: 'path', fill: 'none', strokeWidth: '6', strokeLinecap: 'round', cx: '33', cy: '33', r: '30' })
-	                    )
-	                ) : React.createElement('div', null)
+	                )
 	            )
 	        );
 	    }
 	});
 
 	module.exports = TrackUpload;
+
+/***/ },
+/* 441 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Store = __webpack_require__(351).Store;
+	var Dispatcher = __webpack_require__(344);
+	var TrackStore = new Store(Dispatcher);
+
+	var DispatchConstants = __webpack_require__(348);
+
+	var AlertActions = __webpack_require__(349);
+
+	var _track;
+	var _uploaded = false;
+	var _tracks = [];
+	var _empty = true;
+	var _sticky_track = {};
+	var _play = false;
+
+	TrackStore.getAllTracks = function () {
+	  return _tracks;
+	};
+
+	TrackStore.getTrackById = function (id) {
+
+	  if (_track && _track.id == id) {
+	    return _track;
+	  }
+
+	  for (i = 0; i < _tracks.length; i++) {
+	    if (_tracks[i].id == id) {
+	      return _tracks[i];
+	    }
+	  }
+	  return null;
+	};
+
+	TrackStore.populate = function (tracks) {
+	  _empty = false;
+	  _tracks = tracks;
+	};
+
+	TrackStore.getUploadedTrack = function () {
+	  return _track;
+	};
+
+	TrackStore.uploadReady = function () {
+	  return _uploaded;
+	};
+
+	TrackStore.setTrack = function (track) {
+	  _track = JSON.parse(track).track;
+	  _uploaded = true;
+	};
+
+	TrackStore.setStickyTrack = function (track) {
+	  _sticky_track = track;
+	  _play = true;
+	};
+
+	TrackStore.getStickyTrack = function () {
+	  return _sticky_track;
+	};
+
+	TrackStore.empty = function () {
+	  return _empty;
+	};
+
+	TrackStore.play = function () {
+	  return _play;
+	};
+
+	TrackStore.__onDispatch = function (payload) {
+	  switch (payload.actionType) {
+	    case DispatchConstants.UPLOAD_SUCCESS:
+	      TrackStore.setTrack(payload.track);
+	      TrackStore.__emitChange();
+	      break;
+	    case DispatchConstants.UPLOAD_FAILURE:
+	      TrackStore.__emitChange();
+	      break;
+	    case DispatchConstants.FETCH_TRACKS:
+	      TrackStore.populate(payload.tracks);
+	      TrackStore.__emitChange();
+	      break;
+	    case DispatchConstants.FETCH_MY_TRACKS:
+	      TrackStore.populate(payload.tracks);
+	      TrackStore.__emitChange();
+	      break;
+	    case DispatchConstants.START_PLAYBACK:
+	      TrackStore.setStickyTrack(payload.track);
+	      TrackStore.__emitChange();
+	      break;
+	    case DispatchConstants.STOP_PLAYBACK:
+	      _sticky_track = null;
+	      _play = false;
+	      TrackStore.__emitChange();
+	      break;
+	  }
+	};
+
+	window.TrackStore = TrackStore;
+
+	module.exports = TrackStore;
 
 /***/ },
 /* 442 */
@@ -42772,128 +42898,1202 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 443 */,
-/* 444 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Store = __webpack_require__(350).Store;
-	var Dispatcher = __webpack_require__(344);
-	var TrackStore = new Store(Dispatcher);
-
-	var DispatchConstants = __webpack_require__(348);
-
-	var AlertActions = __webpack_require__(366);
-
-	var _track;
-	var _uploaded = false;
-	var _tracks = [];
-	var _empty = true;
-
-	TrackStore.getAllTracks = function () {
-	  return _tracks;
-	};
-
-	TrackStore.getTrackById = function (id) {
-
-	  if (_track && _track.id == id) {
-	    return _track;
-	  }
-
-	  for (i = 0; i < _tracks.length; i++) {
-	    if (_tracks[i].id == id) {
-	      return _tracks[i];
-	    }
-	  }
-	  return null;
-	};
-
-	TrackStore.populate = function (tracks) {
-	  _empty = false;
-	  _tracks = tracks;
-	};
-
-	TrackStore.getUploadedTrack = function () {
-	  return _track;
-	};
-
-	TrackStore.uploadReady = function () {
-	  return _uploaded;
-	};
-
-	TrackStore.setTrack = function (track) {
-	  _track = JSON.parse(track).track;
-	  _uploaded = true;
-	};
-
-	TrackStore.empty = function () {
-	  return _empty;
-	};
-
-	TrackStore.__onDispatch = function (payload) {
-	  switch (payload.actionType) {
-	    case DispatchConstants.UPLOAD_SUCCESS:
-	      TrackStore.setTrack(payload.track);
-	      TrackStore.__emitChange();
-	      break;
-	    case DispatchConstants.UPLOAD_FAILURE:
-	      TrackStore.__emitChange();
-	      break;
-	    case DispatchConstants.FETCH_TRACKS:
-	      TrackStore.populate(payload.tracks);
-	      TrackStore.__emitChange();
-	      break;
-	  }
-	};
-
-	window.TrackStore = TrackStore;
-
-	module.exports = TrackStore;
-
-/***/ },
-/* 445 */
+/* 443 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var ReactDOM = __webpack_require__(1);
 	var React = __webpack_require__(147);
 
-	var TrackStore = __webpack_require__(444);
+	var TrackStore = __webpack_require__(441);
+
+	var ApiActions = __webpack_require__(343);
+
+	var Col = __webpack_require__(434);
+	var Row = __webpack_require__(433);
+	var Panel = __webpack_require__(447);
+	var Button = __webpack_require__(210);
+	var Glyphicon = __webpack_require__(335);
+	var ProgressBar = __webpack_require__(449);
 
 	var Api = __webpack_require__(342);
+	var progress = 0;
+
+	function build() {
+
+	   var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+	   var audioElement = document.getElementById('audioElement');
+	   audioElement.crossOrigin = "anonymous";
+	   $('#audioElement').on('timeupdate', function () {
+	      console.log("!");
+	      $('#seekbar').attr("value", this.currentTime / this.duration);
+	   });
+	   console.log(audioElement);
+	   var audioSrc = audioCtx.createMediaElementSource(audioElement);
+	   var analyser = audioCtx.createAnalyser();
+
+	   // Bind our analyser to the media element source.
+	   audioSrc.connect(analyser);
+	   audioSrc.connect(audioCtx.destination);
+
+	   //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+	   var frequencyData = new Uint8Array(200);
+
+	   var contentWidth = $('#track-content').width();
+
+	   console.log(contentWidth);
+
+	   var svgHeight = '300';
+	   var svgWidth = contentWidth + 30;
+	   var barPadding = '1';
+
+	   function createSvg(parent, height, width) {
+	      return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
+	   }
+
+	   var svg = createSvg('#destiny', svgHeight, svgWidth);
+
+	   // Create our initial D3 chart.
+	   svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
+	      return i * (svgWidth / frequencyData.length);
+	   }).attr('width', svgWidth / frequencyData.length - barPadding);
+
+	   // Continuously loop and update chart with frequency data.
+	   function renderChart() {
+	      requestAnimationFrame(renderChart);
+
+	      // Copy frequency data to frequencyData array.
+	      analyser.getByteFrequencyData(frequencyData);
+
+	      // Update d3 chart with new data.
+	      svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
+	         return svgHeight - d;
+	      }).attr('height', function (d) {
+	         return d;
+	      }).attr('fill', function (d) {
+	         return 'rgb(' + d + ', ' + d + ', 255)';
+	      });
+	   }
+
+	   // Run the loop
+	   renderChart();
+	};
 
 	var Track = React.createClass({
-		displayName: 'Track',
+	   displayName: 'Track',
 
-		getInitialState() {
-			return {
-				track: {}
-			};
-		},
+	   getInitialState() {
+	      return {
+	         track: {}
+	      };
+	   },
 
-		componentDidMount() {
-			Api.fetchTracks();
-			this.listenerToken = TrackStore.addListener(this._getTrack);
-		},
+	   componentDidMount() {
+	      Api.fetchTracks();
+	      this.listenerToken = TrackStore.addListener(this._getTrack);
+	      build();
+	   },
 
-		componentWillUnmount() {
-			this.listenerToken.remove();
-		},
+	   caw() {},
 
-		_getTrack() {
-			this.setState({
-				track: TrackStore.getTrackById(this.props.params.id)
-			});
-		},
+	   componentWillUnmount() {
+	      this.listenerToken.remove();
+	   },
 
-		render: function () {
-			return React.createElement(
-				'div',
-				null,
-				React.createElement('audio', { src: this.state.track.src, preload: 'auto', controls: 'true' })
-			);
-		}
+	   getProgress() {
+	      console.log(progress);
+	      return Math.round(progress * 100);
+	   },
+
+	   play() {
+	      ApiActions.stopPlayback();
+	      document.getElementById('audioElement').play();
+	   },
+
+	   pause() {
+	      document.getElementById('audioElement').pause();
+	   },
+
+	   _getTrack() {
+	      this.setState({
+	         track: TrackStore.getTrackById(this.props.params.id)
+	      });
+	   },
+
+	   render: function () {
+	      return React.createElement(
+	         Col,
+	         { xs: 12, id: 'track-content' },
+	         React.createElement(
+	            Row,
+	            null,
+	            React.createElement(
+	               Col,
+	               { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  React.createElement(
+	                     'h4',
+	                     { style: { "display": "inline-block" } },
+	                     this.state.track.title
+	                  ),
+	                  '  by  ',
+	                  React.createElement(
+	                     'a',
+	                     { href: '#/' + this.state.track.user_id + '/tracks' },
+	                     this.state.track.author
+	                  )
+	               )
+	            ),
+	            React.createElement(
+	               Col,
+	               { xs: 8 },
+	               React.createElement(
+	                  'button',
+	                  { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	                  React.createElement(Glyphicon, { glyph: 'play' })
+	               ),
+	               ' ',
+	               React.createElement(
+	                  'button',
+	                  { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	                  React.createElement(Glyphicon, { glyph: 'pause' })
+	               )
+	            )
+	         ),
+	         React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               null,
+	               React.createElement('div', { id: 'destiny' })
+	            )
+	         ),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               { xs: 12 },
+	               React.createElement('br', null),
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  'Genre: ',
+	                  this.state.track.genre
+	               ),
+	               React.createElement('br', null),
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  'Description: ',
+	                  this.state.track.description
+	               ),
+	               React.createElement('br', null),
+	               React.createElement('br', null),
+	               React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
+	            )
+	         )
+	      );
+	   }
 	});
 
 	module.exports = Track;
+
+/***/ },
+/* 444 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = __webpack_require__(211)['default'];
+
+	var _interopRequireDefault = __webpack_require__(227)['default'];
+
+	exports.__esModule = true;
+
+	var _react = __webpack_require__(147);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(228);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _reactPropTypesLibElementType = __webpack_require__(229);
+
+	var _reactPropTypesLibElementType2 = _interopRequireDefault(_reactPropTypesLibElementType);
+
+	var Jumbotron = _react2['default'].createClass({
+	  displayName: 'Jumbotron',
+
+	  propTypes: {
+	    /**
+	     * You can use a custom element for this component
+	     */
+	    componentClass: _reactPropTypesLibElementType2['default']
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return { componentClass: 'div' };
+	  },
+
+	  render: function render() {
+	    var ComponentClass = this.props.componentClass;
+
+	    return _react2['default'].createElement(
+	      ComponentClass,
+	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'jumbotron') }),
+	      this.props.children
+	    );
+	  }
+	});
+
+	exports['default'] = Jumbotron;
+	module.exports = exports['default'];
+
+/***/ },
+/* 445 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(147);
+
+	var Input = __webpack_require__(331);
+	var Glyphicon = __webpack_require__(335);
+	var Button = __webpack_require__(210);
+
+	var searchSubmit = React.createElement(
+	    Button,
+	    { className: 'side-button' },
+	    React.createElement(Glyphicon, { glyph: 'search' })
+	);
+
+	var Search = React.createClass({
+	    displayName: 'Search',
+	    render() {
+	        return React.createElement(
+	            'form',
+	            null,
+	            React.createElement(Input, { className: 'search-box', type: 'text', placeholder: 'Search for a track', buttonAfter: searchSubmit })
+	        );
+	    }
+	});
+
+	module.exports = Search;
+
+/***/ },
+/* 446 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ReactDOM = __webpack_require__(1);
+	var React = __webpack_require__(147);
+
+	var TrackStore = __webpack_require__(441);
+	var UserStore = __webpack_require__(350);
+
+	var Api = __webpack_require__(342);
+
+	var ApiActions = __webpack_require__(343);
+
+	var Col = __webpack_require__(434);
+	var Row = __webpack_require__(433);
+	var Panel = __webpack_require__(447);
+	var Button = __webpack_require__(210);
+	var Glyphicon = __webpack_require__(335);
+
+	var trackStyle = { "padding": "0", "width": "32%" };
+
+	var MyTracks = React.createClass({
+	  displayName: 'MyTracks',
+
+	  getInitialState() {
+	    return {
+	      tracks: []
+	    };
+	  },
+
+	  componentDidMount() {
+	    Api.getUserInfo(this.props.params.user_id);
+	    Api.fetchMyTracks(this.props.params.user_id);
+	    this.listenerToken = TrackStore.addListener(this._getMyTracks);
+	  },
+
+	  componentWillUnmount() {
+	    this.listenerToken.remove();
+	  },
+
+	  _getMyTracks() {
+	    this.setState({
+	      tracks: TrackStore.getAllTracks()
+	    });
+	  },
+
+	  hope(track) {
+	    ApiActions.startPlayback(track);
+	  },
+
+	  render() {
+	    return React.createElement(
+	      Col,
+	      { xs: 12 },
+	      React.createElement(
+	        Row,
+	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	        React.createElement(
+	          Col,
+	          { xs: 12 },
+	          React.createElement(
+	            'h4',
+	            null,
+	            'Tracks by ',
+	            UserStore.getPublicUser().name
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        Row,
+	        null,
+	        this.state.tracks.map((function (track, idx) {
+	          return React.createElement(
+	            Col,
+	            { key: idx, xs: 4, style: trackStyle, className: 'track-element show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	              Panel,
+	              { header: track.title, bsStyle: 'primary', style: { "margin": "0" } },
+	              React.createElement(
+	                Button,
+	                { bsSize: 'large', onClick: this.hope.bind(this, track) },
+	                React.createElement(Glyphicon, { glyph: 'play' }),
+	                ' Play'
+	              ),
+	              ' ',
+	              React.createElement(
+	                Button,
+	                { bsSize: 'large', href: "#/track/" + track.id },
+	                React.createElement(Glyphicon, { glyph: 'chevron-right' }),
+	                ' Track Detail'
+	              )
+	            )
+	          );
+	        }).bind(this))
+	      )
+	    );
+	  }
+	});
+
+	module.exports = MyTracks;
+
+/***/ },
+/* 447 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _objectWithoutProperties = __webpack_require__(248)['default'];
+
+	var _extends = __webpack_require__(211)['default'];
+
+	var _interopRequireDefault = __webpack_require__(227)['default'];
+
+	exports.__esModule = true;
+
+	var _react = __webpack_require__(147);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(228);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _utilsBootstrapUtils = __webpack_require__(231);
+
+	var _utilsBootstrapUtils2 = _interopRequireDefault(_utilsBootstrapUtils);
+
+	var _styleMaps = __webpack_require__(232);
+
+	var _Collapse = __webpack_require__(448);
+
+	var _Collapse2 = _interopRequireDefault(_Collapse);
+
+	var Panel = _react2['default'].createClass({
+	  displayName: 'Panel',
+
+	  propTypes: {
+	    collapsible: _react2['default'].PropTypes.bool,
+	    onSelect: _react2['default'].PropTypes.func,
+	    header: _react2['default'].PropTypes.node,
+	    id: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]),
+	    footer: _react2['default'].PropTypes.node,
+	    defaultExpanded: _react2['default'].PropTypes.bool,
+	    expanded: _react2['default'].PropTypes.bool,
+	    eventKey: _react2['default'].PropTypes.any,
+	    headerRole: _react2['default'].PropTypes.string,
+	    panelRole: _react2['default'].PropTypes.string
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      defaultExpanded: false
+	    };
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      expanded: this.props.defaultExpanded
+	    };
+	  },
+
+	  handleSelect: function handleSelect(e) {
+	    e.selected = true;
+
+	    if (this.props.onSelect) {
+	      this.props.onSelect(e, this.props.eventKey);
+	    } else {
+	      e.preventDefault();
+	    }
+
+	    if (e.selected) {
+	      this.handleToggle();
+	    }
+	  },
+
+	  handleToggle: function handleToggle() {
+	    this.setState({ expanded: !this.state.expanded });
+	  },
+
+	  isExpanded: function isExpanded() {
+	    return this.props.expanded != null ? this.props.expanded : this.state.expanded;
+	  },
+
+	  render: function render() {
+	    var _props = this.props;
+	    var headerRole = _props.headerRole;
+	    var panelRole = _props.panelRole;
+
+	    var props = _objectWithoutProperties(_props, ['headerRole', 'panelRole']);
+
+	    return _react2['default'].createElement(
+	      'div',
+	      _extends({}, props, {
+	        className: _classnames2['default'](this.props.className, _utilsBootstrapUtils2['default'].getClassSet(this.props)),
+	        id: this.props.collapsible ? null : this.props.id, onSelect: null }),
+	      this.renderHeading(headerRole),
+	      this.props.collapsible ? this.renderCollapsibleBody(panelRole) : this.renderBody(),
+	      this.renderFooter()
+	    );
+	  },
+
+	  renderCollapsibleBody: function renderCollapsibleBody(panelRole) {
+	    var props = {
+	      className: _utilsBootstrapUtils2['default'].prefix(this.props, 'collapse'),
+	      id: this.props.id,
+	      ref: 'panel',
+	      'aria-hidden': !this.isExpanded()
+	    };
+	    if (panelRole) {
+	      props.role = panelRole;
+	    }
+
+	    return _react2['default'].createElement(
+	      _Collapse2['default'],
+	      { 'in': this.isExpanded() },
+	      _react2['default'].createElement(
+	        'div',
+	        props,
+	        this.renderBody()
+	      )
+	    );
+	  },
+
+	  renderBody: function renderBody() {
+	    var _this = this;
+
+	    var allChildren = this.props.children;
+	    var bodyElements = [];
+	    var panelBodyChildren = [];
+	    var bodyClass = _utilsBootstrapUtils2['default'].prefix(this.props, 'body');
+
+	    function getProps() {
+	      return { key: bodyElements.length };
+	    }
+
+	    function addPanelChild(child) {
+	      bodyElements.push(_react.cloneElement(child, getProps()));
+	    }
+
+	    function addPanelBody(children) {
+	      bodyElements.push(_react2['default'].createElement(
+	        'div',
+	        _extends({ className: bodyClass }, getProps()),
+	        children
+	      ));
+	    }
+
+	    function maybeRenderPanelBody() {
+	      if (panelBodyChildren.length === 0) {
+	        return;
+	      }
+
+	      addPanelBody(panelBodyChildren);
+	      panelBodyChildren = [];
+	    }
+
+	    // Handle edge cases where we should not iterate through children.
+	    if (!Array.isArray(allChildren) || allChildren.length === 0) {
+	      if (this.shouldRenderFill(allChildren)) {
+	        addPanelChild(allChildren);
+	      } else {
+	        addPanelBody(allChildren);
+	      }
+	    } else {
+	      allChildren.forEach(function (child) {
+	        if (_this.shouldRenderFill(child)) {
+	          maybeRenderPanelBody();
+
+	          // Separately add the filled element.
+	          addPanelChild(child);
+	        } else {
+	          panelBodyChildren.push(child);
+	        }
+	      });
+
+	      maybeRenderPanelBody();
+	    }
+
+	    return bodyElements;
+	  },
+
+	  shouldRenderFill: function shouldRenderFill(child) {
+	    return _react2['default'].isValidElement(child) && child.props.fill != null;
+	  },
+
+	  renderHeading: function renderHeading(headerRole) {
+	    var header = this.props.header;
+
+	    if (!header) {
+	      return null;
+	    }
+
+	    if (!_react2['default'].isValidElement(header) || Array.isArray(header)) {
+	      header = this.props.collapsible ? this.renderCollapsibleTitle(header, headerRole) : header;
+	    } else {
+	      var className = _classnames2['default'](_utilsBootstrapUtils2['default'].prefix(this.props, 'title'), header.props.className);
+
+	      if (this.props.collapsible) {
+	        header = _react.cloneElement(header, {
+	          className: className,
+	          children: this.renderAnchor(header.props.children, headerRole)
+	        });
+	      } else {
+	        header = _react.cloneElement(header, { className: className });
+	      }
+	    }
+
+	    return _react2['default'].createElement(
+	      'div',
+	      { className: _utilsBootstrapUtils2['default'].prefix(this.props, 'heading') },
+	      header
+	    );
+	  },
+
+	  renderAnchor: function renderAnchor(header, headerRole) {
+	    return _react2['default'].createElement(
+	      'a',
+	      {
+	        href: '#' + (this.props.id || ''),
+	        'aria-controls': this.props.collapsible ? this.props.id : null,
+	        className: this.isExpanded() ? null : 'collapsed',
+	        'aria-expanded': this.isExpanded(),
+	        'aria-selected': this.isExpanded(),
+	        onClick: this.handleSelect,
+	        role: headerRole },
+	      header
+	    );
+	  },
+
+	  renderCollapsibleTitle: function renderCollapsibleTitle(header, headerRole) {
+	    return _react2['default'].createElement(
+	      'h4',
+	      { className: _utilsBootstrapUtils2['default'].prefix(this.props, 'title'), role: 'presentation' },
+	      this.renderAnchor(header, headerRole)
+	    );
+	  },
+
+	  renderFooter: function renderFooter() {
+	    if (!this.props.footer) {
+	      return null;
+	    }
+
+	    return _react2['default'].createElement(
+	      'div',
+	      { className: _utilsBootstrapUtils2['default'].prefix(this.props, 'footer') },
+	      this.props.footer
+	    );
+	  }
+	});
+
+	var PANEL_STATES = _styleMaps.State.values().concat(_styleMaps.DEFAULT, _styleMaps.PRIMARY);
+
+	exports['default'] = _utilsBootstrapUtils.bsStyles(PANEL_STATES, _styleMaps.DEFAULT, _utilsBootstrapUtils.bsClass('panel', Panel));
+	module.exports = exports['default'];
+
+/***/ },
+/* 448 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _inherits = __webpack_require__(259)['default'];
+
+	var _classCallCheck = __webpack_require__(266)['default'];
+
+	var _extends = __webpack_require__(211)['default'];
+
+	var _interopRequireDefault = __webpack_require__(227)['default'];
+
+	exports.__esModule = true;
+
+	var _domHelpersStyle = __webpack_require__(284);
+
+	var _domHelpersStyle2 = _interopRequireDefault(_domHelpersStyle);
+
+	var _react = __webpack_require__(147);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(228);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _reactOverlaysLibTransition = __webpack_require__(267);
+
+	var _reactOverlaysLibTransition2 = _interopRequireDefault(_reactOverlaysLibTransition);
+
+	var _reactPropTypesLibDeprecated = __webpack_require__(269);
+
+	var _reactPropTypesLibDeprecated2 = _interopRequireDefault(_reactPropTypesLibDeprecated);
+
+	var _utilsCreateChainedFunction = __webpack_require__(273);
+
+	var _utilsCreateChainedFunction2 = _interopRequireDefault(_utilsCreateChainedFunction);
+
+	var capitalize = function capitalize(str) {
+	  return str[0].toUpperCase() + str.substr(1);
+	};
+
+	// reading a dimension prop will cause the browser to recalculate,
+	// which will let our animations work
+	var triggerBrowserReflow = function triggerBrowserReflow(node) {
+	  return node.offsetHeight;
+	};
+
+	var MARGINS = {
+	  height: ['marginTop', 'marginBottom'],
+	  width: ['marginLeft', 'marginRight']
+	};
+
+	function getDimensionValue(dimension, elem) {
+	  var value = elem['offset' + capitalize(dimension)];
+	  var margins = MARGINS[dimension];
+
+	  return value + parseInt(_domHelpersStyle2['default'](elem, margins[0]), 10) + parseInt(_domHelpersStyle2['default'](elem, margins[1]), 10);
+	}
+
+	var Collapse = (function (_React$Component) {
+	  _inherits(Collapse, _React$Component);
+
+	  function Collapse(props, context) {
+	    _classCallCheck(this, Collapse);
+
+	    _React$Component.call(this, props, context);
+
+	    this.onEnterListener = this.handleEnter.bind(this);
+	    this.onEnteringListener = this.handleEntering.bind(this);
+	    this.onEnteredListener = this.handleEntered.bind(this);
+	    this.onExitListener = this.handleExit.bind(this);
+	    this.onExitingListener = this.handleExiting.bind(this);
+	  }
+
+	  // Explicitly copied from Transition for doc generation.
+	  // TODO: Remove duplication once #977 is resolved.
+
+	  Collapse.prototype.render = function render() {
+	    var enter = _utilsCreateChainedFunction2['default'](this.onEnterListener, this.props.onEnter);
+	    var entering = _utilsCreateChainedFunction2['default'](this.onEnteringListener, this.props.onEntering);
+	    var entered = _utilsCreateChainedFunction2['default'](this.onEnteredListener, this.props.onEntered);
+	    var exit = _utilsCreateChainedFunction2['default'](this.onExitListener, this.props.onExit);
+	    var exiting = _utilsCreateChainedFunction2['default'](this.onExitingListener, this.props.onExiting);
+
+	    return _react2['default'].createElement(
+	      _reactOverlaysLibTransition2['default'],
+	      _extends({
+	        ref: 'transition'
+	      }, this.props, {
+	        'aria-expanded': this.props.role ? this.props['in'] : null,
+	        className: _classnames2['default'](this.props.className, { width: this._dimension() === 'width' }),
+	        exitedClassName: 'collapse',
+	        exitingClassName: 'collapsing',
+	        enteredClassName: 'collapse in',
+	        enteringClassName: 'collapsing',
+	        onEnter: enter,
+	        onEntering: entering,
+	        onEntered: entered,
+	        onExit: exit,
+	        onExiting: exiting,
+	        onExited: this.props.onExited
+	      }),
+	      this.props.children
+	    );
+	  };
+
+	  /* -- Expanding -- */
+
+	  Collapse.prototype.handleEnter = function handleEnter(elem) {
+	    var dimension = this._dimension();
+	    elem.style[dimension] = '0';
+	  };
+
+	  Collapse.prototype.handleEntering = function handleEntering(elem) {
+	    var dimension = this._dimension();
+
+	    elem.style[dimension] = this._getScrollDimensionValue(elem, dimension);
+	  };
+
+	  Collapse.prototype.handleEntered = function handleEntered(elem) {
+	    var dimension = this._dimension();
+	    elem.style[dimension] = null;
+	  };
+
+	  /* -- Collapsing -- */
+
+	  Collapse.prototype.handleExit = function handleExit(elem) {
+	    var dimension = this._dimension();
+
+	    elem.style[dimension] = this.props.getDimensionValue(dimension, elem) + 'px';
+	  };
+
+	  Collapse.prototype.handleExiting = function handleExiting(elem) {
+	    var dimension = this._dimension();
+
+	    triggerBrowserReflow(elem);
+	    elem.style[dimension] = '0';
+	  };
+
+	  Collapse.prototype._dimension = function _dimension() {
+	    return typeof this.props.dimension === 'function' ? this.props.dimension() : this.props.dimension;
+	  };
+
+	  // for testing
+
+	  Collapse.prototype._getTransitionInstance = function _getTransitionInstance() {
+	    return this.refs.transition;
+	  };
+
+	  Collapse.prototype._getScrollDimensionValue = function _getScrollDimensionValue(elem, dimension) {
+	    return elem['scroll' + capitalize(dimension)] + 'px';
+	  };
+
+	  return Collapse;
+	})(_react2['default'].Component);
+
+	Collapse.propTypes = {
+	  /**
+	   * Show the component; triggers the expand or collapse animation
+	   */
+	  'in': _react2['default'].PropTypes.bool,
+
+	  /**
+	   * Unmount the component (remove it from the DOM) when it is collapsed
+	   */
+	  unmountOnExit: _react2['default'].PropTypes.bool,
+
+	  /**
+	   * Run the expand animation when the component mounts, if it is initially
+	   * shown
+	   */
+	  transitionAppear: _react2['default'].PropTypes.bool,
+
+	  /**
+	   * Duration of the collapse animation in milliseconds, to ensure that
+	   * finishing callbacks are fired even if the original browser transition end
+	   * events are canceled
+	   */
+	  timeout: _react2['default'].PropTypes.number,
+
+	  /**
+	   * duration
+	   * @private
+	   */
+	  duration: _reactPropTypesLibDeprecated2['default'](_react2['default'].PropTypes.number, 'Use `timeout`.'),
+
+	  /**
+	   * Callback fired before the component expands
+	   */
+	  onEnter: _react2['default'].PropTypes.func,
+	  /**
+	   * Callback fired after the component starts to expand
+	   */
+	  onEntering: _react2['default'].PropTypes.func,
+	  /**
+	   * Callback fired after the component has expanded
+	   */
+	  onEntered: _react2['default'].PropTypes.func,
+	  /**
+	   * Callback fired before the component collapses
+	   */
+	  onExit: _react2['default'].PropTypes.func,
+	  /**
+	   * Callback fired after the component starts to collapse
+	   */
+	  onExiting: _react2['default'].PropTypes.func,
+	  /**
+	   * Callback fired after the component has collapsed
+	   */
+	  onExited: _react2['default'].PropTypes.func,
+
+	  /**
+	   * The dimension used when collapsing, or a function that returns the
+	   * dimension
+	   *
+	   * _Note: Bootstrap only partially supports 'width'!
+	   * You will need to supply your own CSS animation for the `.width` CSS class._
+	   */
+	  dimension: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.oneOf(['height', 'width']), _react2['default'].PropTypes.func]),
+
+	  /**
+	   * Function that returns the height or width of the animating DOM node
+	   *
+	   * Allows for providing some custom logic for how much the Collapse component
+	   * should animate in its specified dimension. Called with the current
+	   * dimension prop value and the DOM node.
+	   */
+	  getDimensionValue: _react2['default'].PropTypes.func,
+
+	  /**
+	   * ARIA role of collapsible element
+	   */
+	  role: _react2['default'].PropTypes.string
+	};
+
+	Collapse.defaultProps = {
+	  'in': false,
+	  timeout: 300,
+	  unmountOnExit: false,
+	  transitionAppear: false,
+
+	  dimension: 'height',
+	  getDimensionValue: getDimensionValue
+	};
+
+	exports['default'] = Collapse;
+	module.exports = exports['default'];
+
+/***/ },
+/* 449 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _inherits = __webpack_require__(259)['default'];
+
+	var _classCallCheck = __webpack_require__(266)['default'];
+
+	var _extends = __webpack_require__(211)['default'];
+
+	var _objectWithoutProperties = __webpack_require__(248)['default'];
+
+	var _interopRequireDefault = __webpack_require__(227)['default'];
+
+	exports.__esModule = true;
+
+	var _react = __webpack_require__(147);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _Interpolate = __webpack_require__(450);
+
+	var _Interpolate2 = _interopRequireDefault(_Interpolate);
+
+	var _utilsBootstrapUtils = __webpack_require__(231);
+
+	var _utilsBootstrapUtils2 = _interopRequireDefault(_utilsBootstrapUtils);
+
+	var _styleMaps = __webpack_require__(232);
+
+	var _classnames = __webpack_require__(228);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _utilsValidComponentChildren = __webpack_require__(423);
+
+	var _utilsValidComponentChildren2 = _interopRequireDefault(_utilsValidComponentChildren);
+
+	/**
+	 * Custom propTypes checker
+	 */
+	function onlyProgressBar(props, propName, componentName) {
+	  if (props[propName]) {
+	    var _ret = (function () {
+	      var error = undefined,
+	          childIdentifier = undefined;
+
+	      _react2['default'].Children.forEach(props[propName], function (child) {
+	        if (child.type !== ProgressBar) {
+	          //eslint-disable-line
+	          childIdentifier = child.type.displayName ? child.type.displayName : child.type;
+	          error = new Error('Children of ' + componentName + ' can contain only ProgressBar components. Found ' + childIdentifier);
+	        }
+	      });
+
+	      return {
+	        v: error
+	      };
+	    })();
+
+	    if (typeof _ret === 'object') return _ret.v;
+	  }
+	}
+
+	var ProgressBar = (function (_React$Component) {
+	  _inherits(ProgressBar, _React$Component);
+
+	  function ProgressBar() {
+	    _classCallCheck(this, ProgressBar);
+
+	    _React$Component.apply(this, arguments);
+	  }
+
+	  ProgressBar.prototype.getPercentage = function getPercentage(now, min, max) {
+	    var roundPrecision = 1000;
+	    return Math.round((now - min) / (max - min) * 100 * roundPrecision) / roundPrecision;
+	  };
+
+	  ProgressBar.prototype.render = function render() {
+	    if (this.props.isChild) {
+	      return this.renderProgressBar();
+	    }
+
+	    var content = undefined;
+
+	    if (this.props.children) {
+	      content = _utilsValidComponentChildren2['default'].map(this.props.children, this.renderChildBar);
+	    } else {
+	      content = this.renderProgressBar();
+	    }
+
+	    return _react2['default'].createElement(
+	      'div',
+	      _extends({}, this.props, {
+	        className: _classnames2['default'](this.props.className, 'progress'),
+	        min: null,
+	        max: null,
+	        label: null,
+	        'aria-valuetext': null
+	      }),
+	      content
+	    );
+	  };
+
+	  ProgressBar.prototype.renderChildBar = function renderChildBar(child, index) {
+	    return _react.cloneElement(child, {
+	      isChild: true,
+	      key: child.key ? child.key : index
+	    });
+	  };
+
+	  ProgressBar.prototype.renderProgressBar = function renderProgressBar() {
+	    var _classNames;
+
+	    var _props = this.props;
+	    var className = _props.className;
+	    var label = _props.label;
+	    var now = _props.now;
+	    var min = _props.min;
+	    var max = _props.max;
+
+	    var props = _objectWithoutProperties(_props, ['className', 'label', 'now', 'min', 'max']);
+
+	    var percentage = this.getPercentage(now, min, max);
+
+	    if (typeof label === 'string') {
+	      label = this.renderLabel(percentage);
+	    }
+
+	    if (this.props.srOnly) {
+	      label = _react2['default'].createElement(
+	        'span',
+	        { className: 'sr-only' },
+	        label
+	      );
+	    }
+
+	    var classes = _classnames2['default'](className, _utilsBootstrapUtils2['default'].getClassSet(this.props), (_classNames = {
+	      active: this.props.active
+	    }, _classNames[_utilsBootstrapUtils2['default'].prefix(this.props, 'striped')] = this.props.active || this.props.striped, _classNames));
+
+	    return _react2['default'].createElement(
+	      'div',
+	      _extends({}, props, {
+	        className: classes,
+	        role: 'progressbar',
+	        style: { width: percentage + '%' },
+	        'aria-valuenow': this.props.now,
+	        'aria-valuemin': this.props.min,
+	        'aria-valuemax': this.props.max }),
+	      label
+	    );
+	  };
+
+	  ProgressBar.prototype.renderLabel = function renderLabel(percentage) {
+	    var InterpolateClass = this.props.interpolateClass || _Interpolate2['default'];
+
+	    return _react2['default'].createElement(
+	      InterpolateClass,
+	      {
+	        now: this.props.now,
+	        min: this.props.min,
+	        max: this.props.max,
+	        percent: percentage,
+	        bsStyle: this.props.bsStyle },
+	      this.props.label
+	    );
+	  };
+
+	  return ProgressBar;
+	})(_react2['default'].Component);
+
+	ProgressBar.propTypes = _extends({}, ProgressBar.propTypes, {
+	  min: _react.PropTypes.number,
+	  now: _react.PropTypes.number,
+	  max: _react.PropTypes.number,
+	  label: _react.PropTypes.node,
+	  srOnly: _react.PropTypes.bool,
+	  striped: _react.PropTypes.bool,
+	  active: _react.PropTypes.bool,
+	  children: onlyProgressBar,
+	  className: _react2['default'].PropTypes.string,
+	  interpolateClass: _react.PropTypes.node,
+	  /**
+	   * @private
+	   */
+	  isChild: _react.PropTypes.bool
+	});
+
+	ProgressBar.defaultProps = _extends({}, ProgressBar.defaultProps, {
+	  min: 0,
+	  max: 100,
+	  active: false,
+	  isChild: false,
+	  srOnly: false,
+	  striped: false
+	});
+
+	exports['default'] = _utilsBootstrapUtils.bsStyles(_styleMaps.State.values(), _utilsBootstrapUtils.bsClass('progress-bar', ProgressBar));
+	module.exports = exports['default'];
+
+/***/ },
+/* 450 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// https://www.npmjs.org/package/react-interpolate-component
+	// TODO: Drop this in favor of es6 string interpolation
+
+	'use strict';
+
+	var _extends = __webpack_require__(211)['default'];
+
+	var _interopRequireDefault = __webpack_require__(227)['default'];
+
+	exports.__esModule = true;
+
+	var _react = __webpack_require__(147);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _utilsValidComponentChildren = __webpack_require__(423);
+
+	var _utilsValidComponentChildren2 = _interopRequireDefault(_utilsValidComponentChildren);
+
+	var REGEXP = /\%\((.+?)\)s/;
+
+	var Interpolate = _react2['default'].createClass({
+	  displayName: 'Interpolate',
+
+	  propTypes: {
+	    component: _react2['default'].PropTypes.node,
+	    format: _react2['default'].PropTypes.string,
+	    unsafe: _react2['default'].PropTypes.bool
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      component: 'span',
+	      unsafe: false
+	    };
+	  },
+
+	  render: function render() {
+	    var format = _utilsValidComponentChildren2['default'].hasValidComponent(this.props.children) || typeof this.props.children === 'string' ? this.props.children : this.props.format;
+	    var parent = this.props.component;
+	    var unsafe = this.props.unsafe === true;
+	    var props = _extends({}, this.props);
+
+	    delete props.children;
+	    delete props.format;
+	    delete props.component;
+	    delete props.unsafe;
+
+	    if (unsafe) {
+	      var content = format.split(REGEXP).reduce(function (memo, match, index) {
+	        var html = undefined;
+
+	        if (index % 2 === 0) {
+	          html = match;
+	        } else {
+	          html = props[match];
+	          delete props[match];
+	        }
+
+	        if (_react2['default'].isValidElement(html)) {
+	          throw new Error('cannot interpolate a React component into unsafe text');
+	        }
+
+	        memo += html;
+
+	        return memo;
+	      }, '');
+
+	      props.dangerouslySetInnerHTML = { __html: content };
+
+	      return _react2['default'].createElement(parent, props);
+	    }
+	    var kids = format.split(REGEXP).reduce(function (memo, match, index) {
+	      var child = undefined;
+
+	      if (index % 2 === 0) {
+	        if (match.length === 0) {
+	          return memo;
+	        }
+
+	        child = match;
+	      } else {
+	        child = props[match];
+	        delete props[match];
+	      }
+
+	      memo.push(child);
+
+	      return memo;
+	    }, []);
+
+	    return _react2['default'].createElement(parent, props, kids);
+	  }
+	});
+
+	exports['default'] = Interpolate;
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);

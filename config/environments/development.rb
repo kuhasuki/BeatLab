@@ -49,8 +49,8 @@ Rails.application.configure do
   :storage => :s3,
   :s3_credentials => {
     :bucket => 'trackwaveaudio',
-    :access_key_id => 'AKIAJDDEBE5WYOO3WYAQ',
-    :secret_access_key => '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'
+    :access_key_id => 'AKIAIIHC6XKKJ44UMXZA',
+    :secret_access_key => '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'
     }
   }
 

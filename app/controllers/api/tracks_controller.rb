@@ -17,6 +17,11 @@ class Api::TracksController < ApplicationController
     end
 	end
 
+	def me
+		@tracks = Track.all.where('user_id = ?', params[:id])
+		render 'index.json'
+	end
+
 	def index
 		@tracks = Track.all
 		render 'index.json'

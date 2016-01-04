@@ -5,4 +5,5 @@ json.array! @tracks do |track|
   json.id track.id
   json.user_id track.user_id
   json.src track.cdn
+  json.author track.user.name
 end

@@ -15,6 +15,7 @@ var Test = require('./components/test.jsx');
 var Landing = require('./components/landing.jsx');
 var TrackUpload = require('./components/track_upload.jsx');
 var Track = require('./components/track.jsx');
+var MyTracks = require('./components/my_tracks.jsx');
 
 var UserStore = require('./stores/user_store.js');
 var AlertStore = require('./stores/alert_store.js');
@@ -61,11 +62,12 @@ document.addEventListener("DOMContentLoaded", function () {
     <Route component={TrackWave} >
       <Route component={Content}>
         <Route path="/" component={Landing} />
+        <Route path="/:user_id/tracks" component={MyTracks} />
         <Route path="you" component={Test} />
         <Route path="profile" component={Test} />
         <Route path="track/:id" component={Track} />
         <Route path="upload" component={TrackUpload} onEnter={requireAuth} />
-        <Route path="tracks" components={{c1: Test, c2: Test}} />
+        
       </Route>
     </Route>
   </Router>, root);

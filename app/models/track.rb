@@ -8,7 +8,7 @@ class Track < ActiveRecord::Base
                     :host_name => 's3-us-west-2.amazonaws.com'
 
   def s3_credentials
-    {:bucket => "trackwaveaudio", :access_key_id => "AKIAJDDEBE5WYOO3WYAQ", :secret_access_key => "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"}
+    {:bucket => "trackwaveaudio", :access_key_id => "AKIAIIHC6XKKJ44UMXZA", :secret_access_key => "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"}
   end
 
 	validates_attachment :file, content_type: { content_type: ["audio/mp3"] }

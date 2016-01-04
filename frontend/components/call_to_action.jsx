@@ -2,15 +2,31 @@ var React = require('react');
 
 var Jumbotron = require('react-bootstrap/lib/Jumbotron');
 var Button = require('react-bootstrap/lib/Button');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+
+var SearchBar = require('./search_bar.jsx');
 
 var CallToAction = React.createClass({
   render: function(){
     return(
-       <Jumbotron>
-		    <h1>Hello, world!</h1>
-		    <p>This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-		    <p><Button bsStyle="primary">Learn more</Button></p>
-  		</Jumbotron>
+    	<Row >
+       	<Jumbotron className="landing-graphic" >
+       		<Col xs={12}>
+		    		<h2 className="welcome-header">Turn it up</h2>
+		    		<p >Discover incredible music. Control the mix. </p>
+		    		<p >Find your perfect soundscape</p>
+		    	</Col>
+
+		    	<Col xs={4} xsOffset={2} smOffset={2} mdOffset={3} lgOffset={3}>
+						<SearchBar  />
+					</Col>
+		    	<Col xs={4} className="text-left">
+		    			or&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		    			<button className="outline-button mdl-button mdl-js-button mdl-js-ripple-effect">Upload</button>
+	    		</Col>
+				</Jumbotron>
+  		</Row>
     );
   }
 });

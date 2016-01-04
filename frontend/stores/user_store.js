@@ -5,25 +5,24 @@ var UserStore = new Store(Dispatcher);
 var DispatchConstants = require('../constants/dispatch_constants.js');
 
 var AlertActions = require('../actions/alert_actions.js');
-//
-// BenchStore.all = function () {
-// return _benches.slice(0);
-// };
-//
-// BenchStore.repopulateAll = function (benches) {
-//   _benches = [];
-//   benches.benches.forEach(function(bench){
-//     _benches.push(bench);
-//   })
-// };
+
 var _benches = [];
 var _error = '';
 var _loggedIn = null;
 var _user = {};
+var _public_user = {};
 
 UserStore.updateError = function(error){
   console.log(error);
   _error = error;
+};
+
+UserStore.setPublicUser = function(user){
+  _public_user = user;
+};
+
+UserStore.getPublicUser = function(){
+  return _public_user;
 };
 
 UserStore.getError = function(){
@@ -87,6 +86,10 @@ UserStore.__onDispatch = function (payload) {
       break;
     case DispatchConstants.LOGGED_OUT:
       UserStore.logout();
+      UserStore.__emitChange();
+      break;
+    case DispatchConstants.GET_USER_INFO:
+      UserStore.setPublicUser(payload.user);
       UserStore.__emitChange();
       break;
   }

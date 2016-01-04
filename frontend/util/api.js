@@ -26,6 +26,18 @@ Api = {
     });
   },
 
+  fetchMyTracks: function(id){
+    $.get('/api/tracks/' + id, {}, function(data){
+      ApiActions.fetchMyTracks(data);
+    });
+  },
+
+  getUserInfo: function(id){
+    $.get('/users/' + id, {}, function(data){
+      ApiActions.getUserInfo(data);
+    });
+  },
+
   upload: function(formData){
 
     var token = $("meta[name='csrf-token']").attr("content");

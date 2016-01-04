@@ -21,10 +21,12 @@ var Notices = React.createClass({
       this.setState({
         alert: AlertStore.getAlert(), alertVisible: AlertStore.newAlert()
       });
+      
   },
 
   render() {
     if (this.state.alertVisible && this.state.alert.timeout !== null) {
+      $('#notices').addClass('card-space');
       return (
         <Alert bsStyle={this.state.alert.type} onDismiss={this.handleAlertDismiss} dismissAfter={this.state.alert.timeout}>
           {
@@ -35,6 +37,7 @@ var Notices = React.createClass({
         </Alert>
       );
     } else if(this.state.alertVisible && this.state.alert.timeout === null){
+      $('#notices').addClass('card-space');
       return (
         <Alert bsStyle={this.state.alert.type} onDismiss={this.handleAlertDismiss}>
           {
@@ -47,12 +50,12 @@ var Notices = React.createClass({
         </Alert>
       );
     }
-
-    return (<div></div>
+    return (null
     );
   },
 
   handleAlertDismiss: function () {
+    $('#notices').removeClass('card-space');
     this.setState({alertVisible: false});
   },
 

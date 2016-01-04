@@ -17,16 +17,16 @@ var Navigation = React.createClass({
 
   render: function(){
     return(
-      <nav className="navbar navbar-inverse navbar-fixed-top" role="navigation" >
-      <div className="container">
-        <div className="navbar-header">
+      <nav className="navbar navbar-inverse navbar-fixed-top mdl-shadow--4dp" role="navigation" >
+      <div className="container ">
+        <div className="navbar-header ">
           <button type="button" className="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span className="sr-only">Toggle navigation</span>
   	        <span className="icon-bar"></span>
   	        <span className="icon-bar"></span>
   	        <span className="icon-bar"></span>
   	      </button>
-        <a className="navbar-brand" href="#" onClick={this.clearAlerts} >Brand</a>
+        <a className="navbar-brand" href="#" onClick={this.clearAlerts} >Beatlab</a>
         </div>
         <div className="navbar-collapse collapse">
           <ul className="nav navbar-nav ">

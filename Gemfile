@@ -55,10 +55,10 @@ gem 'unicorn'
 
 #BeatLab
 gem 'therubyracer'
-gem 'less-rails' #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
-gem 'bootstrap', '~> 4.0.0.alpha3'
+# gem 'less-rails' #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
+gem 'bootstrap-sass', '~> 3.3.6'
 gem 'twitter-bootstrap-rails'
 gem 'bcrypt'
 gem "paperclip", '~> 4.3'
 gem 'aws-sdk', '~> 1.61.0'
-gem 's3_direct_upload'
+gem 'd3js-rails', '~> 3.1', '>= 3.1.6'

@@ -3,7 +3,7 @@ class UsersController < ApplicationController
 
 	def show
     @user = User.find(params[:id])
-		render :show
+		render json: {name: @user.name, id: @user.id, profile_pic_url: @user.profile_pic_url}
 	end
 
 	def new
