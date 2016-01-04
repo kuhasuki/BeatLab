@@ -38,6 +38,22 @@ Api = {
     });
   },
 
+  submitComment: function(body, track_id){
+    $.post('/api/comment/', {"comment": {"body": body, "track_id": track_id}}, function(data){
+      console.log(data);
+      ApiActions.addComment(data);
+    }).fail(function() {
+      AlertActions.danger("You must write something to leave a comment", 3000);
+      ApiActions.failedComment(data);
+  });
+  },
+
+  fetchComments: function(id){
+    $.get('/api/comments/' + id, {}, function(data){
+      ApiActions.fetchComments(data);
+    });
+  },
+
   upload: function(formData){
 
     var token = $("meta[name='csrf-token']").attr("content");

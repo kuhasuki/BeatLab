@@ -5,6 +5,9 @@ var TrackStore = require('../stores/track_store.js');
 
 var ApiActions = require('../actions/api_actions.js');
 
+var CommentForm = require('./comment_form.jsx');
+var Comments = require('./comments.jsx');
+
 var Col = require('react-bootstrap/lib/Col');
 var Row = require('react-bootstrap/lib/Row');
 var Panel = require('react-bootstrap/lib/Panel');
@@ -154,6 +157,14 @@ var Track = React.createClass({
 						<audio src={this.state.track.src} preload="auto" id="audioElement">
 						</audio>
 
+      	</Col>
+      	</Row>
+
+
+      <Row className="show-grid mdl-card mdl-shadow--4dp card-space">
+      	<Col xs={12}>
+      	<Comments track_id={this.props.params.id} />
+      	<CommentForm />
       	</Col>
       	</Row>
       </Col>

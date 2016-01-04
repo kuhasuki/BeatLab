@@ -111,6 +111,27 @@ var ApiActions = {
     }); 
   },
 
+  fetchComments: function(data){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.FETCH_COMMENTS,
+      comments: data
+    }); 
+  },
+
+  addComment: function(data){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.NEW_COMMENT,
+      comment: data
+    }); 
+  },
+
+  failedComment: function(){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.FAILED_COMMENT,
+    }); 
+  }
+
+
 };
 
 module.exports = ApiActions;

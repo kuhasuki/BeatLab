@@ -62,6 +62,7 @@
 	var TrackUpload = __webpack_require__(440);
 	var Track = __webpack_require__(443);
 	var MyTracks = __webpack_require__(446);
+	var Explore = __webpack_require__(451);
 
 	var UserStore = __webpack_require__(350);
 	var AlertStore = __webpack_require__(431);
@@ -87,16 +88,9 @@
 	  }
 	});
 
-	// document.addEventListener("DOMContentLoaded", function () {
-	//   var application = document.querySelector('#trackwave');
-	//   console.log(application);
-	//   ReactDOM.render( <TrackWave />, application);
-	// });
-
 	function requireAuth(nextState, replaceState) {
 	  Api.verifySession();
 	  if (!UserStore.isLoggedIn()) {
-	    // history.pushState();
 	    replaceState({ nextPathname: nextState.location.pathname }, '/');
 	    AlertActions.danger("You must be logged in to upload a track", 2000);
 	  }
@@ -115,8 +109,7 @@
 	        { component: Content },
 	        React.createElement(Route, { path: '/', component: Landing }),
 	        React.createElement(Route, { path: '/:user_id/tracks', component: MyTracks }),
-	        React.createElement(Route, { path: 'you', component: Test }),
-	        React.createElement(Route, { path: 'profile', component: Test }),
+	        React.createElement(Route, { path: 'explore', component: Explore }),
 	        React.createElement(Route, { path: 'track/:id', component: Track }),
 	        React.createElement(Route, { path: 'upload', component: TrackUpload, onEnter: requireAuth })
 	      )
@@ -25519,17 +25512,8 @@
 	              null,
 	              React.createElement(
 	                'a',
-	                { href: '#/', onClick: this.clearAlerts },
-	                'About Us'
-	              )
-	            ),
-	            React.createElement(
-	              'li',
-	              null,
-	              React.createElement(
-	                'a',
-	                { href: '#/', onClick: this.clearAlerts },
-	                'Contact'
+	                { href: '#/explore', onClick: this.clearAlerts },
+	                'Explore'
 	              )
 	            )
 	          ),
@@ -30776,6 +30760,22 @@
 	    });
 	  },
 
+	  submitComment: function (body, track_id) {
+	    $.post('/api/comment/', { "comment": { "body": body, "track_id": track_id } }, function (data) {
+	      console.log(data);
+	      ApiActions.addComment(data);
+	    }).fail(function () {
+	      AlertActions.danger("You must write something to leave a comment", 3000);
+	      ApiActions.failedComment(data);
+	    });
+	  },
+
+	  fetchComments: function (id) {
+	    $.get('/api/comments/' + id, {}, function (data) {
+	      ApiActions.fetchComments(data);
+	    });
+	  },
+
 	  upload: function (formData) {
 
 	    var token = $("meta[name='csrf-token']").attr("content");
@@ -30941,6 +30941,26 @@
 	  stopPlayback: function () {
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.STOP_PLAYBACK
+	    });
+	  },
+
+	  fetchComments: function (data) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.FETCH_COMMENTS,
+	      comments: data
+	    });
+	  },
+
+	  addComment: function (data) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.NEW_COMMENT,
+	      comment: data
+	    });
+	  },
+
+	  failedComment: function () {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.FAILED_COMMENT
 	    });
 	  }
 
@@ -31286,7 +31306,10 @@
 	  FETCH_MY_TRACKS: "FETCH_MY_TRACKS",
 	  GET_USER_INFO: "GET_USER_INFO",
 	  START_PLAYBACK: "START_PLAYBACK",
-	  STOP_PLAYBACK: "STOP_PLAYBACK"
+	  STOP_PLAYBACK: "STOP_PLAYBACK",
+	  FETCH_COMMENT: "FETCH_COMMENT",
+	  NEW_COMMENT: "NEW_COMMENT",
+	  FAILED_COMMENT: "FAILED_COMMENT"
 	};
 
 	module.exports = DispatchConstants;
@@ -38152,12 +38175,6 @@
 	      { eventKey: 3, title: this.state.user.name, id: 'basic-nav-dropdown' },
 	      React.createElement(
 	        MenuItem,
-	        { eventKey: 3.1, href: '#/profile' },
-	        React.createElement(Glyphicon, { glyph: 'user' }),
-	        ' Profile'
-	      ),
-	      React.createElement(
-	        MenuItem,
 	        { eventKey: 3.3, href: "#/" + this.state.user.id + "/tracks" },
 	        React.createElement(Glyphicon, { glyph: 'th-list' }),
 	        ' Tracks'
@@ -42439,6 +42456,7 @@
 	            { onClick: this.pause },
 	            React.createElement(Glyphicon, { glyph: 'pause' })
 	          ),
+	          ' ',
 	          React.createElement(
 	            Button,
 	            { onClick: this.stahp },
@@ -42573,10 +42591,10 @@
 	        this.state.tracks.map((function (track, idx) {
 	          return React.createElement(
 	            Col,
-	            { key: idx, xs: 4, style: trackStyle, className: 'track-element-landing show-grid mdl-card mdl-shadow--4dp card-space' },
+	            { key: idx, xs: 4, style: trackStyle, className: 'track-element-landing card-space' },
 	            React.createElement(
 	              Panel,
-	              { header: track.title, bsStyle: 'primary', style: { "margin": "0" } },
+	              { header: track.title, style: { "margin": "0" } },
 	              React.createElement(
 	                Button,
 	                { bsSize: 'large', onClick: this.play.bind(this, track) },
@@ -42640,23 +42658,29 @@
 													'p',
 													null,
 													'Find your perfect soundscape'
-											)
-									),
-									React.createElement(
-											Col,
-											{ xs: 4, xsOffset: 2, smOffset: 2, mdOffset: 3, lgOffset: 3 },
-											React.createElement(SearchBar, null)
-									),
-									React.createElement(
-											Col,
-											{ xs: 4, className: 'text-left' },
-											'or       ',
+											),
 											React.createElement(
-													'button',
-													{ className: 'outline-button mdl-button mdl-js-button mdl-js-ripple-effect' },
-													'Upload'
+													'a',
+													{ href: '#/explore' },
+													React.createElement(
+															'button',
+															{ className: 'outline-button mdl-button mdl-js-button mdl-js-ripple-effect' },
+															'Explore'
+													)
+											),
+											'        or        ',
+											React.createElement(
+													'a',
+													{ href: '#/upload' },
+													React.createElement(
+															'button',
+															{ className: 'outline-button mdl-button mdl-js-button mdl-js-ripple-effect' },
+															'Upload'
+													)
 											)
-									)
+									),
+									React.createElement(Col, { xs: 6 }),
+									React.createElement(Col, { xs: 6, className: 'text-left' })
 							)
 					);
 			}
@@ -42972,6 +42996,9 @@
 
 	var ApiActions = __webpack_require__(343);
 
+	var CommentForm = __webpack_require__(452);
+	var Comments = __webpack_require__(454);
+
 	var Col = __webpack_require__(434);
 	var Row = __webpack_require__(433);
 	var Panel = __webpack_require__(447);
@@ -43156,6 +43183,16 @@
 	          React.createElement('br', null),
 	          React.createElement('br', null),
 	          React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
+	        )
+	      ),
+	      React.createElement(
+	        Row,
+	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	        React.createElement(
+	          Col,
+	          { xs: 12 },
+	          React.createElement(Comments, { track_id: this.props.params.id }),
+	          React.createElement(CommentForm, null)
 	        )
 	      )
 	    );
@@ -44155,6 +44192,367 @@
 	});
 
 	exports['default'] = Interpolate;
+	module.exports = exports['default'];
+
+/***/ },
+/* 451 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(147);
+	var CallToAction = __webpack_require__(439);
+
+	var Col = __webpack_require__(434);
+	var Row = __webpack_require__(433);
+
+	var Panel = __webpack_require__(447);
+	var Button = __webpack_require__(210);
+	var Glyphicon = __webpack_require__(335);
+	var TrackStore = __webpack_require__(441);
+
+	var Api = __webpack_require__(342);
+
+	var ApiActions = __webpack_require__(343);
+
+	var trackStyle = { "padding": "0", "width": "30%" };
+
+	var Explore = React.createClass({
+	  displayName: 'Explore',
+
+	  getInitialState() {
+	    return {
+	      tracks: []
+	    };
+	  },
+
+	  componentDidMount() {
+	    Api.fetchTracks();
+	    this.listenerToken = TrackStore.addListener(this._gotTracks);
+	  },
+
+	  componentWillUnmount: function () {
+	    this.listenerToken.remove();
+	  },
+
+	  _gotTracks() {
+	    this.setState({
+	      tracks: TrackStore.getAllTracks()
+	    });
+	  },
+
+	  play(track) {
+	    ApiActions.startPlayback(track);
+	  },
+
+	  render: function () {
+	    console.log(this.state.tracks);
+	    return React.createElement(
+	      Col,
+	      { xs: 12, className: 'mdl-card mdl-shadow--4dp' },
+	      React.createElement('br', null),
+	      React.createElement(
+	        'h3',
+	        { style: { "textAlign": "center" } },
+	        'Explore all Tracks'
+	      ),
+	      React.createElement(
+	        Row,
+	        null,
+	        this.state.tracks.map((function (track, idx) {
+	          return React.createElement(
+	            Col,
+	            { key: idx, xs: 4, style: trackStyle, className: 'track-element-landing card-space' },
+	            React.createElement(
+	              Panel,
+	              { style: { "margin": "0" } },
+	              React.createElement(
+	                'a',
+	                { href: '#/track/' + track.id },
+	                track.title
+	              ),
+	              React.createElement(
+	                'span',
+	                null,
+	                ' by '
+	              ),
+	              React.createElement(
+	                'a',
+	                { href: "#/" + track.user_id + "/tracks" },
+	                track.author
+	              ),
+	              React.createElement('hr', null),
+	              React.createElement(
+	                Button,
+	                { bsSize: 'large', onClick: this.play.bind(this, track) },
+	                React.createElement(Glyphicon, { glyph: 'play' }),
+	                ' Play'
+	              ),
+	              ' ',
+	              React.createElement(
+	                Button,
+	                { bsSize: 'large', href: "#/track/" + track.id },
+	                React.createElement(Glyphicon, { glyph: 'chevron-right' }),
+	                ' Track Detail'
+	              )
+	            )
+	          );
+	        }).bind(this))
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Explore;
+
+/***/ },
+/* 452 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(147);
+	var LinkedStateMixin = __webpack_require__(243);
+
+	var Api = __webpack_require__(342);
+	var CommentStore = __webpack_require__(453);
+
+	var Input = __webpack_require__(331);
+	var ButtonInput = __webpack_require__(442);
+	var Col = __webpack_require__(434);
+	var Row = __webpack_require__(433);
+
+	var CommentForm = React.createClass({
+	    displayName: 'CommentForm',
+
+	    mixins: [LinkedStateMixin],
+	    getInitialState() {
+	        return {
+	            body: ''
+	        };
+	    },
+
+	    componentDidMount() {
+	        this.formData = new FormData();
+	        this.uploadInProgress = false;
+	        this.submitText = "Submit";
+	        this.listenerToken = CommentStore.addListener(this._commentsChanged);
+	    },
+
+	    _commentsChanged() {
+	        this.uploadInProgress = false;
+	        this.submitText = "Submit";
+	    },
+
+	    handleSubmit(e) {
+	        e.preventDefault;
+
+	        Api.submitComment(this.state.body, 7);
+	        this.setState({ body: '' });
+	    },
+
+	    sayFile(e) {
+	        e.preventDefault;
+	        var file = e.target.files[0];
+	        this.formData.append('file', file, file.name);
+	        this.setState({ file: file });
+	    },
+
+	    render() {
+	        return React.createElement(
+	            Col,
+	            { xs: 12, className: 'card-space' },
+	            React.createElement(
+	                Row,
+	                null,
+	                React.createElement(
+	                    Col,
+	                    { xs: 12, md: 10, mdOffset: 1, lg: 8, lgOffset: 2 },
+	                    React.createElement(
+	                        'h4',
+	                        null,
+	                        ' Leave a Comment'
+	                    ),
+	                    React.createElement(
+	                        'form',
+	                        null,
+	                        React.createElement(Input, { type: 'textarea', label: 'Comment', placeholder: '', valueLink: this.linkState('body'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                        React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' }),
+	                        this.uploadInProgress ? React.createElement('div', { className: 'mdl-spinner mdl-js-spinner is-active' }) : React.createElement('div', null)
+	                    )
+	                )
+	            )
+	        );
+	    }
+	});
+
+	module.exports = CommentForm;
+
+/***/ },
+/* 453 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Store = __webpack_require__(351).Store;
+	var Dispatcher = __webpack_require__(344);
+	var CommentStore = new Store(Dispatcher);
+
+	var DispatchConstants = __webpack_require__(348);
+
+	var AlertActions = __webpack_require__(349);
+
+	var _comments = [];
+
+	CommentStore.getAllComments = function () {
+	  return _comments;
+	};
+
+	CommentStore.addComment = function (comment) {
+	  _comments.push(comment);
+	};
+
+	CommentStore.populate = function (comments) {
+	  _comments = comments;
+	};
+
+	CommentStore.__onDispatch = function (payload) {
+	  switch (payload.actionType) {
+	    case DispatchConstants.FETCH_COMMENTS:
+	      CommentStore.populate(payload.comments);
+	      CommentStore.__emitChange();
+	      break;
+	    case DispatchConstants.NEW_COMMENT:
+	      CommentStore.addComment(payload.comment);
+	      CommentStore.__emitChange();
+	      break;
+	    case DispatchConstants.FAILED_COMMENT:
+	      CommentStore.__emitChange();
+	      break;
+	  }
+	};
+
+	window.CommentStore = CommentStore;
+
+	module.exports = CommentStore;
+
+/***/ },
+/* 454 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(147);
+	var LinkedStateMixin = __webpack_require__(243);
+
+	var Api = __webpack_require__(342);
+	var CommentStore = __webpack_require__(453);
+
+	var Row = __webpack_require__(433);
+	var Well = __webpack_require__(455);
+	var Col = __webpack_require__(434);
+	var Comments = React.createClass({
+	    displayName: 'Comments',
+
+	    mixins: [LinkedStateMixin],
+	    getInitialState() {
+	        return {
+	            comments: []
+	        };
+	    },
+
+	    componentDidMount() {
+	        Api.fetchComments(this.props.track_id);
+	        this.listenerToken = CommentStore.addListener(this._commentsChanged);
+	    },
+
+	    componentWillUpdate(nextProps, nextState) {
+	        Api.fetchComments(this.props.track_id);
+	    },
+
+	    _commentsChanged() {
+	        this.setState({
+	            comments: CommentStore.getAllComments()
+	        });
+	    },
+
+	    render() {
+	        console.log(this.state);
+	        return React.createElement(
+	            Row,
+	            null,
+	            React.createElement('br', null),
+	            this.state.comments.map((function (comment, idx) {
+	                return React.createElement(
+	                    Col,
+	                    { key: idx, xs: 12, md: 8, mdOffset: 2, className: 'card-space' },
+	                    React.createElement(
+	                        Well,
+	                        { style: { "margin": "0" } },
+	                        React.createElement(
+	                            'p',
+	                            null,
+	                            comment.author,
+	                            ' : ',
+	                            comment.body
+	                        )
+	                    )
+	                );
+	            }).bind(this))
+	        );
+	    }
+	});
+
+	module.exports = Comments;
+
+/***/ },
+/* 455 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _inherits = __webpack_require__(259)['default'];
+
+	var _classCallCheck = __webpack_require__(266)['default'];
+
+	var _extends = __webpack_require__(211)['default'];
+
+	var _interopRequireDefault = __webpack_require__(227)['default'];
+
+	exports.__esModule = true;
+
+	var _react = __webpack_require__(147);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(228);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _utilsBootstrapUtils = __webpack_require__(231);
+
+	var _utilsBootstrapUtils2 = _interopRequireDefault(_utilsBootstrapUtils);
+
+	var _styleMaps = __webpack_require__(232);
+
+	var Well = (function (_React$Component) {
+	  _inherits(Well, _React$Component);
+
+	  function Well() {
+	    _classCallCheck(this, _Well);
+
+	    _React$Component.apply(this, arguments);
+	  }
+
+	  Well.prototype.render = function render() {
+	    var classes = _utilsBootstrapUtils2['default'].getClassSet(this.props);
+
+	    return _react2['default'].createElement(
+	      'div',
+	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
+	      this.props.children
+	    );
+	  };
+
+	  var _Well = Well;
+	  Well = _utilsBootstrapUtils.bsSizes([_styleMaps.Sizes.LARGE, _styleMaps.Sizes.SMALL])(Well) || Well;
+	  Well = _utilsBootstrapUtils.bsClass('well')(Well) || Well;
+	  return Well;
+	})(_react2['default'].Component);
+
+	exports['default'] = Well;
 	module.exports = exports['default'];
 
 /***/ }

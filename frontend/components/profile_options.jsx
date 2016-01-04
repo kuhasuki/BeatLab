@@ -28,7 +28,6 @@ var ProfileOptions = React.createClass({
     console.log(this.state);
     return(
         <NavDropdown eventKey={3} title={this.state.user.name} id="basic-nav-dropdown">
-          <MenuItem eventKey={3.1} href="#/profile" ><Glyphicon glyph="user" /> Profile</MenuItem>
           <MenuItem eventKey={3.3} href={"#/" + this.state.user.id + "/tracks"}><Glyphicon glyph="th-list" /> Tracks</MenuItem>
         </NavDropdown>
     );

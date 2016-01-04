@@ -31,8 +31,7 @@ var Navigation = React.createClass({
         <div className="navbar-collapse collapse">
           <ul className="nav navbar-nav ">
             <li><a href="#/" onClick={this.clearAlerts}>Home</a></li>
-            <li><a href="#/" onClick={this.clearAlerts}>About Us</a></li>
-            <li><a href="#/" onClick={this.clearAlerts}>Contact</a></li>
+            <li><a href="#/explore" onClick={this.clearAlerts}>Explore</a></li>
           </ul>
             <UserTools />
         </div>

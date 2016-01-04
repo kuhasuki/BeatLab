@@ -51,6 +51,7 @@ var Player = React.createClass({
   		    		<Button onClick={this.play} ><Glyphicon glyph="play" /></Button>
       				&nbsp;
       				<Button onClick={this.pause} ><Glyphicon glyph="pause" /></Button>
+      				&nbsp;
       				<Button onClick={this.stahp} ><Glyphicon glyph="stop" /></Button>
      				<audio src={this.state.track.src} id="player" autoPlay></audio>
      			</div>

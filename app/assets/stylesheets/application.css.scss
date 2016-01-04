@@ -765,9 +765,10 @@ $jumbotron-border-radius:            0;
     }
 }
   .landing-graphic {
-    display: inline-block;
+    // display: inline-block;
 
     text-align: center;
+    height:300px;
 
     background:  -webkit-linear-gradient(top, rgba(107,148,219,1) 0%,rgba(196,64,181,1) 100%);
   }
@@ -830,7 +831,7 @@ input, select, textarea {
 
 .track-element-landing:nth-child(3n-1){
   margin-right:2.2%;
-  margin-left:1.8%;
+  margin-left:1.7%;
 }
 
 .track-element-landing:nth-child(3n-2){
@@ -847,7 +848,10 @@ input, select, textarea {
   bottom: 0px;
   width: 100%;
 }
-
+.panel-default > .panel-heading {
+	background-color: #D04FBF;
+	color: white
+}
 .panel-primary > .panel-heading{
 	background-color: #D04FBF;
 }

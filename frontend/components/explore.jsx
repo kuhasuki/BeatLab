@@ -15,7 +15,7 @@ var ApiActions = require('../actions/api_actions.js');
 
 var trackStyle = {"padding": "0", "width": "30%"}
 
-var Landing = React.createClass({
+var Explore = React.createClass({
 
     getInitialState() {
         return {
@@ -34,7 +34,7 @@ var Landing = React.createClass({
 
     _gotTracks() {
       this.setState({
-        tracks: TrackStore.getAllTracks().slice(0, 12)
+        tracks: TrackStore.getAllTracks()
       })
     },
 
@@ -46,20 +46,19 @@ var Landing = React.createClass({
     render: function(){
       console.log(this.state.tracks);
     return(
-    	<Col className="mdl-card mdl-shadow--4dp">
-      	<CallToAction className="landing-graphic" />
-      	<Row>
-      		<Col xs={12} className="text-center" >
-      			<h4>Trending now:</h4>
-      		</Col>
-      	</Row>
+    	<Col xs={12} className="mdl-card mdl-shadow--4dp">
+      <br></br>
+      <h3 style={{"textAlign":"center"}}>Explore all Tracks</h3>
         <Row>
           {
             this.state.tracks.map(function(track, idx){
               return(
                 
                   <Col key={idx} xs={4} style={trackStyle} className="track-element-landing card-space">
-                       <Panel header={track.title} style={{"margin": "0"}}>
+                      
+                       <Panel style={{"margin": "0"}}>
+                        <a href={'#/track/' + track.id} >{track.title}</a><span> by </span>
+                        <a href={"#/" + track.user_id + "/tracks"} >{track.author}</a><hr></hr>
                         <Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button>
                         &nbsp;
                         <Button bsSize="large" href={"#/track/" + track.id} ><Glyphicon glyph="chevron-right" /> Track Detail</Button>
@@ -79,4 +78,4 @@ var Landing = React.createClass({
 
 
 
-module.exports = Landing;
+module.exports = Explore;

@@ -16,6 +16,7 @@ var Landing = require('./components/landing.jsx');
 var TrackUpload = require('./components/track_upload.jsx');
 var Track = require('./components/track.jsx');
 var MyTracks = require('./components/my_tracks.jsx');
+var Explore = require('./components/explore.jsx');
 
 var UserStore = require('./stores/user_store.js');
 var AlertStore = require('./stores/alert_store.js');
@@ -39,16 +40,9 @@ var TrackWave = React.createClass({
   }
 });
 
-// document.addEventListener("DOMContentLoaded", function () {
-//   var application = document.querySelector('#trackwave');
-//   console.log(application);
-//   ReactDOM.render( <TrackWave />, application);
-// });
-
 function requireAuth(nextState, replaceState ){
   Api.verifySession();
   if(!UserStore.isLoggedIn()){
-    // history.pushState();
     replaceState({ nextPathname: nextState.location.pathname }, '/')
     AlertActions.danger("You must be logged in to upload a track", 2000);  
   } 
@@ -62,8 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <Route component={Content}>
         <Route path="/" component={Landing} />
         <Route path="/:user_id/tracks" component={MyTracks} />
-        <Route path="you" component={Test} />
-        <Route path="profile" component={Test} />
+        <Route path="explore" component={Explore} />
         <Route path="track/:id" component={Track} />
         <Route path="upload" component={TrackUpload} onEnter={requireAuth} />
         
