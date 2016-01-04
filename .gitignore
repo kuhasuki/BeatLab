@@ -15,6 +15,7 @@
 # Ignore Secrets
 config/secrets.yml
 config/database.yml
+.env
 
 # Ignore node modules
 /node_modules

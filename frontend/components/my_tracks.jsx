@@ -39,7 +39,7 @@ var MyTracks = React.createClass({
 		})
 	},
 
-	hope(track){
+	play(track){
 		ApiActions.startPlayback(track);
 	},
 
@@ -58,7 +58,7 @@ var MyTracks = React.createClass({
       					
             			<Col key={idx} xs={4} style={trackStyle} className="track-element show-grid mdl-card mdl-shadow--4dp card-space">
       							   <Panel header={track.title} bsStyle="primary" style={{"margin": "0"}}>
-      									<Button bsSize="large" onClick={this.hope.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button>
+      									<Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button>
       									&nbsp;
       									<Button bsSize="large" href={"#/track/" + track.id} ><Glyphicon glyph="chevron-right" /> Track Detail</Button>
    										</Panel>

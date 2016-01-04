@@ -156,7 +156,7 @@ var Track = React.createClass({
       <Row className="show-grid mdl-card mdl-shadow--4dp card-space">
       	<Col xs={12}>
       	<Comments track_id={this.props.params.id} />
-      	<CommentForm />
+      	<CommentForm track_id={this.props.params.id}/>
       	</Col>
       	</Row>
       </Col>

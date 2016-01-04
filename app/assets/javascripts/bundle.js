@@ -43148,7 +43148,7 @@
 	               Col,
 	               { xs: 12 },
 	               React.createElement(Comments, { track_id: this.props.params.id }),
-	               React.createElement(CommentForm, null)
+	               React.createElement(CommentForm, { track_id: this.props.params.id })
 	            )
 	         )
 	      );
@@ -43285,7 +43285,7 @@
 	    });
 	  },
 
-	  hope(track) {
+	  play(track) {
 	    ApiActions.startPlayback(track);
 	  },
 
@@ -43319,7 +43319,7 @@
 	              { header: track.title, bsStyle: 'primary', style: { "margin": "0" } },
 	              React.createElement(
 	                Button,
-	                { bsSize: 'large', onClick: this.hope.bind(this, track) },
+	                { bsSize: 'large', onClick: this.play.bind(this, track) },
 	                React.createElement(Glyphicon, { glyph: 'play' }),
 	                ' Play'
 	              ),
@@ -44298,7 +44298,7 @@
 	    handleSubmit(e) {
 	        e.preventDefault;
 
-	        Api.submitComment(this.state.body, 7);
+	        Api.submitComment(this.state.body, this.props.track_id);
 	        this.setState({ body: '' });
 	    },
 

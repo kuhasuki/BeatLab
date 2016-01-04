@@ -33,7 +33,7 @@ var CommentForm = React.createClass({
     	e.preventDefault;
         
     
-    	Api.submitComment(this.state.body, 7);
+    	Api.submitComment(this.state.body, this.props.track_id);
         this.setState({body : ''});
     },
 

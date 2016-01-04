@@ -4,11 +4,11 @@ class Track < ActiveRecord::Base
 
 	has_attached_file :file,
                     :storage => :s3,
-                    :s3_credentials => Proc.new{|a| a.instance.s3_credentials },
+                    :bucket => 'trackwaveaudio',
                     :host_name => 's3-us-west-2.amazonaws.com'
 
   def s3_credentials
-    {:bucket => "trackwaveaudio", :access_key_id => "AKIAIIHC6XKKJ44UMXZA", :secret_access_key => "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"}
+    {:bucket => ENV["S3_BUCKET_NAME"],  :access_key_id => ENV["AWS_ACCESS_KEY_ID"], :secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"]}
   end
 
 	validates_attachment :file, content_type: { content_type: ["audio/mp3"] }

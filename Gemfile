@@ -54,6 +54,7 @@ end
 gem 'unicorn'
 
 #BeatLab
+gem 'dotenv-rails'
 gem 'therubyracer'
 # gem 'less-rails' #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
 gem 'bootstrap-sass', '~> 3.3.6'
