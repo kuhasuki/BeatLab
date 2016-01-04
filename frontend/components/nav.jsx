@@ -10,8 +10,6 @@ var AlertActions = require('../actions/alert_actions.js');
 
 var Navigation = React.createClass({
   clearAlerts(){
-    //preferrably handle onClick for each nav anchor but this'll do for now, won't warn users to sign in
-    console.log("nav changed");
     AlertActions.clear()
   },
 

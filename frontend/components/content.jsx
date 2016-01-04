@@ -15,7 +15,6 @@ var divStyle = {
 
 var Content = React.createClass({
   render: function(){
-  	console.log(this.props.children);
     return(
 		  <Grid>
 		    <Row id="notices" className="show-grid mdl-card mdl-shadow--4dp">

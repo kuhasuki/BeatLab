@@ -44,7 +44,6 @@ var Landing = React.createClass({
 
 
     render: function(){
-      console.log(this.state.tracks);
     return(
     	<Col className="mdl-card mdl-shadow--4dp">
       	<CallToAction className="landing-graphic" />

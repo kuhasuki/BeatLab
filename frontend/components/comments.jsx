@@ -24,6 +24,10 @@ var Comments = React.createClass({
         Api.fetchComments(this.props.track_id);  
     },
 
+    componentWillUnmount() {
+        this.listenerToken.remove();
+    },
+
     _commentsChanged() {
        this.setState({
         comments:CommentStore.getAllComments()
@@ -31,7 +35,6 @@ var Comments = React.createClass({
     },
 
     render() {
-        console.log(this.state);
         return (
             <Row>
             <br></br>

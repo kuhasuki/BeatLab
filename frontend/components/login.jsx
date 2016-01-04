@@ -23,12 +23,10 @@ var Login = React.createClass({
 
  closeModal: function() {
      this.setState({showModal : false, errors : ''});
-     // this.forceUpdate();
  },
 
  openModal: function(){
       this.setState({showModal : true});
-      // this.forceUpdate();
   },
 
   login: function(){
@@ -40,7 +38,6 @@ var Login = React.createClass({
     if (UserStore.getError() != '') {
       this.setState({errors: UserStore.getError()});
     } else {
-      // this.listenerToken.remove();
     }
   },
 
@@ -49,7 +46,6 @@ var Login = React.createClass({
   },
 
   componentWillUnmount: function () {
-    // this.setState({showModal : false});
     this.listenerToken.remove();  
   },
 

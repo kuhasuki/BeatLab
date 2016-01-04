@@ -25,7 +25,6 @@ function build() {
   $('#audioElement').on('timeupdate', function() {
      $('#seekbar').attr("value", this.currentTime / this.duration);
 	});
-  console.log(audioElement);
   var audioSrc = audioCtx.createMediaElementSource(audioElement);
   var analyser = audioCtx.createAnalyser();
 
@@ -37,8 +36,6 @@ function build() {
   var frequencyData = new Uint8Array(200);
 
   var contentWidth = $('#track-content').width();
-
-  console.log(contentWidth);
 
   var svgHeight = '300';
   var svgWidth = contentWidth + 30;
@@ -99,16 +96,11 @@ var Track = React.createClass({
 	  build();    
 	},
 
-	caw(){
-		
-	},
-
 	componentWillUnmount() {
 	    this.listenerToken.remove();  
 	},
 
 	getProgress(){
-		console.log(progress);
 		return Math.round(progress * 100);
 
 	},

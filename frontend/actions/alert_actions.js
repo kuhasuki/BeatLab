@@ -11,7 +11,6 @@ var AlertActions = {
         timeout: timeout
       })
     }, 1);
-    console.log('dispatching sussess');
   },
 
   info: function(body, timeout){

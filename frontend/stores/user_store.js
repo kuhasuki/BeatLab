@@ -6,7 +6,6 @@ var DispatchConstants = require('../constants/dispatch_constants.js');
 
 var AlertActions = require('../actions/alert_actions.js');
 
-var _benches = [];
 var _error = '';
 var _loggedIn = null;
 var _user = {};

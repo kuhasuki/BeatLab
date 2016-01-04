@@ -8,23 +8,15 @@ var _alert = null;
 var _body = null;
 var _timeout = null;
 var _type = null;
-// var _nature = null;
  
 AlertStore.update = function(payload, type) {
-  console.log(payload);
   if($.isArray(payload.body)){
     _body = payload.body;
   } else {
     _body = [payload.body];
   }
-  console.log(_body);
   _timeout = payload.timeout;
   _type = type;
-  // if(payload.nature){
-  //   _nature = payload.nature;
-  // } else {
-  //   _nature = "self-destruct"
-  // }
 };
 
 AlertStore.newAlert = function() {
@@ -43,13 +35,11 @@ AlertStore.clearAlert = function(){
   _body = null;
   _timeout = null;
   _type = null;
-  // var _nature = null;
 };
 
 AlertStore.__onDispatch = function (payload) {
   switch (payload.actionType) {
     case DispatchConstants.ALERT_SUCCESS:
-      console.log("hit disp");
       AlertStore.update(payload, "success");
       AlertStore.__emitChange();
       break;
@@ -66,7 +56,6 @@ AlertStore.__onDispatch = function (payload) {
       AlertStore.__emitChange();
       break;
     case DispatchConstants.ALERT_CLEAR:
-      console.log("alert specifically cleared");
       AlertStore.clearAlert();
       AlertStore.__emitChange();
       break;

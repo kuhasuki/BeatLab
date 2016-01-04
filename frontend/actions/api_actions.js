@@ -11,9 +11,6 @@ var ApiActions = {
       });
 
     } else {
-      console.log("data is");
-      console.log(data);
-      console.log("isnt error");
       Dispatcher.dispatch({
         actionType: DispatchConstants.LOGIN_SUCCESS,
         user: data
@@ -23,7 +20,6 @@ var ApiActions = {
   },
 
   registerAttempt: function(data){
-    console.log(data);
     if(data.hasOwnProperty("error")){
       Dispatcher.dispatch({
         actionType: DispatchConstants.REGISTRATION_FAILURE,
@@ -41,7 +37,6 @@ var ApiActions = {
   },
 
   checkSession: function(data){
-    console.log(data);
     if(data.hasOwnProperty("status")){
       Dispatcher.dispatch({
         actionType: DispatchConstants.LOGGED_OUT,
@@ -49,7 +44,6 @@ var ApiActions = {
       });
 
     } else {
-      console.log("is logged in");
       Dispatcher.dispatch({
         actionType: DispatchConstants.LOGGED_IN,
         user: data
@@ -58,7 +52,6 @@ var ApiActions = {
   },
 
   uploadSuccess: function(data){
-    console.log(data);
     Dispatcher.dispatch({
       actionType: DispatchConstants.UPLOAD_SUCCESS,
       track: data
@@ -66,7 +59,6 @@ var ApiActions = {
   },
 
   uploadFailure: function(data){
-    console.log(data);
     Dispatcher.dispatch({
       actionType: DispatchConstants.UPLOAD_FAILURE,
       errors: data.errors
@@ -74,7 +66,6 @@ var ApiActions = {
   },
 
   fetchTracks: function(data){
-    console.log(data);
     Dispatcher.dispatch({
       actionType: DispatchConstants.FETCH_TRACKS,
       tracks: data
@@ -82,7 +73,6 @@ var ApiActions = {
   },
 
   fetchMyTracks: function(data){
-    console.log(data);
     Dispatcher.dispatch({
       actionType: DispatchConstants.FETCH_MY_TRACKS,
       tracks: data
@@ -90,7 +80,6 @@ var ApiActions = {
   },
 
   getUserInfo: function(data){
-    console.log(data);
     Dispatcher.dispatch({
       actionType: DispatchConstants.GET_USER_INFO,
       user: data
@@ -98,7 +87,6 @@ var ApiActions = {
   },
 
   startPlayback: function(data){
-    console.log(data);
     Dispatcher.dispatch({
       actionType: DispatchConstants.START_PLAYBACK,
       track: data

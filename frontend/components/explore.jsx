@@ -44,7 +44,6 @@ var Explore = React.createClass({
 
 
     render: function(){
-      console.log(this.state.tracks);
     return(
     	<Col xs={12} className="mdl-card mdl-shadow--4dp">
       <br></br>

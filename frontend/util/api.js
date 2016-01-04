@@ -40,7 +40,6 @@ Api = {
 
   submitComment: function(body, track_id){
     $.post('/api/comment/', {"comment": {"body": body, "track_id": track_id}}, function(data){
-      console.log(data);
       ApiActions.addComment(data);
     }).fail(function() {
       AlertActions.danger("You must write something to leave a comment", 3000);
@@ -64,23 +63,23 @@ Api = {
       switch(xhr.readyState) {
           case 0:
             // request not initialized 
-            console.log('initializing');
+            //console.log('initializing');
             break;
           case 1:
             // server connection established
-            console.log('connection established');
+            //console.log('connection established');
             break;
           case 2:
             // request received
-            console.log('request recieved');
+            //console.log('request recieved');
             break;
           case 3:
             // processing request 
-            console.log('processing');
+            //console.log('processing');
             break;
           case 4:
             // request finished and response is ready
-            console.log('finished');
+            //console.log('finished');
             break;
       }
     }
@@ -96,8 +95,6 @@ Api = {
         AlertActions.success("Track successfully uploaded", 2000);
       } else {
         ApiActions.uploadFailure(xhr.responseText);
-        console.log(xhr.responseText);
-        console.log(JSON.parse(xhr.responseText));
         AlertActions.danger(JSON.parse(xhr.responseText), null);
       }
     };

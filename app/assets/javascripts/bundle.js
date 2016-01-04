@@ -25459,8 +25459,6 @@
 	  displayName: 'Navigation',
 
 	  clearAlerts() {
-	    //preferrably handle onClick for each nav anchor but this'll do for now, won't warn users to sign in
-	    console.log("nav changed");
 	    AlertActions.clear();
 	  },
 
@@ -30762,7 +30760,6 @@
 
 	  submitComment: function (body, track_id) {
 	    $.post('/api/comment/', { "comment": { "body": body, "track_id": track_id } }, function (data) {
-	      console.log(data);
 	      ApiActions.addComment(data);
 	    }).fail(function () {
 	      AlertActions.danger("You must write something to leave a comment", 3000);
@@ -30786,23 +30783,23 @@
 	      switch (xhr.readyState) {
 	        case 0:
 	          // request not initialized
-	          console.log('initializing');
+	          //console.log('initializing');
 	          break;
 	        case 1:
 	          // server connection established
-	          console.log('connection established');
+	          //console.log('connection established');
 	          break;
 	        case 2:
 	          // request received
-	          console.log('request recieved');
+	          //console.log('request recieved');
 	          break;
 	        case 3:
 	          // processing request
-	          console.log('processing');
+	          //console.log('processing');
 	          break;
 	        case 4:
 	          // request finished and response is ready
-	          console.log('finished');
+	          //console.log('finished');
 	          break;
 	      }
 	    };
@@ -30818,8 +30815,6 @@
 	        AlertActions.success("Track successfully uploaded", 2000);
 	      } else {
 	        ApiActions.uploadFailure(xhr.responseText);
-	        console.log(xhr.responseText);
-	        console.log(JSON.parse(xhr.responseText));
 	        AlertActions.danger(JSON.parse(xhr.responseText), null);
 	      }
 	    };
@@ -30848,9 +30843,6 @@
 	        error: data.error
 	      });
 	    } else {
-	      console.log("data is");
-	      console.log(data);
-	      console.log("isnt error");
 	      Dispatcher.dispatch({
 	        actionType: DispatchConstants.LOGIN_SUCCESS,
 	        user: data
@@ -30859,7 +30851,6 @@
 	  },
 
 	  registerAttempt: function (data) {
-	    console.log(data);
 	    if (data.hasOwnProperty("error")) {
 	      Dispatcher.dispatch({
 	        actionType: DispatchConstants.REGISTRATION_FAILURE,
@@ -30875,14 +30866,12 @@
 	  },
 
 	  checkSession: function (data) {
-	    console.log(data);
 	    if (data.hasOwnProperty("status")) {
 	      Dispatcher.dispatch({
 	        actionType: DispatchConstants.LOGGED_OUT,
 	        error: data.error
 	      });
 	    } else {
-	      console.log("is logged in");
 	      Dispatcher.dispatch({
 	        actionType: DispatchConstants.LOGGED_IN,
 	        user: data
@@ -30891,7 +30880,6 @@
 	  },
 
 	  uploadSuccess: function (data) {
-	    console.log(data);
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.UPLOAD_SUCCESS,
 	      track: data
@@ -30899,7 +30887,6 @@
 	  },
 
 	  uploadFailure: function (data) {
-	    console.log(data);
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.UPLOAD_FAILURE,
 	      errors: data.errors
@@ -30907,7 +30894,6 @@
 	  },
 
 	  fetchTracks: function (data) {
-	    console.log(data);
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.FETCH_TRACKS,
 	      tracks: data
@@ -30915,7 +30901,6 @@
 	  },
 
 	  fetchMyTracks: function (data) {
-	    console.log(data);
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.FETCH_MY_TRACKS,
 	      tracks: data
@@ -30923,7 +30908,6 @@
 	  },
 
 	  getUserInfo: function (data) {
-	    console.log(data);
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.GET_USER_INFO,
 	      user: data
@@ -30931,7 +30915,6 @@
 	  },
 
 	  startPlayback: function (data) {
-	    console.log(data);
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.START_PLAYBACK,
 	      track: data
@@ -31331,7 +31314,6 @@
 	        timeout: timeout
 	      });
 	    }, 1);
-	    console.log('dispatching sussess');
 	  },
 
 	  info: function (body, timeout) {
@@ -31389,7 +31371,6 @@
 
 	var AlertActions = __webpack_require__(349);
 
-	var _benches = [];
 	var _error = '';
 	var _loggedIn = null;
 	var _user = {};
@@ -37902,12 +37883,10 @@
 
 	  closeModal: function () {
 	    this.setState({ showModal: false, errors: '' });
-	    // this.forceUpdate();
 	  },
 
 	  openModal: function () {
 	    this.setState({ showModal: true });
-	    // this.forceUpdate();
 	  },
 
 	  login: function () {
@@ -37918,9 +37897,7 @@
 	  _getErrors: function () {
 	    if (UserStore.getError() != '') {
 	      this.setState({ errors: UserStore.getError() });
-	    } else {
-	      // this.listenerToken.remove();
-	    }
+	    } else {}
 	  },
 
 	  componentDidMount: function () {
@@ -37928,7 +37905,6 @@
 	  },
 
 	  componentWillUnmount: function () {
-	    // this.setState({showModal : false});
 	    this.listenerToken.remove();
 	  },
 
@@ -38169,7 +38145,6 @@
 	    this.ListenerToken = UserStore.addListener(this._userChanged);
 	  },
 	  render: function () {
-	    console.log(this.state);
 	    return React.createElement(
 	      NavDropdown,
 	      { eventKey: 3, title: this.state.user.name, id: 'basic-nav-dropdown' },
@@ -41856,7 +41831,6 @@
 			displayName: 'Content',
 
 			render: function () {
-					console.log(this.props.children);
 					return React.createElement(
 							Grid,
 							null,
@@ -41973,23 +41947,15 @@
 	var _body = null;
 	var _timeout = null;
 	var _type = null;
-	// var _nature = null;
 
 	AlertStore.update = function (payload, type) {
-	  console.log(payload);
 	  if ($.isArray(payload.body)) {
 	    _body = payload.body;
 	  } else {
 	    _body = [payload.body];
 	  }
-	  console.log(_body);
 	  _timeout = payload.timeout;
 	  _type = type;
-	  // if(payload.nature){
-	  //   _nature = payload.nature;
-	  // } else {
-	  //   _nature = "self-destruct"
-	  // }
 	};
 
 	AlertStore.newAlert = function () {
@@ -42008,13 +41974,11 @@
 	  _body = null;
 	  _timeout = null;
 	  _type = null;
-	  // var _nature = null;
 	};
 
 	AlertStore.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
 	    case DispatchConstants.ALERT_SUCCESS:
-	      console.log("hit disp");
 	      AlertStore.update(payload, "success");
 	      AlertStore.__emitChange();
 	      break;
@@ -42031,7 +41995,6 @@
 	      AlertStore.__emitChange();
 	      break;
 	    case DispatchConstants.ALERT_CLEAR:
-	      console.log("alert specifically cleared");
 	      AlertStore.clearAlert();
 	      AlertStore.__emitChange();
 	      break;
@@ -42567,7 +42530,6 @@
 	  },
 
 	  render: function () {
-	    console.log(this.state.tracks);
 	    return React.createElement(
 	      Col,
 	      { className: 'mdl-card mdl-shadow--4dp' },
@@ -43011,192 +42973,186 @@
 
 	function build() {
 
-	  var audioElement = document.getElementById('audioElement');
-	  audioElement.crossOrigin = "anonymous";
-	  $('#audioElement').on('timeupdate', function () {
-	    $('#seekbar').attr("value", this.currentTime / this.duration);
-	  });
-	  console.log(audioElement);
-	  var audioSrc = audioCtx.createMediaElementSource(audioElement);
-	  var analyser = audioCtx.createAnalyser();
+	   var audioElement = document.getElementById('audioElement');
+	   audioElement.crossOrigin = "anonymous";
+	   $('#audioElement').on('timeupdate', function () {
+	      $('#seekbar').attr("value", this.currentTime / this.duration);
+	   });
+	   var audioSrc = audioCtx.createMediaElementSource(audioElement);
+	   var analyser = audioCtx.createAnalyser();
 
-	  // Bind our analyser to the media element source.
-	  audioSrc.connect(analyser);
-	  audioSrc.connect(audioCtx.destination);
+	   // Bind our analyser to the media element source.
+	   audioSrc.connect(analyser);
+	   audioSrc.connect(audioCtx.destination);
 
-	  //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-	  var frequencyData = new Uint8Array(200);
+	   //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+	   var frequencyData = new Uint8Array(200);
 
-	  var contentWidth = $('#track-content').width();
+	   var contentWidth = $('#track-content').width();
 
-	  console.log(contentWidth);
+	   var svgHeight = '300';
+	   var svgWidth = contentWidth + 30;
+	   var barPadding = '1';
 
-	  var svgHeight = '300';
-	  var svgWidth = contentWidth + 30;
-	  var barPadding = '1';
+	   function createSvg(parent, height, width) {
+	      return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
+	   }
 
-	  function createSvg(parent, height, width) {
-	    return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
-	  }
+	   var svg = createSvg('#destiny', svgHeight, svgWidth);
 
-	  var svg = createSvg('#destiny', svgHeight, svgWidth);
+	   // Create our initial D3 chart.
+	   svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
+	      return i * (svgWidth / frequencyData.length);
+	   }).attr('width', svgWidth / frequencyData.length - barPadding);
 
-	  // Create our initial D3 chart.
-	  svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
-	    return i * (svgWidth / frequencyData.length);
-	  }).attr('width', svgWidth / frequencyData.length - barPadding);
+	   // Continuously loop and update chart with frequency data.
+	   function renderChart() {
+	      requestAnimationFrame(renderChart);
 
-	  // Continuously loop and update chart with frequency data.
-	  function renderChart() {
-	    requestAnimationFrame(renderChart);
+	      // Copy frequency data to frequencyData array.
+	      analyser.getByteFrequencyData(frequencyData);
 
-	    // Copy frequency data to frequencyData array.
-	    analyser.getByteFrequencyData(frequencyData);
+	      // Update d3 chart with new data.
+	      svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
+	         return svgHeight - d;
+	      }).attr('height', function (d) {
+	         return d;
+	      }).attr('fill', function (d) {
+	         return 'rgb(' + d + ', ' + d + ', 255)';
+	      });
+	   }
 
-	    // Update d3 chart with new data.
-	    svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
-	      return svgHeight - d;
-	    }).attr('height', function (d) {
-	      return d;
-	    }).attr('fill', function (d) {
-	      return 'rgb(' + d + ', ' + d + ', 255)';
-	    });
-	  }
-
-	  // Run the loop
-	  renderChart();
+	   // Run the loop
+	   renderChart();
 	};
 
 	var Track = React.createClass({
-	  displayName: 'Track',
+	   displayName: 'Track',
 
-	  getInitialState() {
-	    return {
-	      track: {}
-	    };
-	  },
+	   getInitialState() {
+	      return {
+	         track: {}
+	      };
+	   },
 
-	  componentDidMount() {
-	    Api.fetchTracks();
-	    this.listenerToken = TrackStore.addListener(this._getTrack);
-	    build();
-	  },
+	   componentDidMount() {
+	      Api.fetchTracks();
+	      this.listenerToken = TrackStore.addListener(this._getTrack);
+	      build();
+	   },
 
-	  caw() {},
+	   componentWillUnmount() {
+	      this.listenerToken.remove();
+	   },
 
-	  componentWillUnmount() {
-	    this.listenerToken.remove();
-	  },
+	   getProgress() {
+	      return Math.round(progress * 100);
+	   },
 
-	  getProgress() {
-	    console.log(progress);
-	    return Math.round(progress * 100);
-	  },
+	   play() {
+	      ApiActions.stopPlayback();
+	      document.getElementById('audioElement').play();
+	   },
 
-	  play() {
-	    ApiActions.stopPlayback();
-	    document.getElementById('audioElement').play();
-	  },
+	   pause() {
+	      document.getElementById('audioElement').pause();
+	   },
 
-	  pause() {
-	    document.getElementById('audioElement').pause();
-	  },
+	   _getTrack() {
+	      this.setState({
+	         track: TrackStore.getTrackById(this.props.params.id)
+	      });
+	   },
 
-	  _getTrack() {
-	    this.setState({
-	      track: TrackStore.getTrackById(this.props.params.id)
-	    });
-	  },
-
-	  render: function () {
-	    return React.createElement(
-	      Col,
-	      { xs: 12, id: 'track-content' },
-	      React.createElement(
-	        Row,
-	        null,
-	        React.createElement(
-	          Col,
-	          { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	          React.createElement(
-	            'span',
+	   render: function () {
+	      return React.createElement(
+	         Col,
+	         { xs: 12, id: 'track-content' },
+	         React.createElement(
+	            Row,
 	            null,
 	            React.createElement(
-	              'h4',
-	              { style: { "display": "inline-block" } },
-	              this.state.track.title
+	               Col,
+	               { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  React.createElement(
+	                     'h4',
+	                     { style: { "display": "inline-block" } },
+	                     this.state.track.title
+	                  ),
+	                  '  by  ',
+	                  React.createElement(
+	                     'a',
+	                     { href: '#/' + this.state.track.user_id + '/tracks' },
+	                     this.state.track.author
+	                  )
+	               )
 	            ),
-	            '  by  ',
 	            React.createElement(
-	              'a',
-	              { href: '#/' + this.state.track.user_id + '/tracks' },
-	              this.state.track.author
+	               Col,
+	               { xs: 8 },
+	               React.createElement(
+	                  'button',
+	                  { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	                  React.createElement(Glyphicon, { glyph: 'play' })
+	               ),
+	               ' ',
+	               React.createElement(
+	                  'button',
+	                  { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	                  React.createElement(Glyphicon, { glyph: 'pause' })
+	               )
 	            )
-	          )
-	        ),
-	        React.createElement(
-	          Col,
-	          { xs: 8 },
-	          React.createElement(
-	            'button',
-	            { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	            React.createElement(Glyphicon, { glyph: 'play' })
-	          ),
-	          ' ',
-	          React.createElement(
-	            'button',
-	            { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	            React.createElement(Glyphicon, { glyph: 'pause' })
-	          )
-	        )
-	      ),
-	      React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
-	      React.createElement(
-	        Row,
-	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	        React.createElement(
-	          Col,
-	          null,
-	          React.createElement('div', { id: 'destiny' })
-	        )
-	      ),
-	      React.createElement(
-	        Row,
-	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	        React.createElement(
-	          Col,
-	          { xs: 12 },
-	          React.createElement('br', null),
-	          React.createElement(
-	            'span',
-	            null,
-	            'Genre: ',
-	            this.state.track.genre
-	          ),
-	          React.createElement('br', null),
-	          React.createElement(
-	            'span',
-	            null,
-	            'Description: ',
-	            this.state.track.description
-	          ),
-	          React.createElement('br', null),
-	          React.createElement('br', null),
-	          React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
-	        )
-	      ),
-	      React.createElement(
-	        Row,
-	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	        React.createElement(
-	          Col,
-	          { xs: 12 },
-	          React.createElement(Comments, { track_id: this.props.params.id }),
-	          React.createElement(CommentForm, null)
-	        )
-	      )
-	    );
-	  }
+	         ),
+	         React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               null,
+	               React.createElement('div', { id: 'destiny' })
+	            )
+	         ),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               { xs: 12 },
+	               React.createElement('br', null),
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  'Genre: ',
+	                  this.state.track.genre
+	               ),
+	               React.createElement('br', null),
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  'Description: ',
+	                  this.state.track.description
+	               ),
+	               React.createElement('br', null),
+	               React.createElement('br', null),
+	               React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
+	            )
+	         ),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               { xs: 12 },
+	               React.createElement(Comments, { track_id: this.props.params.id }),
+	               React.createElement(CommentForm, null)
+	            )
+	         )
+	      );
+	   }
 	});
 
 	module.exports = Track;
@@ -44244,7 +44200,6 @@
 	  },
 
 	  render: function () {
-	    console.log(this.state.tracks);
 	    return React.createElement(
 	      Col,
 	      { xs: 12, className: 'mdl-card mdl-shadow--4dp' },
@@ -44462,6 +44417,10 @@
 	        Api.fetchComments(this.props.track_id);
 	    },
 
+	    componentWillUnmount() {
+	        this.listenerToken.remove();
+	    },
+
 	    _commentsChanged() {
 	        this.setState({
 	            comments: CommentStore.getAllComments()
@@ -44469,7 +44428,6 @@
 	    },
 
 	    render() {
-	        console.log(this.state);
 	        return React.createElement(
 	            Row,
 	            null,
