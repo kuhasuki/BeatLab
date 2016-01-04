@@ -828,6 +828,16 @@ input, select, textarea {
   margin-left:1.8%;
 }
 
+.track-element-landing:nth-child(3n-1){
+  margin-right:2.2%;
+  margin-left:1.8%;
+}
+
+.track-element-landing:nth-child(3n-2){
+  margin-left:3%;
+}
+
+
 .soup{
 	margin-top: 10px;
 }
@@ -836,4 +846,8 @@ input, select, textarea {
   position: fixed;
   bottom: 0px;
   width: 100%;
+}
+
+.panel-primary > .panel-heading{
+	background-color: #D04FBF;
 }

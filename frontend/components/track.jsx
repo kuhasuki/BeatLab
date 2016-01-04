@@ -16,12 +16,10 @@ var Api = require('../util/api.js');
 var progress = 0;
 
 function build() {
-
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+ 
   var audioElement = document.getElementById('audioElement');
   audioElement.crossOrigin = "anonymous";
   $('#audioElement').on('timeupdate', function() {
-  	console.log("!");
      $('#seekbar').attr("value", this.currentTime / this.duration);
 	});
   console.log(audioElement);

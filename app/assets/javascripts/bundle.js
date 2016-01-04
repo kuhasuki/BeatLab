@@ -42509,10 +42509,47 @@
 	var Col = __webpack_require__(434);
 	var Row = __webpack_require__(433);
 
+	var Panel = __webpack_require__(447);
+	var Button = __webpack_require__(210);
+	var Glyphicon = __webpack_require__(335);
+	var TrackStore = __webpack_require__(441);
+
+	var Api = __webpack_require__(342);
+
+	var ApiActions = __webpack_require__(343);
+
+	var trackStyle = { "padding": "0", "width": "30%" };
+
 	var Landing = React.createClass({
 	  displayName: 'Landing',
 
+	  getInitialState() {
+	    return {
+	      tracks: []
+	    };
+	  },
+
+	  componentDidMount() {
+	    Api.fetchTracks();
+	    this.listenerToken = TrackStore.addListener(this._gotTracks);
+	  },
+
+	  componentWillUnmount: function () {
+	    this.listenerToken.remove();
+	  },
+
+	  _gotTracks() {
+	    this.setState({
+	      tracks: TrackStore.getAllTracks().slice(0, 12)
+	    });
+	  },
+
+	  play(track) {
+	    ApiActions.startPlayback(track);
+	  },
+
 	  render: function () {
+	    console.log(this.state.tracks);
 	    return React.createElement(
 	      Col,
 	      { className: 'mdl-card mdl-shadow--4dp' },
@@ -42529,6 +42566,33 @@
 	            'Trending now:'
 	          )
 	        )
+	      ),
+	      React.createElement(
+	        Row,
+	        null,
+	        this.state.tracks.map((function (track, idx) {
+	          return React.createElement(
+	            Col,
+	            { key: idx, xs: 4, style: trackStyle, className: 'track-element-landing show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	              Panel,
+	              { header: track.title, bsStyle: 'primary', style: { "margin": "0" } },
+	              React.createElement(
+	                Button,
+	                { bsSize: 'large', onClick: this.play.bind(this, track) },
+	                React.createElement(Glyphicon, { glyph: 'play' }),
+	                ' Play'
+	              ),
+	              ' ',
+	              React.createElement(
+	                Button,
+	                { bsSize: 'large', href: "#/track/" + track.id },
+	                React.createElement(Glyphicon, { glyph: 'chevron-right' }),
+	                ' Track Detail'
+	              )
+	            )
+	          );
+	        }).bind(this))
 	      )
 	    );
 	  }
@@ -42920,184 +42984,182 @@
 
 	function build() {
 
-	   var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-	   var audioElement = document.getElementById('audioElement');
-	   audioElement.crossOrigin = "anonymous";
-	   $('#audioElement').on('timeupdate', function () {
-	      console.log("!");
-	      $('#seekbar').attr("value", this.currentTime / this.duration);
-	   });
-	   console.log(audioElement);
-	   var audioSrc = audioCtx.createMediaElementSource(audioElement);
-	   var analyser = audioCtx.createAnalyser();
+	  var audioElement = document.getElementById('audioElement');
+	  audioElement.crossOrigin = "anonymous";
+	  $('#audioElement').on('timeupdate', function () {
+	    $('#seekbar').attr("value", this.currentTime / this.duration);
+	  });
+	  console.log(audioElement);
+	  var audioSrc = audioCtx.createMediaElementSource(audioElement);
+	  var analyser = audioCtx.createAnalyser();
 
-	   // Bind our analyser to the media element source.
-	   audioSrc.connect(analyser);
-	   audioSrc.connect(audioCtx.destination);
+	  // Bind our analyser to the media element source.
+	  audioSrc.connect(analyser);
+	  audioSrc.connect(audioCtx.destination);
 
-	   //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-	   var frequencyData = new Uint8Array(200);
+	  //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+	  var frequencyData = new Uint8Array(200);
 
-	   var contentWidth = $('#track-content').width();
+	  var contentWidth = $('#track-content').width();
 
-	   console.log(contentWidth);
+	  console.log(contentWidth);
 
-	   var svgHeight = '300';
-	   var svgWidth = contentWidth + 30;
-	   var barPadding = '1';
+	  var svgHeight = '300';
+	  var svgWidth = contentWidth + 30;
+	  var barPadding = '1';
 
-	   function createSvg(parent, height, width) {
-	      return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
-	   }
+	  function createSvg(parent, height, width) {
+	    return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
+	  }
 
-	   var svg = createSvg('#destiny', svgHeight, svgWidth);
+	  var svg = createSvg('#destiny', svgHeight, svgWidth);
 
-	   // Create our initial D3 chart.
-	   svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
-	      return i * (svgWidth / frequencyData.length);
-	   }).attr('width', svgWidth / frequencyData.length - barPadding);
+	  // Create our initial D3 chart.
+	  svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
+	    return i * (svgWidth / frequencyData.length);
+	  }).attr('width', svgWidth / frequencyData.length - barPadding);
 
-	   // Continuously loop and update chart with frequency data.
-	   function renderChart() {
-	      requestAnimationFrame(renderChart);
+	  // Continuously loop and update chart with frequency data.
+	  function renderChart() {
+	    requestAnimationFrame(renderChart);
 
-	      // Copy frequency data to frequencyData array.
-	      analyser.getByteFrequencyData(frequencyData);
+	    // Copy frequency data to frequencyData array.
+	    analyser.getByteFrequencyData(frequencyData);
 
-	      // Update d3 chart with new data.
-	      svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
-	         return svgHeight - d;
-	      }).attr('height', function (d) {
-	         return d;
-	      }).attr('fill', function (d) {
-	         return 'rgb(' + d + ', ' + d + ', 255)';
-	      });
-	   }
+	    // Update d3 chart with new data.
+	    svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
+	      return svgHeight - d;
+	    }).attr('height', function (d) {
+	      return d;
+	    }).attr('fill', function (d) {
+	      return 'rgb(' + d + ', ' + d + ', 255)';
+	    });
+	  }
 
-	   // Run the loop
-	   renderChart();
+	  // Run the loop
+	  renderChart();
 	};
 
 	var Track = React.createClass({
-	   displayName: 'Track',
+	  displayName: 'Track',
 
-	   getInitialState() {
-	      return {
-	         track: {}
-	      };
-	   },
+	  getInitialState() {
+	    return {
+	      track: {}
+	    };
+	  },
 
-	   componentDidMount() {
-	      Api.fetchTracks();
-	      this.listenerToken = TrackStore.addListener(this._getTrack);
-	      build();
-	   },
+	  componentDidMount() {
+	    Api.fetchTracks();
+	    this.listenerToken = TrackStore.addListener(this._getTrack);
+	    build();
+	  },
 
-	   caw() {},
+	  caw() {},
 
-	   componentWillUnmount() {
-	      this.listenerToken.remove();
-	   },
+	  componentWillUnmount() {
+	    this.listenerToken.remove();
+	  },
 
-	   getProgress() {
-	      console.log(progress);
-	      return Math.round(progress * 100);
-	   },
+	  getProgress() {
+	    console.log(progress);
+	    return Math.round(progress * 100);
+	  },
 
-	   play() {
-	      ApiActions.stopPlayback();
-	      document.getElementById('audioElement').play();
-	   },
+	  play() {
+	    ApiActions.stopPlayback();
+	    document.getElementById('audioElement').play();
+	  },
 
-	   pause() {
-	      document.getElementById('audioElement').pause();
-	   },
+	  pause() {
+	    document.getElementById('audioElement').pause();
+	  },
 
-	   _getTrack() {
-	      this.setState({
-	         track: TrackStore.getTrackById(this.props.params.id)
-	      });
-	   },
+	  _getTrack() {
+	    this.setState({
+	      track: TrackStore.getTrackById(this.props.params.id)
+	    });
+	  },
 
-	   render: function () {
-	      return React.createElement(
-	         Col,
-	         { xs: 12, id: 'track-content' },
-	         React.createElement(
-	            Row,
+	  render: function () {
+	    return React.createElement(
+	      Col,
+	      { xs: 12, id: 'track-content' },
+	      React.createElement(
+	        Row,
+	        null,
+	        React.createElement(
+	          Col,
+	          { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	          React.createElement(
+	            'span',
 	            null,
 	            React.createElement(
-	               Col,
-	               { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	               React.createElement(
-	                  'span',
-	                  null,
-	                  React.createElement(
-	                     'h4',
-	                     { style: { "display": "inline-block" } },
-	                     this.state.track.title
-	                  ),
-	                  '  by  ',
-	                  React.createElement(
-	                     'a',
-	                     { href: '#/' + this.state.track.user_id + '/tracks' },
-	                     this.state.track.author
-	                  )
-	               )
+	              'h4',
+	              { style: { "display": "inline-block" } },
+	              this.state.track.title
 	            ),
+	            '  by  ',
 	            React.createElement(
-	               Col,
-	               { xs: 8 },
-	               React.createElement(
-	                  'button',
-	                  { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	                  React.createElement(Glyphicon, { glyph: 'play' })
-	               ),
-	               ' ',
-	               React.createElement(
-	                  'button',
-	                  { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	                  React.createElement(Glyphicon, { glyph: 'pause' })
-	               )
+	              'a',
+	              { href: '#/' + this.state.track.user_id + '/tracks' },
+	              this.state.track.author
 	            )
-	         ),
-	         React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
-	         React.createElement(
-	            Row,
-	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	            React.createElement(
-	               Col,
-	               null,
-	               React.createElement('div', { id: 'destiny' })
-	            )
-	         ),
-	         React.createElement(
-	            Row,
-	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	            React.createElement(
-	               Col,
-	               { xs: 12 },
-	               React.createElement('br', null),
-	               React.createElement(
-	                  'span',
-	                  null,
-	                  'Genre: ',
-	                  this.state.track.genre
-	               ),
-	               React.createElement('br', null),
-	               React.createElement(
-	                  'span',
-	                  null,
-	                  'Description: ',
-	                  this.state.track.description
-	               ),
-	               React.createElement('br', null),
-	               React.createElement('br', null),
-	               React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
-	            )
-	         )
-	      );
-	   }
+	          )
+	        ),
+	        React.createElement(
+	          Col,
+	          { xs: 8 },
+	          React.createElement(
+	            'button',
+	            { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	            React.createElement(Glyphicon, { glyph: 'play' })
+	          ),
+	          ' ',
+	          React.createElement(
+	            'button',
+	            { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	            React.createElement(Glyphicon, { glyph: 'pause' })
+	          )
+	        )
+	      ),
+	      React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
+	      React.createElement(
+	        Row,
+	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	        React.createElement(
+	          Col,
+	          null,
+	          React.createElement('div', { id: 'destiny' })
+	        )
+	      ),
+	      React.createElement(
+	        Row,
+	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	        React.createElement(
+	          Col,
+	          { xs: 12 },
+	          React.createElement('br', null),
+	          React.createElement(
+	            'span',
+	            null,
+	            'Genre: ',
+	            this.state.track.genre
+	          ),
+	          React.createElement('br', null),
+	          React.createElement(
+	            'span',
+	            null,
+	            'Description: ',
+	            this.state.track.description
+	          ),
+	          React.createElement('br', null),
+	          React.createElement('br', null),
+	          React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
+	        )
+	      )
+	    );
+	  }
 	});
 
 	module.exports = Track;

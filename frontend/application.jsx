@@ -24,7 +24,6 @@ var Api = require('./util/api.js');
 var AlertActions = require('./actions/alert_actions.js');
 var Dispatcher = require('./dispatcher/dispatcher.js');
 
-
 var TrackWave = React.createClass({
   componentWillMount() {
       Api.verifySession();  
