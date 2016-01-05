@@ -16,6 +16,11 @@
 config/secrets.yml
 config/database.yml
 .env
+Gemfile.lock
 
 # Ignore node modules
 /node_modules
+
+*.yml
+
+config/database.yml
