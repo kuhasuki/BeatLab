@@ -35,6 +35,7 @@ var CommentForm = React.createClass({
     
     	Api.submitComment(this.state.body, this.props.track_id);
         this.setState({body : ''});
+        Api.fetchComments(this.props.track_id);
     },
 
     sayFile(e){

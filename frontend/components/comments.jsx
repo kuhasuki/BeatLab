@@ -20,9 +20,9 @@ var Comments = React.createClass({
         this.listenerToken = CommentStore.addListener(this._commentsChanged)
     },
 
-    componentWillUpdate(nextProps, nextState) {
-        Api.fetchComments(this.props.track_id);  
-    },
+    // componentWillUpdate(nextProps, nextState) {
+    //     Api.fetchComments(this.props.track_id);  
+    // },
 
     componentWillUnmount() {
         this.listenerToken.remove();
