@@ -14,6 +14,7 @@ var UserStore = require('../stores/user_store.js');
 
 var Login = require('./login.jsx');
 var Register = require('./register.jsx');
+var Guest = require('./guest.jsx');
 var Logout = require('./logout.jsx');
 var ProfileOptions = require('./profile_options.jsx');
 
@@ -43,10 +44,7 @@ var UserTools = React.createClass({
           <li>
             <a href="#/upload" >Upload</a>
           </li>
-          <li className="divider-vertical"></li>
-          <li className="hidden-xs">
-            <img src={this.state.user.profile_pic_url} style={profilePicStyle} className="img-circle"></img>
-          </li>
+          
         <ProfileOptions />
         <Logout />
       </ul>
@@ -57,6 +55,7 @@ var UserTools = React.createClass({
         <ul className="nav navbar-nav navbar-right">
           <Login />
           <Register />
+          <Guest />
       </ul>
 
       );
