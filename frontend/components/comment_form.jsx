@@ -29,6 +29,10 @@ var CommentForm = React.createClass({
       this.listenerToken = CommentStore.addListener(this._commentsChanged)
     },
 
+    componentWillUpdate(nextProps, nextState) {
+        Api.fetchComments(this.props.track_id);  
+    },
+
     _commentsChanged() {
         this.uploadInProgress = false;
         this.submitText = "Submit";
@@ -46,15 +50,14 @@ var CommentForm = React.createClass({
         this.setState({body : ''});
     },
 
-    sayFile(e){
-        e.preventDefault;
-    	var file = e.target.files[0];
-    	this.formData.append('file', file, file.name);
-    	this.setState({file : file});
-    },
+    // sayFile(e){
+    //     e.preventDefault;
+    // 	var file = e.target.files[0];
+    // 	this.formData.append('file', file, file.name);
+    // 	this.setState({file : file});
+    // },
 
     render() {
-        console.log(this.props);
         return (
         <Col xs={12} className="card-space">
             <Row>

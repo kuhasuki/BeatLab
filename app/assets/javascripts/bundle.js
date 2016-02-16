@@ -43810,6 +43810,10 @@
 	        this.listenerToken = CommentStore.addListener(this._commentsChanged);
 	    },
 
+	    componentWillUpdate(nextProps, nextState) {
+	        Api.fetchComments(this.props.track_id);
+	    },
+
 	    _commentsChanged() {
 	        this.uploadInProgress = false;
 	        this.submitText = "Submit";
@@ -43826,15 +43830,14 @@
 	        this.setState({ body: '' });
 	    },
 
-	    sayFile(e) {
-	        e.preventDefault;
-	        var file = e.target.files[0];
-	        this.formData.append('file', file, file.name);
-	        this.setState({ file: file });
-	    },
+	    // sayFile(e){
+	    //     e.preventDefault;
+	    // 	var file = e.target.files[0];
+	    // 	this.formData.append('file', file, file.name);
+	    // 	this.setState({file : file});
+	    // },
 
 	    render() {
-	        console.log(this.props);
 	        return React.createElement(
 	            Col,
 	            { xs: 12, className: 'card-space' },
