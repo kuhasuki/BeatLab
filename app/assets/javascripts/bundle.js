@@ -30757,7 +30757,8 @@
 	  submitComment: function (body, track_id) {
 	    $.post('/api/comment/', { "comment": { "body": body, "track_id": track_id } }, function (data) {
 	      ApiActions.addComment(data);
-	    }).fail(function () {
+	    }).fail(function (data) {
+	      console.log(data);
 	      AlertActions.danger("something went wrong with your comment", 3000);
 	      ApiActions.failedComment(data);
 	    });
@@ -43781,6 +43782,7 @@
 
 	var Api = __webpack_require__(342);
 	var CommentStore = __webpack_require__(450);
+	var UserStore = __webpack_require__(350);
 
 	var Input = __webpack_require__(331);
 	var ButtonInput = __webpack_require__(447);
@@ -43801,20 +43803,27 @@
 	        this.formData = new FormData();
 	        this.uploadInProgress = false;
 	        this.submitText = "Submit";
+	        console.log(UserStore.isLoggedIn());
+	        if (!UserStore.isLoggedIn()) {
+	            this.submitText = "Please Sign in to leave a comment";
+	        };
 	        this.listenerToken = CommentStore.addListener(this._commentsChanged);
 	    },
 
 	    _commentsChanged() {
 	        this.uploadInProgress = false;
 	        this.submitText = "Submit";
+	        if (!UserStore.isLoggedIn()) {
+	            this.submitText = "Please Sign in to leave a comment";
+	        };
 	    },
 
 	    handleSubmit(e) {
 	        e.preventDefault;
 
 	        Api.submitComment(this.state.body, this.props.track_id);
-	        this.setState({ body: '' });
 	        Api.fetchComments(this.props.track_id);
+	        this.setState({ body: '' });
 	    },
 
 	    sayFile(e) {
@@ -43825,6 +43834,7 @@
 	    },
 
 	    render() {
+	        console.log(this.props);
 	        return React.createElement(
 	            Col,
 	            { xs: 12, className: 'card-space' },

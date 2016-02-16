@@ -3,6 +3,7 @@ var LinkedStateMixin = require('react-addons-linked-state-mixin');
 
 var Api = require('../util/api.js');
 var CommentStore = require('../stores/comment_store.jsx');
+var UserStore = require('../stores/user_store.js');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonInput = require('react-bootstrap/lib/ButtonInput');
@@ -21,12 +22,19 @@ var CommentForm = React.createClass({
       this.formData = new FormData();
       this.uploadInProgress = false;
       this.submitText = "Submit";
+      console.log(UserStore.isLoggedIn());
+      if (!UserStore.isLoggedIn()){
+        this.submitText = "Please Sign in to leave a comment"
+      };
       this.listenerToken = CommentStore.addListener(this._commentsChanged)
     },
 
     _commentsChanged() {
         this.uploadInProgress = false;
         this.submitText = "Submit";
+        if (!UserStore.isLoggedIn()){
+            this.submitText = "Please Sign in to leave a comment"
+        };
     },
 
     handleSubmit(e){
@@ -34,8 +42,8 @@ var CommentForm = React.createClass({
         
     
     	Api.submitComment(this.state.body, this.props.track_id);
-        this.setState({body : ''});
         Api.fetchComments(this.props.track_id);
+        this.setState({body : ''});
     },
 
     sayFile(e){
@@ -46,6 +54,7 @@ var CommentForm = React.createClass({
     },
 
     render() {
+        console.log(this.props);
         return (
         <Col xs={12} className="card-space">
             <Row>
