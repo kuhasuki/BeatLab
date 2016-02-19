@@ -30759,7 +30759,7 @@
 	      ApiActions.addComment(data);
 	    }).fail(function (data) {
 	      console.log(data);
-	      AlertActions.danger("something went wrong with your comment", 3000);
+	      AlertActions.danger("You can't submit a blank comment", 3000);
 	      ApiActions.failedComment(data);
 	    });
 	  },
@@ -43376,6 +43376,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(147);
+	var ReactDom = __webpack_require__(1);
 	var LinkedStateMixin = __webpack_require__(243);
 
 	var Api = __webpack_require__(342);
@@ -43401,7 +43402,14 @@
 	        this.uploadInProgress = false;
 	        this.submitText = "Upload";
 	        this.listenerToken = TrackStore.addListener(this._trackChanged);
+	        // var spin = ReactDom.findDOMNode(this.refs.spinner);
+	        // componentHandler.upgradeElement(spin, "MaterialSpinner");
 	        this.forceUpdate();
+	    },
+
+	    componentDidUpdate() {
+	        var spin = ReactDom.findDOMNode(this.refs.spinner);
+	        componentHandler.upgradeElement(spin, "MaterialSpinner");
 	    },
 
 	    _trackChanged() {
@@ -43421,6 +43429,10 @@
 
 	        this.uploadInProgress = true;
 	        this.submitText = "Uploading...";
+	        var spin = ReactDom.findDOMNode(this.refs.spinner);
+	        //spin.className = "mdl-spinner mdl-js-spinner is-active";
+	        //this.totallyNecessary;
+	        //var spinner = this.refs.spinner.getDOMNode();
 
 	        this.forceUpdate();
 
@@ -43435,7 +43447,22 @@
 	        this.setState({ file: file });
 	    },
 
+	    setVisibility() {
+	        if (this.uploadInProgress) {
+	            console.log("prog");
+	            return {};
+	        } else {
+	            console.log("no prog");
+	            return {};
+	        }
+	    },
+
 	    render() {
+	        if (this.uploadInProgress) {
+	            visibility = "inline-block";
+	        } else {
+	            visibility = "none";
+	        }
 	        return React.createElement(
 	            Col,
 	            { xs: 12, className: 'show-grid mdl-card mdl-shadow--4dp upload-form' },
@@ -43459,7 +43486,7 @@
 	                        React.createElement(Input, { type: 'textarea', label: 'Description', placeholder: '', valueLink: this.linkState('description'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
 	                        React.createElement(ButtonInput, { type: 'reset', value: 'Reset', style: { "marginBottom": "10px" }, wrapperClassName: 'col-xs-offset-2 col-xs-10' }),
 	                        React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' }),
-	                        this.uploadInProgress ? React.createElement('div', { className: 'mdl-spinner mdl-js-spinner is-active' }) : React.createElement('div', null)
+	                        React.createElement('div', { ref: 'spinner', style: { "display": visibility }, className: 'mdl-spinner mdl-js-spinner is-active' })
 	                    )
 	                )
 	            )
@@ -43589,186 +43616,190 @@
 
 	function build() {
 
-	   var audioElement = document.getElementById('audioElement');
-	   audioElement.crossOrigin = "anonymous";
-	   $('#audioElement').on('timeupdate', function () {
-	      $('#seekbar').attr("value", this.currentTime / this.duration);
-	   });
-	   var audioSrc = audioCtx.createMediaElementSource(audioElement);
-	   var analyser = audioCtx.createAnalyser();
+	  var audioElement = document.getElementById('audioElement');
+	  audioElement.crossOrigin = "anonymous";
+	  $('#audioElement').on('timeupdate', function () {
+	    $('#seekbar').attr("value", this.currentTime / this.duration);
+	  });
+	  var audioSrc = audioCtx.createMediaElementSource(audioElement);
+	  var analyser = audioCtx.createAnalyser();
 
-	   // Bind our analyser to the media element source.
-	   audioSrc.connect(analyser);
-	   audioSrc.connect(audioCtx.destination);
+	  // Bind our analyser to the media element source.
+	  audioSrc.connect(analyser);
+	  audioSrc.connect(audioCtx.destination);
 
-	   //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-	   var frequencyData = new Uint8Array(200);
+	  //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+	  var frequencyData = new Uint8Array(200);
 
-	   var contentWidth = $('#track-content').width();
+	  var contentWidth = $('#track-content').width();
 
-	   var svgHeight = '300';
-	   var svgWidth = contentWidth + 30;
-	   var barPadding = '1';
+	  var svgHeight = '300';
+	  var svgWidth = contentWidth + 30;
+	  var barPadding = '1';
 
-	   function createSvg(parent, height, width) {
-	      return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
-	   }
+	  function createSvg(parent, height, width) {
+	    return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
+	  }
 
-	   var svg = createSvg('#destiny', svgHeight, svgWidth);
+	  var svg = createSvg('#destiny', svgHeight, svgWidth);
 
-	   // Create our initial D3 chart.
-	   svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
-	      return i * (svgWidth / frequencyData.length);
-	   }).attr('width', svgWidth / frequencyData.length - barPadding);
+	  // Create our initial D3 chart.
+	  svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
+	    return i * (svgWidth / frequencyData.length);
+	  }).attr('width', svgWidth / frequencyData.length - barPadding);
 
-	   // Continuously loop and update chart with frequency data.
-	   function renderChart() {
-	      requestAnimationFrame(renderChart);
+	  // Continuously loop and update chart with frequency data.
+	  function renderChart() {
+	    requestAnimationFrame(renderChart);
 
-	      // Copy frequency data to frequencyData array.
-	      analyser.getByteFrequencyData(frequencyData);
+	    // Copy frequency data to frequencyData array.
+	    analyser.getByteFrequencyData(frequencyData);
 
-	      // Update d3 chart with new data.
-	      svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
-	         return svgHeight - d;
-	      }).attr('height', function (d) {
-	         return d;
-	      }).attr('fill', function (d) {
-	         return 'rgb(' + d + ', ' + d + ', 255)';
-	      });
-	   }
+	    // Update d3 chart with new data.
+	    svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
+	      return svgHeight - d;
+	    }).attr('height', function (d) {
+	      return d;
+	    }).attr('fill', function (d) {
+	      return 'rgb(' + d + ', ' + d + ', 255)';
+	    });
+	  }
 
-	   // Run the loop
-	   renderChart();
+	  // Run the loop
+	  renderChart();
 	};
 
 	var Track = React.createClass({
-	   displayName: 'Track',
+	  displayName: 'Track',
 
-	   getInitialState() {
-	      return {
-	         track: {}
-	      };
-	   },
+	  getInitialState() {
+	    return {
+	      track: {}
+	    };
+	  },
 
-	   componentDidMount() {
-	      Api.fetchTracks();
-	      this.listenerToken = TrackStore.addListener(this._getTrack);
-	      build();
-	   },
+	  componentDidMount() {
+	    Api.fetchTracks();
+	    this.listenerToken = TrackStore.addListener(this._getTrack);
+	    build();
+	  },
 
-	   componentWillUnmount() {
-	      this.listenerToken.remove();
-	   },
+	  componentWillUnmount() {
+	    this.listenerToken.remove();
+	  },
 
-	   getProgress() {
-	      return Math.round(progress * 100);
-	   },
+	  componentDidUpdate() {
+	    componentHandler.upgradeDom();
+	  },
 
-	   play() {
-	      ApiActions.stopPlayback();
-	      document.getElementById('audioElement').play();
-	   },
+	  getProgress() {
+	    return Math.round(progress * 100);
+	  },
 
-	   pause() {
-	      document.getElementById('audioElement').pause();
-	   },
+	  play() {
+	    ApiActions.stopPlayback();
+	    document.getElementById('audioElement').play();
+	  },
 
-	   _getTrack() {
-	      this.setState({
-	         track: TrackStore.getTrackById(this.props.params.id)
-	      });
-	   },
+	  pause() {
+	    document.getElementById('audioElement').pause();
+	  },
 
-	   render: function () {
-	      return React.createElement(
-	         Col,
-	         { xs: 12, id: 'track-content' },
-	         React.createElement(
-	            Row,
+	  _getTrack() {
+	    this.setState({
+	      track: TrackStore.getTrackById(this.props.params.id)
+	    });
+	  },
+
+	  render: function () {
+	    return React.createElement(
+	      Col,
+	      { xs: 12, id: 'track-content' },
+	      React.createElement(
+	        Row,
+	        null,
+	        React.createElement(
+	          Col,
+	          { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	          React.createElement(
+	            'span',
 	            null,
 	            React.createElement(
-	               Col,
-	               { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	               React.createElement(
-	                  'span',
-	                  null,
-	                  React.createElement(
-	                     'h4',
-	                     { style: { "display": "inline-block" } },
-	                     this.state.track.title
-	                  ),
-	                  '  by  ',
-	                  React.createElement(
-	                     'a',
-	                     { href: '#/' + this.state.track.user_id + '/tracks' },
-	                     this.state.track.author
-	                  )
-	               )
+	              'h4',
+	              { style: { "display": "inline-block" } },
+	              this.state.track.title
 	            ),
+	            '  by  ',
 	            React.createElement(
-	               Col,
-	               { xs: 8 },
-	               React.createElement(
-	                  'button',
-	                  { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	                  React.createElement(Glyphicon, { glyph: 'play' })
-	               ),
-	               ' ',
-	               React.createElement(
-	                  'button',
-	                  { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	                  React.createElement(Glyphicon, { glyph: 'pause' })
-	               )
+	              'a',
+	              { href: '#/' + this.state.track.user_id + '/tracks' },
+	              this.state.track.author
 	            )
-	         ),
-	         React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
-	         React.createElement(
-	            Row,
-	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	            React.createElement(
-	               Col,
-	               null,
-	               React.createElement('div', { id: 'destiny' })
-	            )
-	         ),
-	         React.createElement(
-	            Row,
-	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	            React.createElement(
-	               Col,
-	               { xs: 12 },
-	               React.createElement('br', null),
-	               React.createElement(
-	                  'span',
-	                  null,
-	                  'Genre: ',
-	                  this.state.track.genre
-	               ),
-	               React.createElement('br', null),
-	               React.createElement(
-	                  'span',
-	                  null,
-	                  'Description: ',
-	                  this.state.track.description
-	               ),
-	               React.createElement('br', null),
-	               React.createElement('br', null),
-	               React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
-	            )
-	         ),
-	         React.createElement(
-	            Row,
-	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	            React.createElement(
-	               Col,
-	               { xs: 12 },
-	               React.createElement(Comments, { track_id: this.props.params.id }),
-	               React.createElement(CommentForm, { track_id: this.props.params.id })
-	            )
-	         )
-	      );
-	   }
+	          )
+	        ),
+	        React.createElement(
+	          Col,
+	          { xs: 8 },
+	          React.createElement(
+	            'button',
+	            { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	            React.createElement(Glyphicon, { glyph: 'play' })
+	          ),
+	          ' ',
+	          React.createElement(
+	            'button',
+	            { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	            React.createElement(Glyphicon, { glyph: 'pause' })
+	          )
+	        )
+	      ),
+	      React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
+	      React.createElement(
+	        Row,
+	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	        React.createElement(
+	          Col,
+	          null,
+	          React.createElement('div', { id: 'destiny' })
+	        )
+	      ),
+	      React.createElement(
+	        Row,
+	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	        React.createElement(
+	          Col,
+	          { xs: 12 },
+	          React.createElement('br', null),
+	          React.createElement(
+	            'span',
+	            null,
+	            'Genre: ',
+	            this.state.track.genre
+	          ),
+	          React.createElement('br', null),
+	          React.createElement(
+	            'span',
+	            null,
+	            'Description: ',
+	            this.state.track.description
+	          ),
+	          React.createElement('br', null),
+	          React.createElement('br', null),
+	          React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
+	        )
+	      ),
+	      React.createElement(
+	        Row,
+	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	        React.createElement(
+	          Col,
+	          { xs: 12 },
+	          React.createElement(Comments, { track_id: this.props.params.id }),
+	          React.createElement(CommentForm, { track_id: this.props.params.id })
+	        )
+	      )
+	    );
+	  }
 	});
 
 	module.exports = Track;
@@ -43788,6 +43819,8 @@
 	var ButtonInput = __webpack_require__(447);
 	var Col = __webpack_require__(435);
 	var Row = __webpack_require__(434);
+	var Modal = __webpack_require__(247);
+	var Button = __webpack_require__(210);
 
 	var CommentForm = React.createClass({
 	    displayName: 'CommentForm',
@@ -43795,7 +43828,11 @@
 	    mixins: [LinkedStateMixin],
 	    getInitialState() {
 	        return {
-	            body: ''
+	            body: '',
+	            showModal: false,
+	            name: '',
+	            password: '',
+	            errors: ''
 	        };
 	    },
 
@@ -43803,11 +43840,9 @@
 	        this.formData = new FormData();
 	        this.uploadInProgress = false;
 	        this.submitText = "Submit";
-	        console.log(UserStore.isLoggedIn());
-	        if (!UserStore.isLoggedIn()) {
-	            this.submitText = "Please Sign in to leave a comment";
-	        };
+	        //console.log(UserStore.isLoggedIn());
 	        this.listenerToken = CommentStore.addListener(this._commentsChanged);
+	        this.listenerToken2 = UserStore.addListener(this._getErrors);
 	    },
 
 	    componentWillUpdate(nextProps, nextState) {
@@ -43817,17 +43852,57 @@
 	    _commentsChanged() {
 	        this.uploadInProgress = false;
 	        this.submitText = "Submit";
-	        if (!UserStore.isLoggedIn()) {
-	            this.submitText = "Please Sign in to leave a comment";
-	        };
+	        // if (!UserStore.isLoggedIn()){
+	        //     this.submitText = "Please Sign in to leave a comment"
+	        // };
 	    },
 
 	    handleSubmit(e) {
 	        e.preventDefault;
+	        if (!UserStore.isLoggedIn()) {
+	            this.setState({ showModal: true });
+	        } else {
+	            Api.submitComment(this.state.body, this.props.track_id);
+	            Api.fetchComments(this.props.track_id);
+	            this.setState({ body: '' });
+	        };
+	    },
 
-	        Api.submitComment(this.state.body, this.props.track_id);
-	        Api.fetchComments(this.props.track_id);
-	        this.setState({ body: '' });
+	    closeModal() {
+	        this.setState({ showModal: false, errors: '' });
+	    },
+
+	    openModal() {
+	        this.setState({ showModal: true });
+	    },
+
+	    login() {
+	        Api.login(this.state.name, this.state.password);
+	        this.listenerToken2 = UserStore.addListener(this._getErrors);
+	    },
+
+	    loginGuest() {
+	        Api.login("guest", "guest1");
+	        this.listenerToken2 = UserStore.addListener(this._getErrors);
+	    },
+
+	    _getErrors() {
+	        if (UserStore.getError() != '') {
+	            this.setState({ errors: UserStore.getError() });
+	        } else {
+	            this.closeModal();
+	        }
+	    },
+
+	    componentWillUnmount: function () {
+	        this.listenerToken.remove();
+	        this.listenerToken2.remove();
+	    },
+
+	    enterSubmit: function (event) {
+	        if (event.keyCode === 13) {
+	            this.login();
+	        }
 	    },
 
 	    // sayFile(e){
@@ -43856,8 +43931,59 @@
 	                        'form',
 	                        null,
 	                        React.createElement(Input, { type: 'textarea', label: 'Comment', placeholder: '', valueLink: this.linkState('body'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
-	                        React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' }),
-	                        this.uploadInProgress ? React.createElement('div', { className: 'mdl-spinner mdl-js-spinner is-active' }) : React.createElement('div', null)
+	                        React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' })
+	                    )
+	                )
+	            ),
+	            React.createElement(
+	                Modal,
+	                { show: this.state.showModal, onHide: this.closeModal, animation: false },
+	                React.createElement(
+	                    Modal.Header,
+	                    { closeButton: true },
+	                    React.createElement(
+	                        Modal.Title,
+	                        null,
+	                        'You must be logged in to post a comment'
+	                    )
+	                ),
+	                React.createElement(
+	                    Modal.Body,
+	                    null,
+	                    this.state.errors.length >= 1 ? React.createElement(
+	                        Alert,
+	                        { bsStyle: 'danger' },
+	                        this.state.errors
+	                    ) : "",
+	                    React.createElement(
+	                        'label',
+	                        null,
+	                        'Username',
+	                        React.createElement(Input, { type: 'text', valueLink: this.linkState('name') })
+	                    ),
+	                    React.createElement('br', null),
+	                    React.createElement(
+	                        'label',
+	                        null,
+	                        'Password',
+	                        React.createElement(Input, { onKeyUp: this.enterSubmit, type: 'password', valueLink: this.linkState('password') })
+	                    ),
+	                    React.createElement('br', null),
+	                    React.createElement(
+	                        Button,
+	                        { onClick: this.login },
+	                        'Log in'
+	                    ),
+	                    React.createElement('hr', { className: 'overcome-padding' }),
+	                    React.createElement(
+	                        'h5',
+	                        null,
+	                        'Not a registered user?'
+	                    ),
+	                    React.createElement(
+	                        Button,
+	                        { onClick: this.loginGuest },
+	                        'Log in as a Guest'
 	                    )
 	                )
 	            )

@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDom = require('react-dom');
 var LinkedStateMixin = require('react-addons-linked-state-mixin');
 
 var Api = require('../util/api.js');
@@ -17,12 +18,21 @@ var TrackUpload = React.createClass({
         };
     },
 
+
+
     componentDidMount() {
       this.formData = new FormData();
       this.uploadInProgress = false;
       this.submitText = "Upload";
-      this.listenerToken = TrackStore.addListener(this._trackChanged)
+      this.listenerToken = TrackStore.addListener(this._trackChanged);
+      // var spin = ReactDom.findDOMNode(this.refs.spinner);
+        // componentHandler.upgradeElement(spin, "MaterialSpinner");
       this.forceUpdate(); 
+    },
+
+    componentDidUpdate() {
+              var spin = ReactDom.findDOMNode(this.refs.spinner);
+        componentHandler.upgradeElement(spin, "MaterialSpinner");
     },
 
     _trackChanged() {
@@ -40,8 +50,13 @@ var TrackUpload = React.createClass({
     handleSubmit(e){
     	e.preventDefault;
 
-        this.uploadInProgress = true;
+        this.uploadInProgress = true; 
         this.submitText = "Uploading...";
+        var spin = ReactDom.findDOMNode(this.refs.spinner);
+        //spin.className = "mdl-spinner mdl-js-spinner is-active";
+        //this.totallyNecessary;
+        //var spinner = this.refs.spinner.getDOMNode();
+        
 
         this.forceUpdate();
 
@@ -56,7 +71,22 @@ var TrackUpload = React.createClass({
     	this.setState({file : file});
     },
 
-    render() {
+    setVisibility(){
+        if(this.uploadInProgress){
+            console.log("prog");
+            return {}
+        } else {
+            console.log("no prog");
+            return {}
+        }
+    },
+
+    render() {  
+        if(this.uploadInProgress){
+            visibility = "inline-block";
+        } else {
+            visibility = "none";
+        }
         return (
         <Col xs={12} className="show-grid mdl-card mdl-shadow--4dp upload-form">
             <Row>
@@ -71,7 +101,7 @@ var TrackUpload = React.createClass({
 	        	<Input type="textarea" label="Description" placeholder="" valueLink={this.linkState('description')} labelClassName="col-xs-2" wrapperClassName="col-xs-10"/>
         	<ButtonInput type="reset" value="Reset" style={{"marginBottom" : "10px"}} wrapperClassName="col-xs-offset-2 col-xs-10" />
 	        	<ButtonInput value={this.submitText} disabled={this.uploadInProgress} onClick={this.handleSubmit} wrapperClassName="col-xs-offset-2 col-xs-2"/>
-                {this.uploadInProgress ? <div className="mdl-spinner mdl-js-spinner is-active"></div> : <div></div> }
+                <div ref="spinner"  style={{"display": visibility}} className="mdl-spinner mdl-js-spinner is-active"></div>
         	</form>
             </Col>
         </Row>

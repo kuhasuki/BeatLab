@@ -43,7 +43,7 @@ Api = {
       ApiActions.addComment(data);
     }).fail(function(data) {
       console.log(data);
-      AlertActions.danger("something went wrong with your comment", 3000);
+      AlertActions.danger("You can't submit a blank comment", 3000);
       ApiActions.failedComment(data);
   });
   },

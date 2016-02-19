@@ -100,6 +100,10 @@ var Track = React.createClass({
 	    this.listenerToken.remove();  
 	},
 
+  componentDidUpdate() {
+    componentHandler.upgradeDom();  
+  },
+
 	getProgress(){
 		return Math.round(progress * 100);
 
