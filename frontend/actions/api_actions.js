@@ -93,6 +93,13 @@ var ApiActions = {
     }); 
   },
 
+  pausePlayback: function(data){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.PAUSE_PLAYBACK,
+      track: data
+    }); 
+  },
+
   stopPlayback: function(){
     Dispatcher.dispatch({
       actionType: DispatchConstants.STOP_PLAYBACK,

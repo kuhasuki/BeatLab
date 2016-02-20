@@ -12,6 +12,7 @@ var _tracks = [];
 var _empty = true;
 var _sticky_track = {};
 var _play = false;
+var _paused = true;
 
 TrackStore.getAllTracks = function(){
   return _tracks;
@@ -53,10 +54,19 @@ TrackStore.setTrack = function(track){
 TrackStore.setStickyTrack = function(track){
   _sticky_track = track;
   _play = true;
+  _paused = false;
 };
 
 TrackStore.getStickyTrack = function(){
   return _sticky_track;
+};
+
+TrackStore.getStickyTrackId = function(){
+  if(_sticky_track["id"] === undefined){
+    return 0;
+  } else {
+    return _sticky_track.id;
+  }
 };
 
 TrackStore.empty = function(){
@@ -65,6 +75,10 @@ TrackStore.empty = function(){
 
 TrackStore.play = function(){
   return _play;
+};
+
+TrackStore.paused = function(){
+  return _paused;
 };
 
 TrackStore.__onDispatch = function (payload) {
@@ -88,8 +102,12 @@ TrackStore.__onDispatch = function (payload) {
       TrackStore.setStickyTrack(payload.track);
       TrackStore.__emitChange();
       break;
+    case DispatchConstants.PAUSE_PLAYBACK:
+      _paused = true;
+      TrackStore.__emitChange();
+      break;
     case DispatchConstants.STOP_PLAYBACK:
-      _sticky_track = null;
+      _sticky_track = {};
       _play = false;
       TrackStore.__emitChange();
       break;

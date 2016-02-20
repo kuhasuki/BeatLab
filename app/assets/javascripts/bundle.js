@@ -30918,6 +30918,13 @@
 	    });
 	  },
 
+	  pausePlayback: function (data) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.PAUSE_PLAYBACK,
+	      track: data
+	    });
+	  },
+
 	  stopPlayback: function () {
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.STOP_PLAYBACK
@@ -31286,6 +31293,7 @@
 	  FETCH_MY_TRACKS: "FETCH_MY_TRACKS",
 	  GET_USER_INFO: "GET_USER_INFO",
 	  START_PLAYBACK: "START_PLAYBACK",
+	  PAUSE_PLAYBACK: "PAUSE_PLAYBACK",
 	  STOP_PLAYBACK: "STOP_PLAYBACK",
 	  FETCH_COMMENT: "FETCH_COMMENT",
 	  NEW_COMMENT: "NEW_COMMENT",
@@ -42410,10 +42418,12 @@
 	  },
 
 	  play() {
+	    ApiActions.startPlayback(this.state.track);
 	    document.getElementById('player').play();
 	  },
 
 	  pause() {
+	    ApiActions.pausePlayback(this.state.track);
 	    document.getElementById('player').pause();
 	  },
 
@@ -42484,6 +42494,7 @@
 	var _empty = true;
 	var _sticky_track = {};
 	var _play = false;
+	var _paused = true;
 
 	TrackStore.getAllTracks = function () {
 	  return _tracks;
@@ -42524,10 +42535,19 @@
 	TrackStore.setStickyTrack = function (track) {
 	  _sticky_track = track;
 	  _play = true;
+	  _paused = false;
 	};
 
 	TrackStore.getStickyTrack = function () {
 	  return _sticky_track;
+	};
+
+	TrackStore.getStickyTrackId = function () {
+	  if (_sticky_track["id"] === undefined) {
+	    return 0;
+	  } else {
+	    return _sticky_track.id;
+	  }
 	};
 
 	TrackStore.empty = function () {
@@ -42536,6 +42556,10 @@
 
 	TrackStore.play = function () {
 	  return _play;
+	};
+
+	TrackStore.paused = function () {
+	  return _paused;
 	};
 
 	TrackStore.__onDispatch = function (payload) {
@@ -42559,8 +42583,12 @@
 	      TrackStore.setStickyTrack(payload.track);
 	      TrackStore.__emitChange();
 	      break;
+	    case DispatchConstants.PAUSE_PLAYBACK:
+	      _paused = true;
+	      TrackStore.__emitChange();
+	      break;
 	    case DispatchConstants.STOP_PLAYBACK:
-	      _sticky_track = null;
+	      _sticky_track = {};
 	      _play = false;
 	      TrackStore.__emitChange();
 	      break;
@@ -42650,7 +42678,7 @@
 	    this.listenerToken = TrackStore.addListener(this._gotTracks);
 	  },
 
-	  componentWillUnmount: function () {
+	  componentWillUnmount() {
 	    this.listenerToken.remove();
 	  },
 
@@ -42662,6 +42690,32 @@
 
 	  play(track) {
 	    ApiActions.startPlayback(track);
+	    console.log("sticky track id is:" + TrackStore.getStickyTrackId());
+	    if (!!document.getElementById('player')) {
+	      document.getElementById('player').play();
+	    }
+	  },
+
+	  pause(track) {
+	    ApiActions.pausePlayback(track);
+	    document.getElementById('player').pause();
+	  },
+
+	  isPaused(id) {
+	    //console.log(TrackStore.getStickyTrackId());
+	    if (TrackStore.getStickyTrackId() === id) {
+
+	      if (TrackStore.paused()) {
+	        console.log("match and paused");
+	        return true;
+	      } else {
+	        return false;
+	        console.log("match and not paused");
+	      }
+	    } else {
+	      return true;
+	      console.log("no match");
+	    }
 	  },
 
 	  render: function () {
@@ -42686,17 +42740,23 @@
 	        Row,
 	        null,
 	        this.state.tracks.map((function (track, idx) {
+	          //console.log(track);
 	          return React.createElement(
 	            Col,
 	            { key: idx, xs: 4, style: trackStyle, className: 'track-element-landing card-space' },
 	            React.createElement(
 	              Panel,
 	              { header: track.title, style: { "margin": "0" } },
-	              React.createElement(
+	              this.isPaused(track.id) ? React.createElement(
 	                Button,
 	                { bsSize: 'large', onClick: this.play.bind(this, track) },
 	                React.createElement(Glyphicon, { glyph: 'play' }),
 	                ' Play'
+	              ) : React.createElement(
+	                Button,
+	                { bsSize: 'large', onClick: this.pause.bind(this, track) },
+	                React.createElement(Glyphicon, { glyph: 'pause' }),
+	                ' Pause'
 	              ),
 	              ' ',
 	              React.createElement(
@@ -43402,12 +43462,11 @@
 	        this.uploadInProgress = false;
 	        this.submitText = "Upload";
 	        this.listenerToken = TrackStore.addListener(this._trackChanged);
-	        // var spin = ReactDom.findDOMNode(this.refs.spinner);
-	        // componentHandler.upgradeElement(spin, "MaterialSpinner");
 	        this.forceUpdate();
 	    },
 
 	    componentDidUpdate() {
+	        //any react component not mounted on initial page load needs to be registered with mdl component handler
 	        var spin = ReactDom.findDOMNode(this.refs.spinner);
 	        componentHandler.upgradeElement(spin, "MaterialSpinner");
 	    },
@@ -43429,10 +43488,6 @@
 
 	        this.uploadInProgress = true;
 	        this.submitText = "Uploading...";
-	        var spin = ReactDom.findDOMNode(this.refs.spinner);
-	        //spin.className = "mdl-spinner mdl-js-spinner is-active";
-	        //this.totallyNecessary;
-	        //var spinner = this.refs.spinner.getDOMNode();
 
 	        this.forceUpdate();
 
@@ -43445,16 +43500,6 @@
 	        var file = e.target.files[0];
 	        this.formData.append('file', file, file.name);
 	        this.setState({ file: file });
-	    },
-
-	    setVisibility() {
-	        if (this.uploadInProgress) {
-	            console.log("prog");
-	            return {};
-	        } else {
-	            console.log("no prog");
-	            return {};
-	        }
 	    },
 
 	    render() {
@@ -43629,7 +43674,7 @@
 	  audioSrc.connect(audioCtx.destination);
 
 	  //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-	  var frequencyData = new Uint8Array(200);
+	  var frequencyData = new Uint8Array(120);
 
 	  var contentWidth = $('#track-content').width();
 
@@ -44609,7 +44654,7 @@
 	    this.listenerToken = TrackStore.addListener(this._gotTracks);
 	  },
 
-	  componentWillUnmount: function () {
+	  componentWillUnmount() {
 	    this.listenerToken.remove();
 	  },
 

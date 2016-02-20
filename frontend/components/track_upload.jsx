@@ -13,25 +13,22 @@ var Row = require('react-bootstrap/lib/Row');
 var TrackUpload = React.createClass({
 	mixins: [LinkedStateMixin],
     getInitialState() {
-        return {
-            title: '', file : null, genre: '', description: ''
-        };
+      return {
+        title: '', file : null, genre: '', description: ''
+      };
     },
-
-
 
     componentDidMount() {
       this.formData = new FormData();
       this.uploadInProgress = false;
       this.submitText = "Upload";
       this.listenerToken = TrackStore.addListener(this._trackChanged);
-      // var spin = ReactDom.findDOMNode(this.refs.spinner);
-        // componentHandler.upgradeElement(spin, "MaterialSpinner");
       this.forceUpdate(); 
     },
 
     componentDidUpdate() {
-              var spin = ReactDom.findDOMNode(this.refs.spinner);
+        //any react component not mounted on initial page load needs to be registered with mdl component handler
+        var spin = ReactDom.findDOMNode(this.refs.spinner);
         componentHandler.upgradeElement(spin, "MaterialSpinner");
     },
 
@@ -50,35 +47,20 @@ var TrackUpload = React.createClass({
     handleSubmit(e){
     	e.preventDefault;
 
-        this.uploadInProgress = true; 
-        this.submitText = "Uploading...";
-        var spin = ReactDom.findDOMNode(this.refs.spinner);
-        //spin.className = "mdl-spinner mdl-js-spinner is-active";
-        //this.totallyNecessary;
-        //var spinner = this.refs.spinner.getDOMNode();
-        
+      this.uploadInProgress = true; 
+      this.submitText = "Uploading...";
 
-        this.forceUpdate();
+      this.forceUpdate();
 
     	this.formData.append('track', JSON.stringify(this.state));
     	Api.upload(this.formData);
     },
 
     sayFile(e){
-        e.preventDefault;
+      e.preventDefault;
     	var file = e.target.files[0];
     	this.formData.append('file', file, file.name);
     	this.setState({file : file});
-    },
-
-    setVisibility(){
-        if(this.uploadInProgress){
-            console.log("prog");
-            return {}
-        } else {
-            console.log("no prog");
-            return {}
-        }
     },
 
     render() {  

@@ -31,10 +31,12 @@ var Player = React.createClass({
 	},
 
 	play(){
+    ApiActions.startPlayback(this.state.track);
     document.getElementById('player').play();
 	},
 
 	pause(){
+    ApiActions.pausePlayback(this.state.track);
     document.getElementById('player').pause();
 	},
 

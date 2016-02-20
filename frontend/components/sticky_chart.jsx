@@ -33,7 +33,7 @@ function build() {
   audioSrc.connect(audioCtx.destination);
 
   //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-  var frequencyData = new Uint8Array(120);
+  var frequencyData = new Uint8Array(200);
 
   var contentWidth = $('#track-content').width();
 
@@ -111,6 +111,7 @@ var Track = React.createClass({
 
 	play(){
 		ApiActions.stopPlayback();
+    console.log(audioElement);
     document.getElementById('audioElement').play();
 	},
 

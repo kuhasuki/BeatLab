@@ -28,7 +28,7 @@ var Explore = React.createClass({
           this.listenerToken = TrackStore.addListener(this._gotTracks);
     },
 
-    componentWillUnmount: function () {
+    componentWillUnmount() {
       this.listenerToken.remove();  
     },
 

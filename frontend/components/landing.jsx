@@ -28,7 +28,7 @@ var Landing = React.createClass({
           this.listenerToken = TrackStore.addListener(this._gotTracks);
     },
 
-    componentWillUnmount: function () {
+    componentWillUnmount() {
       this.listenerToken.remove();  
     },
 
@@ -40,6 +40,33 @@ var Landing = React.createClass({
 
     play(track){
       ApiActions.startPlayback(track);
+      console.log("sticky track id is:" + TrackStore.getStickyTrackId());
+      if(!!document.getElementById('player')){
+        document.getElementById('player').play();
+      }
+    },
+
+    pause(track){
+      ApiActions.pausePlayback(track);
+      document.getElementById('player').pause();
+    },
+
+    isPaused(id){
+      //console.log(TrackStore.getStickyTrackId());
+      if(TrackStore.getStickyTrackId() === id){
+
+        if(TrackStore.paused()){
+          console.log("match and paused");
+          return true;
+        } else {
+          return false;
+          console.log("match and not paused");
+        }
+        
+      } else {
+        return true;
+        console.log("no match");
+      }
     },
 
 
@@ -55,11 +82,12 @@ var Landing = React.createClass({
         <Row>
           {
             this.state.tracks.map(function(track, idx){
+              //console.log(track);
               return(
                 
                   <Col key={idx} xs={4} style={trackStyle} className="track-element-landing card-space">
                        <Panel header={track.title} style={{"margin": "0"}}>
-                        <Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button>
+                        {this.isPaused(track.id) ?  <Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button> : <Button bsSize="large" onClick={this.pause.bind(this, track)} ><Glyphicon glyph="pause" /> Pause</Button> }
                         &nbsp;
                         <Button bsSize="large" href={"#/track/" + track.id} ><Glyphicon glyph="chevron-right" /> Track Detail</Button>
                       </Panel>
