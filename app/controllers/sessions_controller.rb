@@ -7,6 +7,7 @@ class SessionsController < ApplicationController
 
   def show
     if logged_in?
+      @artist_image = current_user.artist_images.last.cdn if current_user.artist_images.any?
       render 'show'
     else
       render json: { status: "logged out" }

@@ -23,7 +23,12 @@ var Explore = React.createClass({
         }
     },
 
+    componentWillMount() {
+        visibility = "inline-block";
+    },
+
     componentDidMount() {
+      componentHandler.upgradeDom();
         Api.fetchTracks();
           this.listenerToken = TrackStore.addListener(this._gotTracks);
     },
@@ -33,6 +38,7 @@ var Explore = React.createClass({
     },
 
     _gotTracks() {
+      visibility = "none";
       this.setState({
         tracks: TrackStore.getAllTracks()
       })
@@ -40,14 +46,39 @@ var Explore = React.createClass({
 
     play(track){
       ApiActions.startPlayback(track);
+      //console.log("sticky track id is:" + TrackStore.getStickyTrackId());
+      if(!!document.getElementById('player')){
+        document.getElementById('player').play();
+      }
     },
 
+    pause(track){
+      ApiActions.pausePlayback(track);
+      document.getElementById('player').pause();
+    },
+
+
+    isPaused(id){
+      if(TrackStore.getStickyTrackId() === id){
+
+        if(TrackStore.paused()){
+          return true;
+        } else {
+          return false;
+        }
+        
+      } else {
+        return true;
+      }
+    },
 
     render: function(){
     return(
     	<Col xs={12} className="mdl-card mdl-shadow--4dp">
       <br></br>
       <h3 style={{"textAlign":"center"}}>Explore all Tracks</h3>
+      <div  style={{"display": visibility, 'margin':"auto"}} className="mdl-spinner mdl-js-spinner is-active"></div>
+      <br></br>
         <Row>
           {
             this.state.tracks.map(function(track, idx){
@@ -58,7 +89,7 @@ var Explore = React.createClass({
                        <Panel style={{"margin": "0"}}>
                         <a href={'#/track/' + track.id} >{track.title}</a><span> by </span>
                         <a href={"#/" + track.user_id + "/tracks"} >{track.author}</a><hr></hr>
-                        <Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button>
+                        {this.isPaused(track.id) ?  <Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button> : <Button bsSize="large" onClick={this.pause.bind(this, track)} ><Glyphicon glyph="pause" /> Pause</Button> }
                         &nbsp;
                         <Button bsSize="large" href={"#/track/" + track.id} ><Glyphicon glyph="chevron-right" /> Track Detail</Button>
                       </Panel>

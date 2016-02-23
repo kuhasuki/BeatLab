@@ -2,6 +2,7 @@ var ReactDOM = require('react-dom');
 var React = require('react');
 
 var UserTools = require('./user_tools.jsx');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
 var UserStore = require('../stores/user_store.js');
 
@@ -24,7 +25,7 @@ var Navigation = React.createClass({
   	        <span className="icon-bar"></span>
   	        <span className="icon-bar"></span>
   	      </button>
-        <a className="navbar-brand" href="#" onClick={this.clearAlerts} >Beatlab</a>
+        <a className="navbar-brand" href="#" onClick={this.clearAlerts} ><Glyphicon glyph="equalizer" /> Beatlab</a>
         </div>
         <div className="navbar-collapse collapse">
           <ul className="nav navbar-nav ">

@@ -37,14 +37,14 @@ var UserTools = React.createClass({
   _loginStatus() {
     this.setState({"loggedIn": UserStore.loginStatus(), "user" : UserStore.getUser()});
   },
+  
   render: function(){
     if(this.state.loggedIn) {
       return(
         <ul className="nav navbar-nav navbar-right">
           <li>
             <a href="#/upload" >Upload</a>
-          </li>
-          
+          </li>         
         <ProfileOptions />
         <Logout />
       </ul>

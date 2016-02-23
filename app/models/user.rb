@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   after_initialize :ensure_session_token
 
   has_many :tracks
+  has_many :artist_images
 
   def self.find_by_credentials(name, password)
     user = User.find_by(name: name)

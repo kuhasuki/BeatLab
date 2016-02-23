@@ -40,8 +40,32 @@ var MyTracks = React.createClass({
 	},
 
 	play(track){
-		ApiActions.startPlayback(track);
-	},
+      ApiActions.startPlayback(track);
+      if(!!document.getElementById('player')){
+        document.getElementById('player').play();
+      }
+    },
+
+    pause(track){
+      ApiActions.pausePlayback(track);
+      document.getElementById('player').pause();
+    },
+
+
+    isPaused(id){
+      if(TrackStore.getStickyTrackId() === id){
+
+        if(TrackStore.paused()){
+          return true;
+        } else {
+          return false;
+        }
+        
+      } else {
+        return true;
+      }
+    },
+
 
   render() {
     return (
@@ -57,8 +81,8 @@ var MyTracks = React.createClass({
       				return(
       					
             			<Col key={idx} xs={4} style={trackStyle} className="track-element show-grid mdl-card mdl-shadow--4dp card-space">
-      							   <Panel header={track.title} bsStyle="primary" style={{"margin": "0"}}>
-      									<Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button>
+      							   <Panel header={track.title} bsStyle="primary" style={{"margin": "0", 'background': track.bg}}>
+      									{this.isPaused(track.id) ?  <Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button> : <Button bsSize="large" onClick={this.pause.bind(this, track)} ><Glyphicon glyph="pause" /> Pause</Button> }
       									&nbsp;
       									<Button bsSize="large" href={"#/track/" + track.id} ><Glyphicon glyph="chevron-right" /> Track Detail</Button>
    										</Panel>

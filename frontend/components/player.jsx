@@ -49,7 +49,7 @@ var Player = React.createClass({
   		    return(
   		    <Col xs={12} className="player-toolbar mdl-card mdl-shadow--4dp">
   		    	<div >
-		    			<span>Currently playing: &nbsp;{this.state.track.title} &nbsp;by &nbsp;{this.state.track.author}&nbsp; &nbsp; </span>
+		    			<span>Currently playing: &nbsp;<a href={'#/track/' + this.state.track.id}>{this.state.track.title}</a> &nbsp;by &nbsp;{this.state.track.author}&nbsp; &nbsp; </span>
   		    		<Button onClick={this.play} ><Glyphicon glyph="play" /></Button>
       				&nbsp;
       				<Button onClick={this.pause} ><Glyphicon glyph="pause" /></Button>

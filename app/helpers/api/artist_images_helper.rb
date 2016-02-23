@@ -1,0 +1,2 @@
+module Api::ArtistImagesHelper
+end

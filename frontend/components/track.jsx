@@ -2,6 +2,7 @@ var ReactDOM = require('react-dom');
 var React = require('react');
 
 var TrackStore = require('../stores/track_store.js');
+var UserStore = require('../stores/user_store.js');
 
 var ApiActions = require('../actions/api_actions.js');
 
@@ -39,10 +40,10 @@ function build() {
 
   var svgHeight = '300';
   var svgWidth = contentWidth + 30;
-  var barPadding = '1';
+  var barPadding = '0';
 
   function createSvg(parent, height, width) {
-    return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
+    return d3.select(parent).insert('svg').attr('height', height).attr('width', width).attr('id', 'svg').style({"background-color": "rgba(255,255,255,0.3)"});
   }
 
   var svg = createSvg('#destiny', svgHeight, svgWidth);
@@ -86,14 +87,22 @@ function build() {
 var Track = React.createClass({
 	getInitialState() {
 	    return {
-	        track: {}  
+	        track: {title:"Song",author:"artist"}, artist: {}
 	    };
 	},
 
+  componentWillMount() {
+        
+  },
+
 	componentDidMount() {
 		Api.fetchTracks();
+    // Api.getUserInfo(this.state.track.user_id);
 	  this.listenerToken = TrackStore.addListener(this._getTrack);
-	  build();    
+    // this.listenerToken2 = UserStore.addListener(this._getArtist);
+    build();
+    console.log(this.state.track)
+	      
 	},
 
 	componentWillUnmount() {
@@ -111,10 +120,12 @@ var Track = React.createClass({
 
 	play(){
 		ApiActions.stopPlayback();
+    d3.select(svg).style({"background-color": "rgba(255,255,255,1)"});
     document.getElementById('audioElement').play();
 	},
 
 	pause(){
+    d3.select(svg).style({"background-color": "rgba(255,255,255,0.5)"});
     document.getElementById('audioElement').pause();
 	},
 
@@ -125,6 +136,12 @@ var Track = React.createClass({
 		})
 	},
 
+  // _getArtist(){
+  //   this.setState({
+  //     artist: UserStore.getPublicUser()
+  //   })
+  // },
+
   render: function(){
     return(
     	<Col xs={12} id="track-content">
@@ -133,6 +150,7 @@ var Track = React.createClass({
       		<span><h4 style={{"display":"inline-block"}}>{this.state.track.title}</h4>&nbsp;&nbsp;by&nbsp;&nbsp;<a href={'#/' + this.state.track.user_id + '/tracks'}>{this.state.track.author}</a></span>
       	</Col>   	
       	<Col xs={8} >
+          
       		<button onClick={this.play} className="soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><Glyphicon glyph="play" /></button>
       		&nbsp;
       		<button onClick={this.pause} className="soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><Glyphicon glyph="pause" /></button>
@@ -141,7 +159,7 @@ var Track = React.createClass({
     	<progress id="seekbar" value="0" max="1" style={{"width":"100%"}}></progress>
     	<Row className="show-grid mdl-card mdl-shadow--4dp card-space">
       	<Col >
-      		<div id="destiny"></div>
+      		<div id="destiny" style={{"background":this.state.track.bg}}></div>
       	</Col>
       </Row>
 

@@ -12,7 +12,6 @@ var _user = {};
 var _public_user = {};
 
 UserStore.updateError = function(error){
-  console.log(error);
   _error = error;
 };
 

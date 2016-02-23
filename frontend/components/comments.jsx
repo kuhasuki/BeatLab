@@ -2,7 +2,7 @@ var React = require('react');
 var LinkedStateMixin = require('react-addons-linked-state-mixin');
 
 var Api = require('../util/api.js');
-var CommentStore = require('../stores/comment_store.jsx');
+var CommentStore = require('../stores/comment_store.js');
 
 var Row = require('react-bootstrap/lib/Row');
 var Well = require('react-bootstrap/lib/Well');

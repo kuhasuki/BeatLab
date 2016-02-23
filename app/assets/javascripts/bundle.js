@@ -60,9 +60,10 @@
 	var Test = __webpack_require__(439);
 	var Landing = __webpack_require__(440);
 	var TrackUpload = __webpack_require__(446);
-	var Track = __webpack_require__(448);
-	var MyTracks = __webpack_require__(455);
-	var Explore = __webpack_require__(456);
+	var ImageUpload = __webpack_require__(448);
+	var Track = __webpack_require__(450);
+	var MyTracks = __webpack_require__(457);
+	var Explore = __webpack_require__(458);
 
 	var UserStore = __webpack_require__(350);
 	var AlertStore = __webpack_require__(432);
@@ -83,6 +84,8 @@
 	      null,
 	      React.createElement(Navigation, null),
 	      this.props.children,
+	      React.createElement('br', null),
+	      React.createElement('br', null),
 	      React.createElement(Player, null)
 	    );
 	  }
@@ -92,7 +95,7 @@
 	  Api.verifySession();
 	  if (!UserStore.isLoggedIn()) {
 	    replaceState({ nextPathname: nextState.location.pathname }, '/');
-	    AlertActions.danger("You must be logged in to upload a track", 2000);
+	    AlertActions.danger("You must be logged in to do that", 2000);
 	  }
 	}
 
@@ -111,7 +114,8 @@
 	        React.createElement(Route, { path: '/:user_id/tracks', component: MyTracks }),
 	        React.createElement(Route, { path: 'explore', component: Explore }),
 	        React.createElement(Route, { path: 'track/:id', component: Track }),
-	        React.createElement(Route, { path: 'upload', component: TrackUpload, onEnter: requireAuth })
+	        React.createElement(Route, { path: 'upload', component: TrackUpload, onEnter: requireAuth }),
+	        React.createElement(Route, { path: 'artist', component: ImageUpload, onEnter: requireAuth })
 	      )
 	    )
 	  ), root);
@@ -25450,6 +25454,7 @@
 	var React = __webpack_require__(147);
 
 	var UserTools = __webpack_require__(242);
+	var Glyphicon = __webpack_require__(335);
 
 	var UserStore = __webpack_require__(350);
 
@@ -25487,7 +25492,8 @@
 	          React.createElement(
 	            'a',
 	            { className: 'navbar-brand', href: '#', onClick: this.clearAlerts },
-	            'Beatlab'
+	            React.createElement(Glyphicon, { glyph: 'equalizer' }),
+	            ' Beatlab'
 	          )
 	        ),
 	        React.createElement(
@@ -25570,6 +25576,7 @@
 	  _loginStatus() {
 	    this.setState({ "loggedIn": UserStore.loginStatus(), "user": UserStore.getUser() });
 	  },
+
 	  render: function () {
 	    if (this.state.loggedIn) {
 	      return React.createElement(
@@ -30748,6 +30755,12 @@
 	    });
 	  },
 
+	  fetchMyImage: function (id) {
+	    $.get('/api/artist_images/' + id, {}, function (data) {
+	      ApiActions.fetchMyImage(data);
+	    });
+	  },
+
 	  getUserInfo: function (id) {
 	    $.get('/users/' + id, {}, function (data) {
 	      ApiActions.getUserInfo(data);
@@ -30817,6 +30830,55 @@
 	    };
 
 	    xhr.send(formData);
+	  },
+
+	  uploadImage: function (formData) {
+
+	    var token = $("meta[name='csrf-token']").attr("content");
+
+	    var xhr = new XMLHttpRequest();
+
+	    xhr.onreadystatechange = function () {
+	      switch (xhr.readyState) {
+	        case 0:
+	          // request not initialized
+	          //console.log('initializing');
+	          break;
+	        case 1:
+	          // server connection established
+	          //console.log('connection established');
+	          break;
+	        case 2:
+	          // request received
+	          //console.log('request recieved');
+	          break;
+	        case 3:
+	          // processing request
+	          //console.log('processing');
+	          break;
+	        case 4:
+	          // request finished and response is ready
+	          //console.log('finished');
+	          break;
+	      }
+	    };
+
+	    xhr.open('POST', '/api/img_upload', true);
+
+	    xhr.setRequestHeader("X-CSRF-Token", token);
+
+	    xhr.onload = function () {
+	      if (xhr.status === 200) {
+	        // File(s) uploaded.
+	        ApiActions.imageUploadSuccess(xhr.responseText);
+	        AlertActions.success("Image successfully uploaded", 2000);
+	      } else {
+	        ApiActions.imageUploadFailure(xhr.responseText);
+	        AlertActions.danger(JSON.parse(xhr.responseText), null);
+	      }
+	    };
+
+	    xhr.send(formData);
 	  }
 	};
 
@@ -30854,7 +30916,6 @@
 	        error: data.error
 	      });
 	    } else {
-	      console.log("isnt error");
 	      Dispatcher.dispatch({
 	        actionType: DispatchConstants.REGISTRATION_SUCCESS,
 	        user: data
@@ -30890,6 +30951,20 @@
 	    });
 	  },
 
+	  imageUploadSuccess: function (data) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.IMAGE_UPLOAD_SUCCESS,
+	      image: data
+	    });
+	  },
+
+	  imageUploadFailure: function (data) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.IMAGE_UPLOAD_FAILURE,
+	      errors: data.errors
+	    });
+	  },
+
 	  fetchTracks: function (data) {
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.FETCH_TRACKS,
@@ -30901,6 +30976,13 @@
 	    Dispatcher.dispatch({
 	      actionType: DispatchConstants.FETCH_MY_TRACKS,
 	      tracks: data
+	    });
+	  },
+
+	  fetchMyImage: function (data) {
+	    Dispatcher.dispatch({
+	      actionType: DispatchConstants.FETCH_IMAGE,
+	      image: data
 	    });
 	  },
 
@@ -31297,7 +31379,10 @@
 	  STOP_PLAYBACK: "STOP_PLAYBACK",
 	  FETCH_COMMENT: "FETCH_COMMENT",
 	  NEW_COMMENT: "NEW_COMMENT",
-	  FAILED_COMMENT: "FAILED_COMMENT"
+	  FAILED_COMMENT: "FAILED_COMMENT",
+	  IMAGE_UPLOAD_SUCCESS: "IMAGE_UPLOAD_SUCCESS",
+	  IMAGE_UPLOAD_FAILURE: "IMAGE_UPLOAD_FAILURE",
+	  FETCH_IMAGE: "FETCH_IMAGE"
 	};
 
 	module.exports = DispatchConstants;
@@ -31382,7 +31467,6 @@
 	var _public_user = {};
 
 	UserStore.updateError = function (error) {
-	  console.log(error);
 	  _error = error;
 	};
 
@@ -38191,6 +38275,12 @@
 	        { eventKey: 3.3, href: "#/" + this.state.user.id + "/tracks" },
 	        React.createElement(Glyphicon, { glyph: 'th-list' }),
 	        ' Tracks'
+	      ),
+	      React.createElement(
+	        MenuItem,
+	        { eventKey: 3.4, href: "#/artist" },
+	        React.createElement(Glyphicon, { glyph: 'picture' }),
+	        ' Artist Image'
 	      )
 	    );
 	  }
@@ -42443,7 +42533,11 @@
 	            'span',
 	            null,
 	            'Currently playing:  ',
-	            this.state.track.title,
+	            React.createElement(
+	              'a',
+	              { href: '#/track/' + this.state.track.id },
+	              this.state.track.title
+	            ),
 	            '  by  ',
 	            this.state.track.author,
 	            '    '
@@ -42673,7 +42767,12 @@
 	    };
 	  },
 
+	  componentWillMount() {
+	    visibility = "inline-block";
+	  },
+
 	  componentDidMount() {
+	    componentHandler.upgradeDom();
 	    Api.fetchTracks();
 	    this.listenerToken = TrackStore.addListener(this._gotTracks);
 	  },
@@ -42683,6 +42782,7 @@
 	  },
 
 	  _gotTracks() {
+	    visibility = "none";
 	    this.setState({
 	      tracks: TrackStore.getAllTracks().slice(0, 12)
 	    });
@@ -42690,7 +42790,6 @@
 
 	  play(track) {
 	    ApiActions.startPlayback(track);
-	    console.log("sticky track id is:" + TrackStore.getStickyTrackId());
 	    if (!!document.getElementById('player')) {
 	      document.getElementById('player').play();
 	    }
@@ -42702,19 +42801,15 @@
 	  },
 
 	  isPaused(id) {
-	    //console.log(TrackStore.getStickyTrackId());
 	    if (TrackStore.getStickyTrackId() === id) {
 
 	      if (TrackStore.paused()) {
-	        console.log("match and paused");
 	        return true;
 	      } else {
 	        return false;
-	        console.log("match and not paused");
 	      }
 	    } else {
 	      return true;
-	      console.log("no match");
 	    }
 	  },
 
@@ -42733,20 +42828,20 @@
 	            'h4',
 	            null,
 	            'Trending now:'
-	          )
+	          ),
+	          React.createElement('div', { style: { "display": visibility, 'margin': "auto" }, className: 'mdl-spinner mdl-js-spinner is-active' })
 	        )
 	      ),
 	      React.createElement(
 	        Row,
 	        null,
 	        this.state.tracks.map((function (track, idx) {
-	          //console.log(track);
 	          return React.createElement(
 	            Col,
 	            { key: idx, xs: 4, style: trackStyle, className: 'track-element-landing card-space' },
 	            React.createElement(
 	              Panel,
-	              { header: track.title, style: { "margin": "0" } },
+	              { header: track.title, style: { "margin": "0", 'background': track.bg } },
 	              this.isPaused(track.id) ? React.createElement(
 	                Button,
 	                { bsSize: 'large', onClick: this.play.bind(this, track) },
@@ -43639,225 +43734,432 @@
 /* 448 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var React = __webpack_require__(147);
+	var ReactDom = __webpack_require__(1);
+	var LinkedStateMixin = __webpack_require__(243);
+
+	var Api = __webpack_require__(342);
+	var AlertActions = __webpack_require__(349);
+	var ImageStore = __webpack_require__(449);
+	var UserStore = __webpack_require__(350);
+
+	var Input = __webpack_require__(331);
+	var ButtonInput = __webpack_require__(447);
+	var Col = __webpack_require__(435);
+	var Row = __webpack_require__(434);
+
+	var ArtistUpload = React.createClass({
+	    displayName: 'ArtistUpload',
+
+	    mixins: [LinkedStateMixin],
+	    getInitialState() {
+	        return {
+	            alt: '', file: null
+	        };
+	    },
+	    componentWillMount() {
+	        this.user = { artist_image_url: '' };
+	        this.imgHeight = 0;
+	    },
+
+	    componentDidMount() {
+
+	        this.formData = new FormData();
+	        this.uploadInProgress = false;
+	        this.submitText = "Upload";
+
+	        this.listenerToken = ImageStore.addListener(this._imageChanged);
+	        this.listenerToken2 = UserStore.addListener(this._userChanged);
+	        this.forceUpdate();
+	    },
+
+	    componentWillUnmount() {
+	        this.listenerToken.remove();
+	        this.listenerToken2.remove();
+	        AlertActions.clear();
+	    },
+
+	    componentDidUpdate() {
+	        //any react component not mounted on initial page load needs to be registered with mdl component handler
+	        var spin = ReactDom.findDOMNode(this.refs.spinner);
+	        componentHandler.upgradeElement(spin, "MaterialSpinner");
+	    },
+
+	    _imageChanged() {
+	        if (ImageStore.uploadReady()) {
+	            var image = ImageStore.getUploadedImage();
+	            window.location.href = "#/";
+	        } else {
+	            this.uploadInProgress = false;
+	            this.submitText = "Upload";
+	            this.forceUpdate();
+	        }
+	    },
+
+	    _userChanged() {
+	        this.user = UserStore.getUser();
+	        if (this.user.artist_image_url != '') {
+	            AlertActions.info("Uploading an Artist Image will overwrite this one");
+	            this.imgHeight = 200;
+	        } else {
+	            this.imgHeight = 0;
+	        }
+	        this.forceUpdate();
+	    },
+
+	    handleSubmit(e) {
+	        e.preventDefault;
+
+	        this.uploadInProgress = true;
+	        this.submitText = "Uploading...";
+
+	        this.forceUpdate();
+
+	        this.formData.append('artist_image', JSON.stringify(this.state));
+	        Api.uploadImage(this.formData);
+	    },
+
+	    sayFile(e) {
+	        e.preventDefault;
+	        var file = e.target.files[0];
+	        this.formData.append('file', file, file.name);
+	        this.setState({ file: file });
+	    },
+
+	    render() {
+	        if (this.uploadInProgress) {
+	            visibility = "inline-block";
+	        } else {
+	            visibility = "none";
+	        }
+	        return React.createElement(
+	            Col,
+	            { xs: 12, className: 'show-grid mdl-card mdl-shadow--4dp upload-form' },
+	            React.createElement(
+	                Row,
+	                null,
+	                React.createElement('div', { style: { 'height': this.imgHeight + 'px', 'background': this.user.artist_image_url } }),
+	                React.createElement(
+	                    Col,
+	                    { xs: 12, md: 10, mdOffset: 1, lg: 8, lgOffset: 2 },
+	                    React.createElement(
+	                        'h4',
+	                        null,
+	                        'Upload an Artist Image'
+	                    ),
+	                    React.createElement(
+	                        'form',
+	                        null,
+	                        React.createElement(Input, { type: 'text', label: 'Description', valueLink: this.linkState('alt'), labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                        React.createElement(Input, { type: 'file', accept: 'image/*', className: 'btn', style: { "marginBottom": "10px" }, label: 'File', onChange: this.sayFile, labelClassName: 'col-xs-2', wrapperClassName: 'col-xs-10' }),
+	                        React.createElement(ButtonInput, { type: 'reset', value: 'Reset', style: { "marginBottom": "10px" }, wrapperClassName: 'col-xs-offset-2 col-xs-10' }),
+	                        React.createElement(ButtonInput, { value: this.submitText, disabled: this.uploadInProgress, onClick: this.handleSubmit, wrapperClassName: 'col-xs-offset-2 col-xs-2' }),
+	                        React.createElement('div', { ref: 'spinner', style: { "display": visibility }, className: 'mdl-spinner mdl-js-spinner is-active' })
+	                    )
+	                )
+	            )
+	        );
+	    }
+	});
+
+	module.exports = ArtistUpload;
+
+/***/ },
+/* 449 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Store = __webpack_require__(351).Store;
+	var Dispatcher = __webpack_require__(344);
+	var ImageStore = new Store(Dispatcher);
+
+	var DispatchConstants = __webpack_require__(348);
+
+	var AlertActions = __webpack_require__(349);
+
+	var _image;
+	var _uploaded = false;
+	var _empty = true;
+
+	ImageStore.populate = function (image) {
+	  _empty = false;
+	  _image = image;
+	};
+
+	ImageStore.getUploadedImage = function () {
+	  return _image;
+	};
+
+	ImageStore.uploadReady = function () {
+	  return _uploaded;
+	};
+
+	ImageStore.setImage = function (image) {
+	  _image = JSON.parse(image).image;
+	  _uploaded = true;
+	};
+
+	ImageStore.empty = function () {
+	  return _empty;
+	};
+
+	ImageStore.__onDispatch = function (payload) {
+	  switch (payload.actionType) {
+	    case DispatchConstants.IMAGE_UPLOAD_SUCCESS:
+	      AlertActions.success("Artist image successfully updated", 2000);
+	      ImageStore.setImage(payload.image);
+	      ImageStore.__emitChange();
+	      break;
+	    case DispatchConstants.IMAGE_UPLOAD_FAILURE:
+	      ImageStore.__emitChange();
+	      break;
+	    case DispatchConstants.FETCH_IMAGE:
+	      ImageStore.populate(payload.image);
+	      ImageStore.__emitChange();
+	      break;
+	  }
+	};
+
+	window.ImageStore = ImageStore;
+
+	module.exports = ImageStore;
+
+/***/ },
+/* 450 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var ReactDOM = __webpack_require__(1);
 	var React = __webpack_require__(147);
 
 	var TrackStore = __webpack_require__(437);
+	var UserStore = __webpack_require__(350);
 
 	var ApiActions = __webpack_require__(343);
 
-	var CommentForm = __webpack_require__(449);
-	var Comments = __webpack_require__(451);
+	var CommentForm = __webpack_require__(451);
+	var Comments = __webpack_require__(453);
 
 	var Col = __webpack_require__(435);
 	var Row = __webpack_require__(434);
 	var Panel = __webpack_require__(444);
 	var Button = __webpack_require__(210);
 	var Glyphicon = __webpack_require__(335);
-	var ProgressBar = __webpack_require__(453);
+	var ProgressBar = __webpack_require__(455);
 
 	var Api = __webpack_require__(342);
 	var progress = 0;
 
 	function build() {
 
-	  var audioElement = document.getElementById('audioElement');
-	  audioElement.crossOrigin = "anonymous";
-	  $('#audioElement').on('timeupdate', function () {
-	    $('#seekbar').attr("value", this.currentTime / this.duration);
-	  });
-	  var audioSrc = audioCtx.createMediaElementSource(audioElement);
-	  var analyser = audioCtx.createAnalyser();
+	   var audioElement = document.getElementById('audioElement');
+	   audioElement.crossOrigin = "anonymous";
+	   $('#audioElement').on('timeupdate', function () {
+	      $('#seekbar').attr("value", this.currentTime / this.duration);
+	   });
+	   var audioSrc = audioCtx.createMediaElementSource(audioElement);
+	   var analyser = audioCtx.createAnalyser();
 
-	  // Bind our analyser to the media element source.
-	  audioSrc.connect(analyser);
-	  audioSrc.connect(audioCtx.destination);
+	   // Bind our analyser to the media element source.
+	   audioSrc.connect(analyser);
+	   audioSrc.connect(audioCtx.destination);
 
-	  //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-	  var frequencyData = new Uint8Array(120);
+	   //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+	   var frequencyData = new Uint8Array(120);
 
-	  var contentWidth = $('#track-content').width();
+	   var contentWidth = $('#track-content').width();
 
-	  var svgHeight = '300';
-	  var svgWidth = contentWidth + 30;
-	  var barPadding = '1';
+	   var svgHeight = '300';
+	   var svgWidth = contentWidth + 30;
+	   var barPadding = '0';
 
-	  function createSvg(parent, height, width) {
-	    return d3.select(parent).insert('svg').attr('height', height).attr('width', width);
-	  }
+	   function createSvg(parent, height, width) {
+	      return d3.select(parent).insert('svg').attr('height', height).attr('width', width).attr('id', 'svg').style({ "background-color": "rgba(255,255,255,0.3)" });
+	   }
 
-	  var svg = createSvg('#destiny', svgHeight, svgWidth);
+	   var svg = createSvg('#destiny', svgHeight, svgWidth);
 
-	  // Create our initial D3 chart.
-	  svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
-	    return i * (svgWidth / frequencyData.length);
-	  }).attr('width', svgWidth / frequencyData.length - barPadding);
+	   // Create our initial D3 chart.
+	   svg.selectAll('rect').data(frequencyData).enter().append('rect').attr('x', function (d, i) {
+	      return i * (svgWidth / frequencyData.length);
+	   }).attr('width', svgWidth / frequencyData.length - barPadding);
 
-	  // Continuously loop and update chart with frequency data.
-	  function renderChart() {
-	    requestAnimationFrame(renderChart);
+	   // Continuously loop and update chart with frequency data.
+	   function renderChart() {
+	      requestAnimationFrame(renderChart);
 
-	    // Copy frequency data to frequencyData array.
-	    analyser.getByteFrequencyData(frequencyData);
+	      // Copy frequency data to frequencyData array.
+	      analyser.getByteFrequencyData(frequencyData);
 
-	    // Update d3 chart with new data.
-	    svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
-	      return svgHeight - d;
-	    }).attr('height', function (d) {
-	      return d;
-	    }).attr('fill', function (d) {
-	      return 'rgb(' + d + ', ' + d + ', 255)';
-	    });
-	  }
+	      // Update d3 chart with new data.
+	      svg.selectAll('rect').data(frequencyData).attr('y', function (d) {
+	         return svgHeight - d;
+	      }).attr('height', function (d) {
+	         return d;
+	      }).attr('fill', function (d) {
+	         return 'rgb(' + d + ', ' + d + ', 255)';
+	      });
+	   }
 
-	  // Run the loop
-	  renderChart();
+	   // Run the loop
+	   renderChart();
 	};
 
 	var Track = React.createClass({
-	  displayName: 'Track',
+	   displayName: 'Track',
 
-	  getInitialState() {
-	    return {
-	      track: {}
-	    };
-	  },
+	   getInitialState() {
+	      return {
+	         track: { title: "Song", author: "artist" }, artist: {}
+	      };
+	   },
 
-	  componentDidMount() {
-	    Api.fetchTracks();
-	    this.listenerToken = TrackStore.addListener(this._getTrack);
-	    build();
-	  },
+	   componentWillMount() {},
 
-	  componentWillUnmount() {
-	    this.listenerToken.remove();
-	  },
+	   componentDidMount() {
+	      Api.fetchTracks();
+	      // Api.getUserInfo(this.state.track.user_id);
+	      this.listenerToken = TrackStore.addListener(this._getTrack);
+	      // this.listenerToken2 = UserStore.addListener(this._getArtist);
+	      build();
+	      console.log(this.state.track);
+	   },
 
-	  componentDidUpdate() {
-	    componentHandler.upgradeDom();
-	  },
+	   componentWillUnmount() {
+	      this.listenerToken.remove();
+	   },
 
-	  getProgress() {
-	    return Math.round(progress * 100);
-	  },
+	   componentDidUpdate() {
+	      componentHandler.upgradeDom();
+	   },
 
-	  play() {
-	    ApiActions.stopPlayback();
-	    document.getElementById('audioElement').play();
-	  },
+	   getProgress() {
+	      return Math.round(progress * 100);
+	   },
 
-	  pause() {
-	    document.getElementById('audioElement').pause();
-	  },
+	   play() {
+	      ApiActions.stopPlayback();
+	      d3.select(svg).style({ "background-color": "rgba(255,255,255,1)" });
+	      document.getElementById('audioElement').play();
+	   },
 
-	  _getTrack() {
-	    this.setState({
-	      track: TrackStore.getTrackById(this.props.params.id)
-	    });
-	  },
+	   pause() {
+	      d3.select(svg).style({ "background-color": "rgba(255,255,255,0.5)" });
+	      document.getElementById('audioElement').pause();
+	   },
 
-	  render: function () {
-	    return React.createElement(
-	      Col,
-	      { xs: 12, id: 'track-content' },
-	      React.createElement(
-	        Row,
-	        null,
-	        React.createElement(
-	          Col,
-	          { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	          React.createElement(
-	            'span',
+	   _getTrack() {
+	      this.setState({
+	         track: TrackStore.getTrackById(this.props.params.id)
+	      });
+	   },
+
+	   // _getArtist(){
+	   //   this.setState({
+	   //     artist: UserStore.getPublicUser()
+	   //   })
+	   // },
+
+	   render: function () {
+	      return React.createElement(
+	         Col,
+	         { xs: 12, id: 'track-content' },
+	         React.createElement(
+	            Row,
 	            null,
 	            React.createElement(
-	              'h4',
-	              { style: { "display": "inline-block" } },
-	              this.state.track.title
+	               Col,
+	               { xs: 4, className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  React.createElement(
+	                     'h4',
+	                     { style: { "display": "inline-block" } },
+	                     this.state.track.title
+	                  ),
+	                  '  by  ',
+	                  React.createElement(
+	                     'a',
+	                     { href: '#/' + this.state.track.user_id + '/tracks' },
+	                     this.state.track.author
+	                  )
+	               )
 	            ),
-	            '  by  ',
 	            React.createElement(
-	              'a',
-	              { href: '#/' + this.state.track.user_id + '/tracks' },
-	              this.state.track.author
+	               Col,
+	               { xs: 8 },
+	               React.createElement(
+	                  'button',
+	                  { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	                  React.createElement(Glyphicon, { glyph: 'play' })
+	               ),
+	               ' ',
+	               React.createElement(
+	                  'button',
+	                  { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
+	                  React.createElement(Glyphicon, { glyph: 'pause' })
+	               )
 	            )
-	          )
-	        ),
-	        React.createElement(
-	          Col,
-	          { xs: 8 },
-	          React.createElement(
-	            'button',
-	            { onClick: this.play, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	            React.createElement(Glyphicon, { glyph: 'play' })
-	          ),
-	          ' ',
-	          React.createElement(
-	            'button',
-	            { onClick: this.pause, className: 'soup mdl-button mdl-js-button mdl-button--fab mdl-button--colored' },
-	            React.createElement(Glyphicon, { glyph: 'pause' })
-	          )
-	        )
-	      ),
-	      React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
-	      React.createElement(
-	        Row,
-	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	        React.createElement(
-	          Col,
-	          null,
-	          React.createElement('div', { id: 'destiny' })
-	        )
-	      ),
-	      React.createElement(
-	        Row,
-	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	        React.createElement(
-	          Col,
-	          { xs: 12 },
-	          React.createElement('br', null),
-	          React.createElement(
-	            'span',
-	            null,
-	            'Genre: ',
-	            this.state.track.genre
-	          ),
-	          React.createElement('br', null),
-	          React.createElement(
-	            'span',
-	            null,
-	            'Description: ',
-	            this.state.track.description
-	          ),
-	          React.createElement('br', null),
-	          React.createElement('br', null),
-	          React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
-	        )
-	      ),
-	      React.createElement(
-	        Row,
-	        { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
-	        React.createElement(
-	          Col,
-	          { xs: 12 },
-	          React.createElement(Comments, { track_id: this.props.params.id }),
-	          React.createElement(CommentForm, { track_id: this.props.params.id })
-	        )
-	      )
-	    );
-	  }
+	         ),
+	         React.createElement('progress', { id: 'seekbar', value: '0', max: '1', style: { "width": "100%" } }),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               null,
+	               React.createElement('div', { id: 'destiny', style: { "background": this.state.track.bg } })
+	            )
+	         ),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               { xs: 12 },
+	               React.createElement('br', null),
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  'Genre: ',
+	                  this.state.track.genre
+	               ),
+	               React.createElement('br', null),
+	               React.createElement(
+	                  'span',
+	                  null,
+	                  'Description: ',
+	                  this.state.track.description
+	               ),
+	               React.createElement('br', null),
+	               React.createElement('br', null),
+	               React.createElement('audio', { src: this.state.track.src, preload: 'auto', id: 'audioElement' })
+	            )
+	         ),
+	         React.createElement(
+	            Row,
+	            { className: 'show-grid mdl-card mdl-shadow--4dp card-space' },
+	            React.createElement(
+	               Col,
+	               { xs: 12 },
+	               React.createElement(Comments, { track_id: this.props.params.id }),
+	               React.createElement(CommentForm, { track_id: this.props.params.id })
+	            )
+	         )
+	      );
+	   }
 	});
 
 	module.exports = Track;
 
 /***/ },
-/* 449 */
+/* 451 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(147);
 	var LinkedStateMixin = __webpack_require__(243);
 
 	var Api = __webpack_require__(342);
-	var CommentStore = __webpack_require__(450);
+	var CommentStore = __webpack_require__(452);
 	var UserStore = __webpack_require__(350);
 
 	var Input = __webpack_require__(331);
@@ -44039,7 +44341,7 @@
 	module.exports = CommentForm;
 
 /***/ },
-/* 450 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Store = __webpack_require__(351).Store;
@@ -44085,17 +44387,17 @@
 	module.exports = CommentStore;
 
 /***/ },
-/* 451 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(147);
 	var LinkedStateMixin = __webpack_require__(243);
 
 	var Api = __webpack_require__(342);
-	var CommentStore = __webpack_require__(450);
+	var CommentStore = __webpack_require__(452);
 
 	var Row = __webpack_require__(434);
-	var Well = __webpack_require__(452);
+	var Well = __webpack_require__(454);
 	var Col = __webpack_require__(435);
 	var Comments = React.createClass({
 	    displayName: 'Comments',
@@ -44155,7 +44457,7 @@
 	module.exports = Comments;
 
 /***/ },
-/* 452 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44213,7 +44515,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 453 */
+/* 455 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44234,7 +44536,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Interpolate = __webpack_require__(454);
+	var _Interpolate = __webpack_require__(456);
 
 	var _Interpolate2 = _interopRequireDefault(_Interpolate);
 
@@ -44416,7 +44718,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 454 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// https://www.npmjs.org/package/react-interpolate-component
@@ -44518,7 +44820,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 455 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var ReactDOM = __webpack_require__(1);
@@ -44566,6 +44868,27 @@
 
 	  play(track) {
 	    ApiActions.startPlayback(track);
+	    if (!!document.getElementById('player')) {
+	      document.getElementById('player').play();
+	    }
+	  },
+
+	  pause(track) {
+	    ApiActions.pausePlayback(track);
+	    document.getElementById('player').pause();
+	  },
+
+	  isPaused(id) {
+	    if (TrackStore.getStickyTrackId() === id) {
+
+	      if (TrackStore.paused()) {
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    } else {
+	      return true;
+	    }
 	  },
 
 	  render() {
@@ -44595,12 +44918,17 @@
 	            { key: idx, xs: 4, style: trackStyle, className: 'track-element show-grid mdl-card mdl-shadow--4dp card-space' },
 	            React.createElement(
 	              Panel,
-	              { header: track.title, bsStyle: 'primary', style: { "margin": "0" } },
-	              React.createElement(
+	              { header: track.title, bsStyle: 'primary', style: { "margin": "0", 'background': track.bg } },
+	              this.isPaused(track.id) ? React.createElement(
 	                Button,
 	                { bsSize: 'large', onClick: this.play.bind(this, track) },
 	                React.createElement(Glyphicon, { glyph: 'play' }),
 	                ' Play'
+	              ) : React.createElement(
+	                Button,
+	                { bsSize: 'large', onClick: this.pause.bind(this, track) },
+	                React.createElement(Glyphicon, { glyph: 'pause' }),
+	                ' Pause'
 	              ),
 	              ' ',
 	              React.createElement(
@@ -44620,7 +44948,7 @@
 	module.exports = MyTracks;
 
 /***/ },
-/* 456 */
+/* 458 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(147);
@@ -44649,7 +44977,12 @@
 	    };
 	  },
 
+	  componentWillMount() {
+	    visibility = "inline-block";
+	  },
+
 	  componentDidMount() {
+	    componentHandler.upgradeDom();
 	    Api.fetchTracks();
 	    this.listenerToken = TrackStore.addListener(this._gotTracks);
 	  },
@@ -44659,6 +44992,7 @@
 	  },
 
 	  _gotTracks() {
+	    visibility = "none";
 	    this.setState({
 	      tracks: TrackStore.getAllTracks()
 	    });
@@ -44666,6 +45000,28 @@
 
 	  play(track) {
 	    ApiActions.startPlayback(track);
+	    //console.log("sticky track id is:" + TrackStore.getStickyTrackId());
+	    if (!!document.getElementById('player')) {
+	      document.getElementById('player').play();
+	    }
+	  },
+
+	  pause(track) {
+	    ApiActions.pausePlayback(track);
+	    document.getElementById('player').pause();
+	  },
+
+	  isPaused(id) {
+	    if (TrackStore.getStickyTrackId() === id) {
+
+	      if (TrackStore.paused()) {
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    } else {
+	      return true;
+	    }
 	  },
 
 	  render: function () {
@@ -44678,6 +45034,8 @@
 	        { style: { "textAlign": "center" } },
 	        'Explore all Tracks'
 	      ),
+	      React.createElement('div', { style: { "display": visibility, 'margin': "auto" }, className: 'mdl-spinner mdl-js-spinner is-active' }),
+	      React.createElement('br', null),
 	      React.createElement(
 	        Row,
 	        null,
@@ -44704,11 +45062,16 @@
 	                track.author
 	              ),
 	              React.createElement('hr', null),
-	              React.createElement(
+	              this.isPaused(track.id) ? React.createElement(
 	                Button,
 	                { bsSize: 'large', onClick: this.play.bind(this, track) },
 	                React.createElement(Glyphicon, { glyph: 'play' }),
 	                ' Play'
+	              ) : React.createElement(
+	                Button,
+	                { bsSize: 'large', onClick: this.pause.bind(this, track) },
+	                React.createElement(Glyphicon, { glyph: 'pause' }),
+	                ' Pause'
 	              ),
 	              ' ',
 	              React.createElement(

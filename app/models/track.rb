@@ -1,6 +1,7 @@
 class Track < ActiveRecord::Base
 	validates :title, :description, :genre, :file, :user_id, :play_count, presence: true
 	belongs_to :user
+	has_many :artist_images, through: :user
 
 	has_attached_file :file,
                     :storage => :s3,
@@ -15,6 +16,14 @@ class Track < ActiveRecord::Base
 
 	def cdn 
 		"http://s3-us-west-2.amazonaws.com/trackwaveaudio" + self.file.path
+	end
+
+	def artist_image
+		if !self.artist_images.empty?
+			return "url(http://s3-us-west-2.amazonaws.com/trackwaveaudio" + self.artist_images.last.file.path + ")"
+		else
+			return ""
+		end
 	end
 
 end

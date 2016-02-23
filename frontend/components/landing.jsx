@@ -23,7 +23,13 @@ var Landing = React.createClass({
         }
     },
 
+    componentWillMount() {
+        visibility = "inline-block";
+    },
+
+
     componentDidMount() {
+        componentHandler.upgradeDom();
         Api.fetchTracks();
           this.listenerToken = TrackStore.addListener(this._gotTracks);
     },
@@ -33,6 +39,7 @@ var Landing = React.createClass({
     },
 
     _gotTracks() {
+      visibility = "none";
       this.setState({
         tracks: TrackStore.getAllTracks().slice(0, 12)
       })
@@ -40,7 +47,6 @@ var Landing = React.createClass({
 
     play(track){
       ApiActions.startPlayback(track);
-      console.log("sticky track id is:" + TrackStore.getStickyTrackId());
       if(!!document.getElementById('player')){
         document.getElementById('player').play();
       }
@@ -52,20 +58,15 @@ var Landing = React.createClass({
     },
 
     isPaused(id){
-      //console.log(TrackStore.getStickyTrackId());
       if(TrackStore.getStickyTrackId() === id){
 
         if(TrackStore.paused()){
-          console.log("match and paused");
           return true;
         } else {
           return false;
-          console.log("match and not paused");
         }
-        
       } else {
         return true;
-        console.log("no match");
       }
     },
 
@@ -77,16 +78,16 @@ var Landing = React.createClass({
       	<Row>
       		<Col xs={12} className="text-center" >
       			<h4>Trending now:</h4>
+             <div  style={{"display": visibility, 'margin':"auto"}} className="mdl-spinner mdl-js-spinner is-active"></div>
       		</Col>
       	</Row>
         <Row>
           {
             this.state.tracks.map(function(track, idx){
-              //console.log(track);
               return(
                 
                   <Col key={idx} xs={4} style={trackStyle} className="track-element-landing card-space">
-                       <Panel header={track.title} style={{"margin": "0"}}>
+                       <Panel header={track.title} style={{"margin": "0", 'background': track.bg}}>
                         {this.isPaused(track.id) ?  <Button bsSize="large" onClick={this.play.bind(this, track)} ><Glyphicon glyph="play" /> Play</Button> : <Button bsSize="large" onClick={this.pause.bind(this, track)} ><Glyphicon glyph="pause" /> Pause</Button> }
                         &nbsp;
                         <Button bsSize="large" href={"#/track/" + track.id} ><Glyphicon glyph="chevron-right" /> Track Detail</Button>

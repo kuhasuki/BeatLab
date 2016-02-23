@@ -27,7 +27,6 @@ var ApiActions = {
       });
 
     } else {
-      console.log("isnt error");
       Dispatcher.dispatch({
         actionType: DispatchConstants.REGISTRATION_SUCCESS,
         user: data
@@ -65,6 +64,20 @@ var ApiActions = {
     }); 
   },
 
+  imageUploadSuccess: function(data){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.IMAGE_UPLOAD_SUCCESS,
+      image: data
+    }); 
+  },
+
+  imageUploadFailure: function(data){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.IMAGE_UPLOAD_FAILURE,
+      errors: data.errors
+    }); 
+  },
+
   fetchTracks: function(data){
     Dispatcher.dispatch({
       actionType: DispatchConstants.FETCH_TRACKS,
@@ -76,6 +89,13 @@ var ApiActions = {
     Dispatcher.dispatch({
       actionType: DispatchConstants.FETCH_MY_TRACKS,
       tracks: data
+    }); 
+  },
+
+  fetchMyImage: function(data){
+    Dispatcher.dispatch({
+      actionType: DispatchConstants.FETCH_IMAGE,
+      image: data
     }); 
   },
 
